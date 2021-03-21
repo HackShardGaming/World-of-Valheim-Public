@@ -1,3 +1,4 @@
+@echo off
 set CUR_DIR=%~dp0
 
 set MOD_NAME=ValheimOnline
@@ -10,15 +11,18 @@ set MOD_DLL=%MOD_DIR%\bin\Debug\%MOD_NAME%.dll
 
 set PLUGIN_DIR=BepInEx\plugins
 
-echo "%MOD_DLL% -> %SERVER_DIR%\%PLUGIN_DIR%\%MOD_NAME%.dll"
-copy "%MOD_DLL%" "%SERVER_DIR%\%PLUGIN_DIR%\%MOD_NAME%.dll"
+REM Send the mod to a server for testing.
+if exist "%SERVER_DIR%\%PLUGIN_DIR%\%MOD_NAME%.dll" (
+	echo "%MOD_DLL% -> %SERVER_DIR%\%PLUGIN_DIR%\%MOD_NAME%.dll"
+	copy "%MOD_DLL%" "%SERVER_DIR%\%PLUGIN_DIR%\%MOD_NAME%.dll"
+) else (
+  echo "WARNING: Output Directory Does not exist."
+)
 
-
-echo "%MOD_DLL% -> %PLAYER_DIR%\%PLUGIN_DIR%\%MOD_NAME%.dll"
-copy "%MOD_DLL%" "%PLAYER_DIR%\%PLUGIN_DIR%\%MOD_NAME%.dll"
-
-
-REM copy %MOD_DIR%\bin\Debug\%MOD_NAME%.dll %PLUGIN_OUT%
-REM "C:\Program Files\7-Zip\7z.exe" a %PLUGIN_OUT%\%MOD_NAME%.zip %PLUGIN_OUT%\%MOD_NAME%.dll
-
-REM pause
+REM Send the mod to the client for testing.
+if exist "%PLAYER_DIR%\%PLUGIN_DIR%\%MOD_NAME%.dll" (
+	echo "%MOD_DLL% -> %PLAYER_DIR%\%PLUGIN_DIR%\%MOD_NAME%.dll"
+	copy "%MOD_DLL%" "%PLAYER_DIR%\%PLUGIN_DIR%\%MOD_NAME%.dll"
+) else (
+  echo "WARNING: Output Directory Does not exist."
+)
