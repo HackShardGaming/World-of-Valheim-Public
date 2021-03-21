@@ -1,12 +1,11 @@
-﻿using System;
-using System.CodeDom.Compiler;
+﻿using System.CodeDom.Compiler;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Resources;
 using System.Runtime.CompilerServices;
 
-namespace VOnline.Properties
+namespace ValheimOnline.Properties
 {
 
 	[GeneratedCode("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
@@ -26,7 +25,7 @@ namespace VOnline.Properties
 			{
 				if (Resources.resourceMan == null)
 				{
-					Resources.resourceMan = new ResourceManager("VOnline.Properties.Resources", typeof(Resources).Assembly);
+					Resources.resourceMan = new ResourceManager("ValheimOnline.Properties.Resources", typeof(Resources).Assembly);
 				}
 				return Resources.resourceMan;
 			}
@@ -56,5 +55,6 @@ namespace VOnline.Properties
 		private static ResourceManager resourceMan;
 
 		private static CultureInfo resourceCulture;
-	}
+
+    }
 }

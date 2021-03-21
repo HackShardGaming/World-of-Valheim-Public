@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace VOnline
+namespace ValheimOnline
 {
 
 	public static class RPC

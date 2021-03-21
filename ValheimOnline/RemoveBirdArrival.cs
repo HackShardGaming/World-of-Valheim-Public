@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using HarmonyLib;
 
-namespace VOnline
+namespace ValheimOnline
 {
 
 	[HarmonyPatch(typeof(Game), "UpdateRespawn")]

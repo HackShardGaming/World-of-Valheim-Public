@@ -4,7 +4,7 @@ using HarmonyLib;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace VOnline
+namespace ValheimOnline
 {
 
 	[HarmonyPatch]
@@ -15,7 +15,7 @@ namespace VOnline
 		[HarmonyPatch(typeof(ChangeLog), "Start")]
 		private static void ChangeLog__Start(ref TextAsset ___m_changeLog)
 		{
-			string str = string.Format("2021-03-11 {0} v{1}\n", "VOnline", "0.1") + "* Server-side characters: when the client connects to the server, it is provided with a character to use by the server. The server maintains ownership of the client's character.\n* Safe Zones: In Valheim Online, most of the world is known as \"wilderness\". In the wilderness, PvP is forced on and map marker sharing off. Server admins can specify one or more safe zones which have PvP forced off.\n* Damn That Crow: The \"I have arrived\" shout does not belong in a persistent world. It has been removed.\n\n";
+			string str = string.Format("{0} {1} v{2}\n", ModInfo.GetBuildDate(), ModInfo.Name, ModInfo.Version) + "* Server-side characters: when the client connects to the server, it is provided with a character to use by the server. The server maintains ownership of the client's character.\n* Safe Zones: In Valheim Online, most of the world is known as \"wilderness\". In the wilderness, PvP is forced on and map marker sharing off. Server admins can specify one or more safe zones which have PvP forced off.\n* Damn That Crow: The \"I have arrived\" shout does not belong in a persistent world. It has been removed.\n\n";
 			___m_changeLog = new TextAsset(str + ___m_changeLog.text);
 		}
 
@@ -23,7 +23,7 @@ namespace VOnline
 		[HarmonyPatch(typeof(Version), "GetVersionString")]
 		private static void Version__GetVersionString(ref string __result)
 		{
-			__result = string.Format("{0} ({1} v{2})", __result, "VOnline", "0.1");
+			__result = string.Format("{0} ({1} v{2})", __result, "ValheimOnline", "0.1");
 		}
 
 		[HarmonyPostfix]
@@ -57,7 +57,7 @@ namespace VOnline
 					while (enumerator.MoveNext())
 					{
 						ServerState.ConnectionData connectionData = enumerator.Current;
-						if (realtimeSinceStartup - connectionData.last_save_time >= (float)Valheim_Online.ServerSaveInterval.Value)
+						if (realtimeSinceStartup - connectionData.last_save_time >= (float)ValheimOnline.ServerSaveInterval.Value)
 						{
 							connectionData.rpc.Invoke("ServerVaultUpdate", new object[]
 							{
@@ -83,7 +83,9 @@ namespace VOnline
 					Player.m_localPlayer.Message(MessageHud.MessageType.Center, "You are now in the wilderness", 0, null);
 					ServerState.ClientInSafeZone = false;
 				}
+#if PVPHandler
 				Player.m_localPlayer.SetPVP(!flag);
+#endif
 				ZNet.instance.SetPublicReferencePosition(flag);
 			}
 			if (ServerState.ClientMayDisconnect)

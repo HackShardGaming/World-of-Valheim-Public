@@ -5,9 +5,8 @@ using System.IO.Compression;
 using System.Reflection;
 using HarmonyLib;
 using UnityEngine;
-using VOnline.Properties;
 
-namespace VOnline
+namespace ValheimOnline
 {
 
 	public static class Util
@@ -29,7 +28,7 @@ namespace VOnline
 
 		public static string GetCharacterPathForSteamId(string id)
 		{
-			return Path.Combine(Valheim_Online.ServerVaultPath.Value, id, "current.voc");
+			return Path.Combine(ValheimOnline.ServerVaultPath.Value, id, "current.voc");
 		}
 
 		public static ZPackage Compress(ZPackage package)
@@ -185,9 +184,9 @@ namespace VOnline
 			{
 				Debug.Log("Character does not exist, using default character.");
 				Directory.CreateDirectory(Path.GetDirectoryName(characterPathForSteamId));
-				File.WriteAllBytes(characterPathForSteamId, VOnline.Properties.Resources._default);
+				File.WriteAllBytes(characterPathForSteamId, global::ValheimOnline.Properties.Resources._default);
 			}
-			ZPackage result;
+		   ZPackage result;
 			using (FileStream fileStream = File.OpenRead(characterPathForSteamId))
 			{
 				using (BinaryReader binaryReader = new BinaryReader(fileStream))

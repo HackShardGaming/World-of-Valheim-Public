@@ -1,7 +1,6 @@
-﻿using System;
-using HarmonyLib;
+﻿using HarmonyLib;
 
-namespace VOnline
+namespace ValheimOnline
 {
 
 	[HarmonyPatch]
@@ -14,7 +13,7 @@ namespace VOnline
 
 		public static void Log(string str)
 		{
-			System.Console.WriteLine("VONLINE: " + str);
+			System.Console.WriteLine("Valheim Online: " + str);
 		}
 	}
 }

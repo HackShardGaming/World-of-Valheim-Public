@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace VOnline
+namespace ValheimOnline
 {
 
 	public static class ServerState

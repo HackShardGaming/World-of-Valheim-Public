@@ -2,7 +2,7 @@
 using HarmonyLib;
 using UnityEngine;
 
-namespace VOnline
+namespace ValheimOnline
 {
 	[HarmonyPatch]
 	public static class LoadServerCharacterOnClient
