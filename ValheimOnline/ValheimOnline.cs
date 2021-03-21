@@ -7,7 +7,7 @@ using HarmonyLib;
 namespace ValheimOnline
 {
 
-	[BepInPlugin("ValheimOnline", ModInfo.Name, ModInfo.Version)]
+	[BepInPlugin(ModInfo.Guid, ModInfo.Name, ModInfo.Version)]
 	public class ValheimOnline : BaseUnityPlugin
     {
         public const string Name = ModInfo.Name;
@@ -22,7 +22,7 @@ namespace ValheimOnline
 
 		public void Awake()
 		{
-			new Harmony("ValheimOnline").PatchAll();
+			new Harmony(ModInfo.Guid).PatchAll();
             ValheimOnline.ServerVaultPath = base.Config.Bind<string>("ValheimOnline", "ServerVaultPath", Path.Combine(Utils.GetSaveDataPath(), "characters_vault"), "SERVER ONLY: The root directory for the server vault.");
             ValheimOnline.ServerSafeZonePath = base.Config.Bind<string>("ValheimOnline", "ServerSafeZonePath", Path.Combine(Utils.GetSaveDataPath(), "safe_zones.txt"), "SERVER ONLY: The file path to the safe zone file. If it does not exist, it will be created with a default safe zone.");
             ValheimOnline.ServerBattleZonePath = base.Config.Bind<string>("ValheimOnline", "ServerBattleZonePath", Path.Combine(Utils.GetSaveDataPath(), "Battle_zones.txt"), "SERVER ONLY: The file path to the Battle zone file. If it does not exist, it will be created with a default Battle zone.");

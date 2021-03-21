@@ -7,7 +7,7 @@ namespace ValheimOnline
     public static class ModInfo
     {
         public const string Name = "ValheimOnline";
-        public const string Guid = "ValheimOnline";
+        public const string Guid = "HackShardGaming.ValheimOnline";
         public const string Version = "0.1.0.0";
 
 
