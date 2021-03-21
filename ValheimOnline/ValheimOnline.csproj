@@ -63,9 +63,6 @@
     <Reference Include="UnityEngine.UI">
       <HintPath>..\libs\UnityEngine.UI.dll</HintPath>
     </Reference>
-    <Reference Include="CustomDictionary.UI">
-      <HintPath>..\CustomDictionary.xml</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <AppDesigner Include="Properties\" />
