@@ -5,7 +5,9 @@
 - [X] Reproducability with the original dll.
 - [X] Analyzed original project for new feature capabilities.
 - [X] Release version 0.1 with removed PVP for people to use (Temporary).
-- [ ] Add PVP toggle capabilites for server
+- [X] Add PVP toggle capabilites for clients
+- [ ] Make PVP settings server only (RPC calls)
+- [ ] Mode to change visibility
 - [ ] Add PVP "Safe Zone" support back in
 - [ ] Introduce "Battle Zone" support
 - [ ] Introduce local client save for user retention (Make me happy to have my character saved local)
