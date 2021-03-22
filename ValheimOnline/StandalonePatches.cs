@@ -11,8 +11,9 @@ namespace ValheimOnline
     public static class StandalonePatches
     {
 
+#if CHANGELOG_EN
         // Patches assembly_valheim::ChangeLog::Start
-        // Attaches our mod details to the games changelog.
+        // Attaches our mod details to the games changelog
         [HarmonyPrefix]
         [HarmonyPatch(typeof(ChangeLog), "Start")]
         private static void ChangeLog__Start(ref TextAsset ___m_changeLog)
@@ -20,6 +21,7 @@ namespace ValheimOnline
             string str = $"{ModInfo.GetBuildDate()} {ModInfo.Name} v{ModInfo.Version}\n" + "* Server-side characters: when the client connects to the server, it is provided with a character to use by the server. The server maintains ownership of the client's character.\n* Safe Zones: In Valheim Online, most of the world is known as \"wilderness\". In the wilderness, PvP is forced on and map marker sharing off. Server admins can specify one or more safe zones which have PvP forced off.\n* Damn That Crow: The \"I have arrived\" shout does not belong in a persistent world. It has been removed.\n\n";
             ___m_changeLog = new TextAsset(str + ___m_changeLog.text);
         }
+#endif
 
         // Patches assembly_valheim::Version::GetVersionString
         // Links in our version detail to override games original one to maintain compatibility
