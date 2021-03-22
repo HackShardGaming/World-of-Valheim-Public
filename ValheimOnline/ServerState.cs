@@ -14,6 +14,11 @@ namespace ValheimOnline
 
 		public static bool ClientInSafeZone = false;
 
+        public static bool PVPEnforced = true;
+        public static bool PVPMode = false;
+        public static bool PVPSharePosition = true;
+
+
 		public static List<ServerState.ConnectionData> Connections = new List<ServerState.ConnectionData>();
 
 		public static List<ServerState.SafeZone> SafeZones = new List<ServerState.SafeZone>();
@@ -35,5 +40,14 @@ namespace ValheimOnline
 
 			public float radius;
 		}
+        public struct BattleZone
+        {
+
+            public string name;
+
+            public Vector2 position;
+
+            public float radius;
+        }
 	}
 }

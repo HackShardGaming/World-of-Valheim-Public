@@ -2,7 +2,7 @@
 
 namespace ValheimOnline
 {
-
+	// Debug Patch Class
 	[HarmonyPatch]
 	public static class Debug
 	{

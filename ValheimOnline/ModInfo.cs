@@ -8,8 +8,9 @@ namespace ValheimOnline
     {
         public const string Name = "ValheimOnline";
         public const string Guid = "HackShardGaming.ValheimOnline";
-        public const string Version = "0.1.0.0";
-
+        // Version follow Semantic Versioning Scheme (https://semver.org/)
+        public const string Version = "0.2.1";
+        public const string buildDate = "2021-03-22";
 
         // Use GetBuildDate(Assembly.GetExecutingAssembly()); to get build date
         private static DateTime m_GetBuildDate(Assembly assembly)
@@ -36,8 +37,9 @@ namespace ValheimOnline
 
         public static String GetBuildDate()
         {
-            DateTime buildDate = m_GetBuildDate(Assembly.GetExecutingAssembly());
-            return buildDate.ToString("yyyy-MM-dd");
+            return ModInfo.buildDate;
+            //DateTime buildDate = m_GetBuildDate(Assembly.GetExecutingAssembly());
+            //return buildDate.ToString("yyyy-MM-dd");
         }
     }
 }

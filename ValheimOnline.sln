@@ -8,6 +8,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utilities", "Utilities", "{8B35FA93-A7E7-447F-BEB5-15A9F73DD1FE}"
 	ProjectSection(SolutionItems) = preProject
 		copyDll.bat = copyDll.bat
+		README.md = README.md
+		TestGame.bat = TestGame.bat
+		TODO.md = TODO.md
 	EndProjectSection
 EndProject
 Global

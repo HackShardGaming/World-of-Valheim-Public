@@ -19,20 +19,23 @@ namespace ValheimOnline
         public static ConfigEntry<string> ServerBattleZonePath;
 		public static ConfigEntry<int> ServerSaveInterval;
         public static ConfigEntry<bool> ServerPvpEnforced;
+        public static ConfigEntry<bool> PVPSharePosition;
 
 		public void Awake()
 		{
-			new Harmony(ModInfo.Guid).PatchAll();
             ValheimOnline.ServerVaultPath = base.Config.Bind<string>("ValheimOnline", "ServerVaultPath", Path.Combine(Utils.GetSaveDataPath(), "characters_vault"), "SERVER ONLY: The root directory for the server vault.");
             ValheimOnline.ServerSafeZonePath = base.Config.Bind<string>("ValheimOnline", "ServerSafeZonePath", Path.Combine(Utils.GetSaveDataPath(), "safe_zones.txt"), "SERVER ONLY: The file path to the safe zone file. If it does not exist, it will be created with a default safe zone.");
             ValheimOnline.ServerBattleZonePath = base.Config.Bind<string>("ValheimOnline", "ServerBattleZonePath", Path.Combine(Utils.GetSaveDataPath(), "Battle_zones.txt"), "SERVER ONLY: The file path to the Battle zone file. If it does not exist, it will be created with a default Battle zone.");
 			ValheimOnline.ServerSaveInterval = base.Config.Bind<int>("ValheimOnline", "ServerSaveInterval", 600, "SERVER ONLY: How often, in seconds, to save a copy of each character. Too low may result in performance issues. Too high may result in lost data in the event of a server crash.");
-            ValheimOnline.ServerPvpEnforced = base.Config.Bind<bool>("ValheimOnline", "ServerPvpEnforced", true, "SERVER ONLY: Enforce the servers PVP mode and prevent users from changing.");
+            ValheimOnline.ServerPvpEnforced = base.Config.Bind<bool>("ValheimOnline", "ServerPvpEnforced", false, "SERVER ONLY: Enforce the servers PVP mode and prevent users from changing.");
+			ValheimOnline.PVPSharePosition = base.Config.Bind<bool>("ValheimOnline", "PVPSharePosition", true, "SERVER ONLY: Shows the user on the MAP.");
+			new Harmony(ModInfo.Guid).PatchAll();
 
+            ServerState.PVPEnforced = ValheimOnline.ServerPvpEnforced.Value;
+            ServerState.PVPSharePosition = ValheimOnline.PVPSharePosition.Value;
 			/*
 			 * Setup safe zones.
 			 */
-
 
 			if (!File.Exists(ValheimOnline.ServerSafeZonePath.Value))
 			{
