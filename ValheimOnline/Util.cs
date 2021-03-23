@@ -184,7 +184,7 @@ namespace ValheimOnline
 			{
 				Debug.Log("Character does not exist, using default character.");
 				Directory.CreateDirectory(Path.GetDirectoryName(characterPathForSteamId));
-				File.WriteAllBytes(characterPathForSteamId, global::ValheimOnline.Properties.Resources._default);
+				File.WriteAllBytes(characterPathForSteamId, global::ValheimOnline.Properties.Resources._default_character);
 			}
 		   ZPackage result;
 			using (FileStream fileStream = File.OpenRead(characterPathForSteamId))

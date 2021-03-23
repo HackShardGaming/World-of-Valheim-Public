@@ -63,9 +63,9 @@ namespace ValheimOnline.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] _default {
+        internal static byte[] _default_character {
             get {
-                object obj = ResourceManager.GetObject("_default", resourceCulture);
+                object obj = ResourceManager.GetObject("_default_character", resourceCulture);
                 return ((byte[])(obj));
             }
         }
