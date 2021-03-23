@@ -215,7 +215,7 @@ namespace ValheimOnline
 				Directory.CreateDirectory(Path.GetDirectoryName(characterPathForSteamId));
 				File.WriteAllBytes(characterPathForSteamId, ServerState.default_character);
 			}
-		   ZPackage result;
+            ZPackage result;
 			using (FileStream fileStream = File.OpenRead(characterPathForSteamId))
 			{
 				using (BinaryReader binaryReader = new BinaryReader(fileStream))

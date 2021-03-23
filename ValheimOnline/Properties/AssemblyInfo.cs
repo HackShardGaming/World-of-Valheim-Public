@@ -1,21 +1,20 @@
-﻿using System;
-using System.Diagnostics;
-using System.Reflection;
-using System.Runtime.CompilerServices;
+﻿using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Runtime.Versioning;
-using System.Security;
 using System.Security.Permissions;
+using ValheimOnline;
 
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyTitle("Valheim Online")]
+[assembly: AssemblyVersion(ModInfo.Version)]
+[assembly: AssemblyTitle(ModInfo.Title)]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Valheim Online")]
-[assembly: AssemblyCopyright("Copyright ©  2021")]
+[assembly: AssemblyCompany(ModInfo.Group)]
+[assembly: AssemblyProduct(ModInfo.Title)]
+[assembly: AssemblyCopyright("Copyright © 2021 " + ModInfo.Group )]
 [assembly: AssemblyTrademark("")]
 [assembly: ComVisible(false)]
 [assembly: Guid("2456fe17-9a22-4397-9354-f0c8062715cb")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyFileVersion(ModInfo.Version)]
+
+#pragma warning disable CS0618 // Type or member is obsolete
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
+#pragma warning restore CS0618 // Type or member is obsolete

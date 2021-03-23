@@ -198,7 +198,7 @@ namespace ValheimOnline
         [HarmonyPatch(typeof(ZNet), "OnNewConnection")]
         private static void ZNet__OnNewConnection(ZNet __instance, ZNetPeer peer)
         {
-            Debug.Log($"Server PVP Enforce: {ValheimOnline.ServerPvpEnforced.Value}");
+            Debug.Log($"Server PVP Enforce: {ServerState.ServerForcePVP}");
             if (!__instance.IsServer())
             {
                 peer.m_rpc.Register<ZPackage>("ServerVaultData", new Action<ZRpc, ZPackage>(RPC.ServerVaultData));
