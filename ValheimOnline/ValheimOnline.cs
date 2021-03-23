@@ -46,7 +46,7 @@ namespace ValheimOnline
 
             ServerState.PVPEnforced = ValheimOnline.ServerPvpEnforced.Value;
             ServerState.PVPSharePosition = ValheimOnline.PVPSharePosition.Value;
-            ServerState.ServerForcePVP = ValheimOnline.ServerPvpEnforced.Value;
+            ServerState.ServerForcePVP = ValheimOnline.ServerForcePVP.Value;
 
 			/*
              * Setup default character file for server to use.
