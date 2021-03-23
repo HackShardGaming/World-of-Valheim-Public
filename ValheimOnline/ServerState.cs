@@ -18,6 +18,7 @@ namespace ValheimOnline
         public static bool PVPMode = false;
         public static bool PVPSharePosition = true;
 
+        public static byte[] default_character = global::ValheimOnline.Properties.Resources._default_character;
 
 		public static List<ServerState.ConnectionData> Connections = new List<ServerState.ConnectionData>();
 

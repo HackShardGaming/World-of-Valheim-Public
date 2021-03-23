@@ -117,13 +117,8 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-    <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="_default" type="System.Byte[], mscorlib">
-    <value>
-        7AAAACEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABxQAAABgAAAAAAMhCAADIQgAAyEIB
-        8CN0SQAAAAAAZwAAAAIAAAAFVG9yY2gBAAAAAACgQQAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAADkFy
-        bW9yUmFnc0NoZXN0AQAAAAAASEMAAAAAAwAAAAEBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        AAAAAAAAAAAAAAAAAAAAAAAAAABmZiY/ZmYmP2ZmJj/NzAw/pNHHPru6ij4AAAAAAAAAAAIAAAAAAAAA
-    </value>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="_default_character" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>default_character.fch;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
 </root>

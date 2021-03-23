@@ -14,7 +14,7 @@ namespace ValheimOnline
 
 		public static void WriteCharacter(string path, byte[] data)
 		{
-			Debug.Log(string.Format("Writing character to {0}.", path));
+			Debug.Log($"Writing character to {path}.");
 			Directory.CreateDirectory(Path.GetDirectoryName(path));
 			using (FileStream fileStream = File.OpenWrite(path))
 			{
@@ -179,12 +179,12 @@ namespace ValheimOnline
 		public static ZPackage LoadOrMakeCharacter(string steamid)
 		{
 			string characterPathForSteamId = Util.GetCharacterPathForSteamId(steamid);
-			Debug.Log(string.Format("Attempting to load character {0}.", characterPathForSteamId));
+			Debug.Log($"Attempting to load character {characterPathForSteamId}.");
 			if (!File.Exists(characterPathForSteamId))
 			{
 				Debug.Log("Character does not exist, using default character.");
 				Directory.CreateDirectory(Path.GetDirectoryName(characterPathForSteamId));
-				File.WriteAllBytes(characterPathForSteamId, global::ValheimOnline.Properties.Resources._default);
+				File.WriteAllBytes(characterPathForSteamId, ServerState.default_character);
 			}
 		   ZPackage result;
 			using (FileStream fileStream = File.OpenRead(characterPathForSteamId))
