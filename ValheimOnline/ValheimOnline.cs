@@ -21,6 +21,9 @@ namespace ValheimOnline
         public static ConfigEntry<int> ServerSaveInterval;
         public static ConfigEntry<bool> ServerPvpEnforced;
         public static ConfigEntry<bool> PVPSharePosition;
+		public static ConfigEntry<bool> AllowCharacterSave;
+		public static ConfigEntry<bool> AllowSinglePlayer;
+		public static ConfigEntry<bool> ServerForcePVP;
 
         public void Awake()
         {
@@ -30,8 +33,11 @@ namespace ValheimOnline
             ValheimOnline.ServerBattleZonePath = base.Config.Bind<string>("ValheimOnline", "ServerBattleZonePath", Path.Combine(Utils.GetSaveDataPath(), "Battle_zones.txt"), "SERVER ONLY: The file path to the Battle zone file. If it does not exist, it will be created with a default Battle zone.");
             ValheimOnline.ServerSaveInterval = base.Config.Bind<int>("ValheimOnline", "ServerSaveInterval", 600, "SERVER ONLY: How often, in seconds, to save a copy of each character. Too low may result in performance issues. Too high may result in lost data in the event of a server crash.");
             ValheimOnline.ServerPvpEnforced = base.Config.Bind<bool>("ValheimOnline", "ServerPvpEnforced", false, "SERVER ONLY: Enforce the servers PVP mode and prevent users from changing.");
-            ValheimOnline.PVPSharePosition = base.Config.Bind<bool>("ValheimOnline", "PVPSharePosition", true, "SERVER ONLY: Shows the user on the MAP.");
-            new Harmony(ModInfo.Guid).PatchAll();
+			ValheimOnline.ServerForcePVP = base.Config.Bind<bool>("ValheimOnline", "ServerForcePVP", false, "SERVER ONLY: Enforce the servers PVP mode and prevent users from changing.");
+			ValheimOnline.PVPSharePosition = base.Config.Bind<bool>("ValheimOnline", "PVPSharePosition", true, "SERVER ONLY: Shows the user on the MAP.");
+			ValheimOnline.AllowCharacterSave = base.Config.Bind<bool>("ValheimOnline", "AllowCharacterSave", false, "CLIENT ONLY: Should we allow the client to not only send the character back to the server but save a local copy. (WARNING: THIS WILL OVERWRITE YOUR LOCAL CHARACTER FILE!! PLEASE USE A BLANK CHARACTER FILE!)");
+			ValheimOnline.AllowSinglePlayer = base.Config.Bind<bool>("ValheimOnline", "AllowSinglePlayer", false, "CLIENT ONLY: Should we allow the client to play Single Player?  (WARNING: LOTS OF CONSOLE ERRORS RIGHT NOW BUT WORKS!)");
+			new Harmony(ModInfo.Guid).PatchAll();
 
             ServerState.PVPEnforced = ValheimOnline.ServerPvpEnforced.Value;
             ServerState.PVPSharePosition = ValheimOnline.PVPSharePosition.Value;
@@ -54,39 +60,74 @@ namespace ValheimOnline
             /*
 			 * Setup safe zones.
 			 */
-            if (!File.Exists(ValheimOnline.ServerSafeZonePath.Value))
-            {
-                Debug.Log($"Creating safe zone file at {ValheimOnline.ServerSafeZonePath.Value}");
-                string text = "# format: name x z radius\nDefaultSpawnSafeZone 0.0 0.0 50.0";
-                File.WriteAllText(ValheimOnline.ServerSafeZonePath.Value, text);
-            }
-            foreach (string text2 in File.ReadAllLines(ValheimOnline.ServerSafeZonePath.Value))
-            {
-                if (!string.IsNullOrWhiteSpace(text2) && text2[0] != '#')
-                {
-                    string[] array2 = text2.Split(Array.Empty<char>());
-                    if (array2.Length != 4)
-                    {
-                        Debug.Log($"Safe zone {text2} is not correctly formatted.");
-                    }
-                    else
-                    {
-                        ServerState.SafeZone safeZone;
-                        safeZone.name = array2[0];
-                        safeZone.position.x = float.Parse(array2[1]);
-                        safeZone.position.y = float.Parse(array2[2]);
-                        safeZone.radius = float.Parse(array2[3]);
-                        Debug.Log(string.Format("Loaded safe zone {0} ({1}, {2}) radius {3}", new object[]
-                        {
-                            safeZone.name,
-                            safeZone.position.x,
-                            safeZone.position.y,
-                            safeZone.radius
-                        }));
-                        ServerState.SafeZones.Add(safeZone);
-                    }
-                }
-            }
-        }
+
+			if (!File.Exists(ValheimOnline.ServerSafeZonePath.Value))
+			{
+				Debug.Log(string.Format("Creating safe zone file at {0}", ValheimOnline.ServerSafeZonePath.Value));
+				string text = "# format: name x z radius\nDefaultSpawnSafeZone 0.0 0.0 50.0";
+				File.WriteAllText(ValheimOnline.ServerSafeZonePath.Value, text);
+			}
+			foreach (string text2 in File.ReadAllLines(ValheimOnline.ServerSafeZonePath.Value))
+			{
+				if (!string.IsNullOrWhiteSpace(text2) && text2[0] != '#')
+				{
+					string[] array2 = text2.Split(Array.Empty<char>());
+					if (array2.Length != 4)
+					{
+						Debug.Log(string.Format("Safe zone {0} is not correctly formatted.", text2));
+					}
+					else
+					{
+						ServerState.SafeZone safeZone;
+						safeZone.name = array2[0];
+						safeZone.position.x = float.Parse(array2[1]);
+						safeZone.position.y = float.Parse(array2[2]);
+						safeZone.radius = float.Parse(array2[3]);
+						Debug.Log(string.Format("Loaded safe zone {0} ({1}, {2}) radius {3}", new object[]
+						{
+							safeZone.name,
+							safeZone.position.x,
+							safeZone.position.y,
+							safeZone.radius
+						}));
+						ServerState.SafeZones.Add(safeZone);
+					}
+				}
+			}
+			// Battle Zone
+			if (!File.Exists(ValheimOnline.ServerBattleZonePath.Value))
+			{
+				Debug.Log(string.Format("Creating battle zone file at {0}", ValheimOnline.ServerBattleZonePath.Value));
+				string text = "# format: name x z radius\nDefaultSpawnBattleZone 0.0 0.0 50.0";
+				File.WriteAllText(ValheimOnline.ServerBattleZonePath.Value, text);
+			}
+			foreach (string text2 in File.ReadAllLines(ValheimOnline.ServerBattleZonePath.Value))
+			{
+				if (!string.IsNullOrWhiteSpace(text2) && text2[0] != '#')
+				{
+					string[] array2 = text2.Split(Array.Empty<char>());
+					if (array2.Length != 4)
+					{
+						Debug.Log(string.Format("Battle zone {0} is not correctly formatted.", text2));
+					}
+					else
+					{
+						ServerState.BattleZone battleZone;
+						battleZone.name = array2[0];
+						battleZone.position.x = float.Parse(array2[1]);
+						battleZone.position.y = float.Parse(array2[2]);
+						battleZone.radius = float.Parse(array2[3]);
+						Debug.Log(string.Format("Loaded Battle zone {0} ({1}, {2}) radius {3}", new object[]
+						{
+							battleZone.name,
+							battleZone.position.x,
+							battleZone.position.y,
+							battleZone.radius
+						}));
+						ServerState.BattleZones.Add(battleZone);
+					}
+				}
+			}
+		}
     }
 }
