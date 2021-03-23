@@ -122,6 +122,20 @@ namespace ValheimOnline
 			return zpackage;
 		}
 
+		public static ZPackage Serialize(this List<ServerState.BattleZone> zones)
+		{
+			ZPackage zpackage = new ZPackage();
+			zpackage.Write(zones.Count);
+			foreach (ServerState.BattleZone BattleZone in zones)
+			{
+				zpackage.Write(BattleZone.name);
+				zpackage.Write(BattleZone.position.x);
+				zpackage.Write(BattleZone.position.y);
+				zpackage.Write(BattleZone.radius);
+			}
+			return zpackage;
+		}
+
 		public static void Deserialize(this PlayerProfile profile, ZPackage data)
 		{
 			Debug.Assert(data.ReadInt() <= Version.m_playerVersion);
@@ -176,6 +190,21 @@ namespace ValheimOnline
 			}
 		}
 
+		public static void Deserialize(this List<ServerState.BattleZone> zones, ZPackage package)
+		{
+			zones.Clear();
+			int num = package.ReadInt();
+			for (int i = 0; i < num; i++)
+			{
+				zones.Add(new ServerState.BattleZone
+				{
+					name = package.ReadString(),
+					position = new Vector2(package.ReadSingle(), package.ReadSingle()),
+					radius = package.ReadSingle()
+				});
+			}
+		}
+
 		public static ZPackage LoadOrMakeCharacter(string steamid)
 		{
 			string characterPathForSteamId = Util.GetCharacterPathForSteamId(steamid);
@@ -209,6 +238,21 @@ namespace ValheimOnline
 				}
 			}
 			zone = default(ServerState.SafeZone);
+			return false;
+		}
+
+		public static bool PointInBattleZone(Vector3 point, out ServerState.BattleZone zone)
+		{
+			Vector2 a = new Vector2(point.x, point.z);
+			foreach (ServerState.BattleZone battleZone in ServerState.BattleZones)
+			{
+				if (Vector2.Distance(a, battleZone.position) <= battleZone.radius)
+				{
+					zone = battleZone;
+					return true;
+				}
+			}
+			zone = default(ServerState.BattleZone);
 			return false;
 		}
 

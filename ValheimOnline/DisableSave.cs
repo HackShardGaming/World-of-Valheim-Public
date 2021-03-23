@@ -5,7 +5,6 @@ namespace ValheimOnline
 	[HarmonyPatch]
 	public static class DisableSave
 	{
-
 		[HarmonyPrefix]
 		[HarmonyPatch(typeof(FejdStartup), "OnNewCharacterDone")]
 		private static void FejdStartup__OnNewCharacterDone_Prefix()
@@ -24,9 +23,17 @@ namespace ValheimOnline
 		[HarmonyPatch(typeof(PlayerProfile), "SavePlayerToDisk")]
 		private static bool PlayerProfile__SavePlayerToDisk()
 		{
-			return DisableSave.m_allow_save;
+			// Should we allow saving? Yes or no.
+			// If AllowCharacterSave is true it will overwrite there existing client side character file upon exiting game.
+			if (ValheimOnline.AllowCharacterSave.Value)
+			{
+				return true;
+			}
+			else
+            {
+				return DisableSave.m_allow_save;
+            }
 		}
-
 		public static bool m_allow_save;
 	}
 }

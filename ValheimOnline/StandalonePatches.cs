@@ -40,16 +40,34 @@ namespace ValheimOnline
         {
             if (___m_startGamePanel.activeInHierarchy)
             {
-                GameObject gameObject = GameObject.Find("Start");
-                if (gameObject != null)
+                // Should we allow single player? Yes or no.
+                // Config must have both AllowSinglePlayer and AllowCharacterSave set to true in order to continue.
+                if (ValheimOnline.AllowSinglePlayer.Value && ValheimOnline.AllowCharacterSave.Value)
                 {
-                    Text componentInChildren = gameObject.GetComponentInChildren<Text>();
-                    if (componentInChildren != null)
+                    GameObject gameObject = GameObject.Find("Start");
+                    if (gameObject != null)
                     {
-                        componentInChildren.text = "Disabled in Valheim Online";
+                        Text componentInChildren = gameObject.GetComponentInChildren<Text>();
+                        if (componentInChildren != null)
+                        {
+                            componentInChildren.text = "Start (WARNING MANY CONSOLE ERRORS)";
+                        }
                     }
+                    ___m_worldStart.interactable = true;
                 }
-                ___m_worldStart.interactable = false;
+                else
+                {
+                    GameObject gameObject = GameObject.Find("Start");
+                    if (gameObject != null)
+                    {
+                        Text componentInChildren = gameObject.GetComponentInChildren<Text>();
+                        if (componentInChildren != null)
+                        {
+                            componentInChildren.text = "Disabled in Valheim Online";
+                        }
+                    }
+                    ___m_worldStart.interactable = false;
+                }
             }
         }
 
@@ -92,28 +110,69 @@ namespace ValheimOnline
                 // Goes through the zones and setup the necessary enforcements.
                 ServerState.SafeZone safeZone;
                 bool flag = Util.PointInSafeZone(Player.m_localPlayer.transform.position, out safeZone);
-                if (flag && !ServerState.ClientInSafeZone)
+
+                ServerState.BattleZone battleZone;
+                bool flag2 = Util.PointInBattleZone(Player.m_localPlayer.transform.position, out battleZone);
+                if (ServerState.PVPEnforced == false)
                 {
-                    Player.m_localPlayer.Message(MessageHud.MessageType.Center, $"You have now entered safe zone {safeZone.name}", 0, null);
+                    if (flag && !ServerState.ClientInSafeZone)
+                    {
+                        Player.m_localPlayer.Message(MessageHud.MessageType.Center, $"You have now entered safe zone {safeZone.name}", 0, null);
+                        ServerState.ClientInSafeZone = true;
 
-                    ServerState.ClientInSafeZone = true;
-                    ServerState.PVPMode = false;
-
+                    }
+                    else if (flag2 && !ServerState.ClientInBattleZone)
+                    {
+                        Player.m_localPlayer.Message(MessageHud.MessageType.Center, $"You have now entered battle zone {battleZone.name}", 0, null);
+                        ServerState.ClientInBattleZone = true;
+                    }
+                    else if (!flag && !flag2 && ServerState.ClientInSafeZone && ServerState.ClientInBattleZone)
+                    {
+                        Player.m_localPlayer.Message(MessageHud.MessageType.Center, "You are now in the wilderness", 0, null);
+                        ServerState.ClientInSafeZone = false;
+                        ServerState.ClientInBattleZone = false;
+                    }
                 }
-                else if (!flag && ServerState.ClientInSafeZone)
-                {
-                    Player.m_localPlayer.Message(MessageHud.MessageType.Center, "You are now in the wilderness", 0, null);
-
-                    ServerState.ClientInSafeZone = false;
-                    ServerState.PVPMode = true;
-                }
-
                 if (ServerState.PVPEnforced == true)
                 {
+                    if (ServerState.ServerForcePVP == true)
+                    {
+                        if (flag && !ServerState.ClientInSafeZone)
+                        {
+                            Player.m_localPlayer.Message(MessageHud.MessageType.Center, $"You have now entered safe zone {safeZone.name}", 0, null);
+                            ServerState.ClientInSafeZone = true;
+                            ServerState.PVPMode = false;
+
+                        }
+                        else if (!flag && ServerState.ClientInSafeZone)
+                        {
+                            Player.m_localPlayer.Message(MessageHud.MessageType.Center, "You are now in the wilderness", 0, null);
+
+                            ServerState.ClientInSafeZone = false;
+                            ServerState.PVPMode = true;
+                        }
+                    }
+                    else
+                    {
+                        if (flag2 && !ServerState.ClientInBattleZone)
+                        {
+                            Player.m_localPlayer.Message(MessageHud.MessageType.Center, $"You have now entered battle zone {battleZone.name}", 0, null);
+                            ServerState.ClientInBattleZone = true;
+                            ServerState.PVPMode = true;
+                        }
+                        else if (!flag2 && ServerState.ClientInBattleZone)
+                        {
+                            Player.m_localPlayer.Message(MessageHud.MessageType.Center, "You are now in the wilderness", 0, null);
+
+                            ServerState.ClientInBattleZone = false;
+                            ServerState.PVPMode = false;
+                        }
+                    }
                     // Process the state of player based on the flag.
                     Player.m_localPlayer.SetPVP(ServerState.PVPMode);
                     // Tells the world where we are in reference
                     ZNet.instance.SetPublicReferencePosition(ServerState.PVPSharePosition);
+
                 }
             }
 
