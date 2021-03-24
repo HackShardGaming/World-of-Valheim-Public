@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using BepInEx;
 using BepInEx.Configuration;
@@ -74,7 +74,7 @@ namespace ValheimOnline
 			if (!File.Exists(ValheimOnline.ServerSafeZonePath.Value))
 			{
 				Debug.Log($"Creating safe zone file at {ValheimOnline.ServerSafeZonePath.Value}");
-				string text = "# format: name x z radius\nDefaultSpawnSafeZone 0.0 0.0 50.0";
+				string text = "# format: name x z radius\nDefaultSafeZone 0.0 0.0 5.0";
 				File.WriteAllText(ValheimOnline.ServerSafeZonePath.Value, text);
 			}
 			foreach (string text2 in File.ReadAllLines(ValheimOnline.ServerSafeZonePath.Value))
@@ -108,7 +108,7 @@ namespace ValheimOnline
 			if (!File.Exists(ValheimOnline.ServerBattleZonePath.Value))
 			{
 				Debug.Log($"Creating battle zone file at {ValheimOnline.ServerBattleZonePath.Value}");
-				string text = "# format: name x z radius\nDefaultSpawnBattleZone 0.0 0.0 50.0";
+				string text = "# format: name x z radius\nDefaultBattleZone 0.0 0.0 5.0";
 				File.WriteAllText(ValheimOnline.ServerBattleZonePath.Value, text);
 			}
 			foreach (string text2 in File.ReadAllLines(ValheimOnline.ServerBattleZonePath.Value))
