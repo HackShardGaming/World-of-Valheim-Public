@@ -88,6 +88,7 @@
     <Compile Include="RemoveBirdArrival.cs" />
     <Compile Include="PVPHandler.cs" />
     <Compile Include="RPC.cs" />
+    <Compile Include="Client.cs" />
     <Compile Include="ServerState.cs" />
     <Compile Include="StandalonePatches.cs" />
     <Compile Include="Util.cs" />

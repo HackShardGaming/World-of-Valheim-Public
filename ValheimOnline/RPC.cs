@@ -64,5 +64,5 @@ namespace ValheimOnline
 			Debug.Assert(!ZNet.instance.IsServer());
 			ServerState.SafeZones.Deserialize(data);
 		}
-	}
+    }
 }

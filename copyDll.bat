@@ -19,7 +19,7 @@ set PLAYER_DIR=C:\Program Files (x86)\Steam\steamapps\common\Valheim
 REM Commence with the copying
 
 REM Send the mod to a server for testing.
-if exist "%SERVER_DIR%\%PLUGIN_DIR%\%MOD_NAME%.dll" (
+if exist "%SERVER_DIR%\%PLUGIN_DIR%" (
 	echo "%MOD_DLL% -> %SERVER_DIR%\%PLUGIN_DIR%\%MOD_NAME%.dll"
 	copy "%MOD_DLL%" "%SERVER_DIR%\%PLUGIN_DIR%\%MOD_NAME%.dll"
 ) else (
@@ -27,7 +27,7 @@ if exist "%SERVER_DIR%\%PLUGIN_DIR%\%MOD_NAME%.dll" (
 )
 
 REM Send the mod to the client for testing.
-if exist "%PLAYER_DIR%\%PLUGIN_DIR%\%MOD_NAME%.dll" (
+if exist "%PLAYER_DIR%\%PLUGIN_DIR%" (
 	echo "%MOD_DLL% -> %PLAYER_DIR%\%PLUGIN_DIR%\%MOD_NAME%.dll"
 	copy "%MOD_DLL%" "%PLAYER_DIR%\%PLUGIN_DIR%\%MOD_NAME%.dll"
 ) else (

@@ -194,6 +194,10 @@ namespace ValheimOnline
             }
         }
 
+        // Patch ZNet::OnNewConnection
+        // This is where a client setup a connection to the server (vice versa)
+        // Put any RPC register here to sync between server/client.
+        //
         [HarmonyPostfix]
         [HarmonyPatch(typeof(ZNet), "OnNewConnection")]
         private static void ZNet__OnNewConnection(ZNet __instance, ZNetPeer peer)
@@ -203,6 +207,9 @@ namespace ValheimOnline
             {
                 peer.m_rpc.Register<ZPackage>("ServerVaultData", new Action<ZRpc, ZPackage>(RPC.ServerVaultData));
                 peer.m_rpc.Register<ZPackage>("SafeZones", new Action<ZRpc, ZPackage>(RPC.SafeZones));
+                peer.m_rpc.Register<ZPackage>("BattleZones", new Action<ZRpc, ZPackage>(RPC.BattleZones));
+                peer.m_rpc.Register<ZPackage>("Client", new Action<ZRpc, ZPackage>(Client.RPC) );
+
             }
             peer.m_rpc.Register<ZPackage>("ServerVaultUpdate", new Action<ZRpc, ZPackage>(RPC.ServerVaultUpdate));
             peer.m_rpc.Register<ZPackage>("ServerQuit", new Action<ZRpc, ZPackage>(RPC.ServerQuit));
@@ -228,10 +235,15 @@ namespace ValheimOnline
             }
         }
 
+        // Patch ZNet::SendPeerInfo
+        // During connection, use to send info to the peer.
+        // Great point to send to client.
+
         [HarmonyPostfix]
         [HarmonyPatch(typeof(ZNet), "SendPeerInfo")]
         private static void ZNet__SendPeerInfo(ZNet __instance, ZRpc rpc)
         {
+            // Run away clients, we don't want you here!?!?
             if (!__instance.IsServer())
             {
                 return;
@@ -244,6 +256,19 @@ namespace ValheimOnline
             rpc.Invoke("SafeZones", new object[] {
                 ServerState.SafeZones.Serialize()
             });
+
+            Debug.Log("S2C BattleZone");
+            rpc.Invoke("BattleZones", new object[] {
+                ServerState.BattleZones.Serialize()
+            });
+
+            Debug.Log("S2C ClientState (SendPeerInfo)");
+            Client._debug();
+            rpc.Invoke("Client", new object[] {
+                Client.Serialize()
+            });
+            
+
             ServerState.Connections.Add(new ServerState.ConnectionData
             {
                 rpc = rpc

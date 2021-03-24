@@ -31,6 +31,7 @@ namespace ValheimOnline
 			return Path.Combine(ValheimOnline.ServerVaultPath.Value, id, "current.voc");
 		}
 
+		// Compress (zip) the data
 		public static ZPackage Compress(ZPackage package)
 		{
 			byte[] array = package.GetArray();
@@ -47,6 +48,7 @@ namespace ValheimOnline
 			return new ZPackage(array3);
 		}
 
+		// Decompress (zip) the data
 		public static ZPackage Decompress(ZPackage package)
 		{
 			byte[] array = package.GetArray();
@@ -255,6 +257,7 @@ namespace ValheimOnline
 			zone = default(ServerState.BattleZone);
 			return false;
 		}
+
 
 		public static ServerState.ConnectionData GetServer()
 		{
