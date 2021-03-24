@@ -32,6 +32,7 @@ public static class Client
         // PVP Details
         // Can we toggle PVP on the client
         public static bool PVPEnforced = false;
+        public static bool ServerForcePVP = false;
 
         // Current PVP mode for the client
         public static bool PVPMode = false;
@@ -41,21 +42,25 @@ public static class Client
 
         // Generic debug output
         // Do not change name to debug. Will break "debug()" function in class.
+#if DEBUG
         public static void _debug()
         {
             Debug.Log("Loaded Client Data: ");
             Debug.Log("  InSafeZone: " + InSafeZone);
             Debug.Log("  InBattleZone: " + InBattleZone);
             Debug.Log("  PVPEnforced: " + PVPEnforced);
+            Debug.Log("  ServerForcePVP: " + ServerForcePVP);
             Debug.Log("  PVPMode: " + PVPMode);
             Debug.Log("  PVPSharePosition: " + PVPSharePosition);
         }
+#endif
 
         // Compress the data into a zip (compressed) stream (serial)
         public static ZPackage Serialize()
         {
             var zip = new ZPackage();
             zip.Write(PVPEnforced);
+            zip.Write(ServerForcePVP);
             zip.Write(InSafeZone);
             zip.Write(InBattleZone);
             zip.Write(PVPEnforced);
@@ -68,6 +73,7 @@ public static class Client
         public static void Deserialize(ZPackage data)
         {
             PVPEnforced = data.ReadBool();
+            ServerForcePVP = data.ReadBool();
             InSafeZone = data.ReadBool();
             InBattleZone = data.ReadBool();
             PVPEnforced = data.ReadBool();
@@ -80,11 +86,15 @@ public static class Client
         {
             Debug.Log("S2C Client (RPC Call)");
             Debug.Assert(!ZNet.instance.IsServer());
+#if DEBUG
             Debug.Log("Before");
             _debug();
+#endif
             Deserialize(data);
+#if DEBUG
             Debug.Log("After");
             _debug();
+#endif
         }
     }
 }

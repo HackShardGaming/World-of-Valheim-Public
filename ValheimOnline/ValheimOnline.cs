@@ -1,8 +1,11 @@
+#define DEBUG
+
 using System;
 using System.IO;
 using BepInEx;
 using BepInEx.Configuration;
 using HarmonyLib;
+
 
 namespace ValheimOnline
 {
@@ -44,13 +47,14 @@ namespace ValheimOnline
 
 			// Setup server state configuration
 
-            ServerState.PVPEnforced = ValheimOnline.ServerPvpEnforced.Value;
-            ServerState.PVPSharePosition = ValheimOnline.PVPSharePosition.Value;
-            ServerState.ServerForcePVP = ValheimOnline.ServerForcePVP.Value;
+            //ServerState.PVPEnforced = ValheimOnline.ServerPvpEnforced.Value;
+            //ServerState.PVPSharePosition = ValheimOnline.PVPSharePosition.Value;
+            //ServerState.ServerForcePVP = ValheimOnline.ServerForcePVP.Value;
 
 			// Setup client state configuration
             Client.PVPEnforced = ValheimOnline.ServerPvpEnforced.Value;
             Client.PVPSharePosition = ValheimOnline.PVPSharePosition.Value;
+            Client.ServerForcePVP = ValheimOnline.ServerForcePVP.Value;
 
 			/*
              * Setup default character file for server to use.

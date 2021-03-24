@@ -11,13 +11,13 @@ namespace ValheimOnline
 
 		public static bool ClientMayDisconnect = false;
 
-		public static bool ClientInSafeZone = false;
-		public static bool ClientInBattleZone = false;
+		//public static bool ClientInSafeZone = false;
+		//public static bool ClientInBattleZone = false;
 
-		public static bool PVPEnforced = true;
-        public static bool PVPMode = false;
-        public static bool PVPSharePosition = true;
-		public static bool ServerForcePVP = false;
+		//public static bool PVPEnforced = true;
+        //public static bool PVPMode = false;
+        //public static bool PVPSharePosition = true;
+		//public static bool ServerForcePVP = false;
 
         public static byte[] default_character = global::ValheimOnline.Properties.Resources._default_character;
 

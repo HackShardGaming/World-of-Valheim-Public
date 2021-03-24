@@ -19,7 +19,7 @@ namespace ValheimOnline
         public static void Minimap_Start(Toggle ___m_publicPosition)
         {
             // PVPEnforced : True -> Disable interactable
-            ___m_publicPosition.interactable = !ServerState.PVPEnforced;
+            ___m_publicPosition.interactable = !Client.PVPEnforced;
         }
 
         [HarmonyTranspiler]
@@ -51,7 +51,7 @@ namespace ValheimOnline
             List<CodeInstruction> list = instructions.ToList<CodeInstruction>();
             for (int i = 0; i < list.Count; i++)
             {
-                if (list[i].LoadsField(PVPHandler.f_m_pvp, !ServerState.PVPEnforced))
+                if (list[i].LoadsField(PVPHandler.f_m_pvp, !Client.PVPEnforced))
                 {
                     i--;
                     list.RemoveRange(i, list.Count - i - 1);
@@ -66,7 +66,7 @@ namespace ValheimOnline
 
         public static void HandleInteraction(InventoryGui instance, Player player)
         {
-            instance.m_pvp.interactable = !ServerState.PVPEnforced;
+            instance.m_pvp.interactable = !Client.PVPEnforced;
             instance.m_pvp.isOn = player.IsPVPEnabled();
         }
 
