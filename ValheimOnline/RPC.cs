@@ -64,5 +64,12 @@ namespace ValheimOnline
 			Debug.Assert(!ZNet.instance.IsServer());
 			ServerState.SafeZones.Deserialize(data);
 		}
-    }
+
+        public static void BattleZones(ZRpc rpc, ZPackage data)
+        {
+            Debug.Log("S2C BattleZones");
+            Debug.Assert(!ZNet.instance.IsServer());
+            ServerState.BattleZones.Deserialize(data);
+        }
+	}
 }
