@@ -190,8 +190,8 @@ namespace ValheimOnline
                         }
                     }
 #if DEBUG
-Debug.Log("Player.m_localPlayer.SetPVP( " + Client.PVPMode + ");");
-Debug.Log("ZNet.instance.SetPublicReferencePosition( " + Client.PVPSharePosition + ");");
+//Debug.Log("Player.m_localPlayer.SetPVP( " + Client.PVPMode + ");");
+//Debug.Log("ZNet.instance.SetPublicReferencePosition( " + Client.PVPSharePosition + ");");
 
 #endif
 

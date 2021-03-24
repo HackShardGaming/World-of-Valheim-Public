@@ -46,12 +46,12 @@ public static class Client
         public static void _debug()
         {
             Debug.Log("Loaded Client Data: ");
-            Debug.Log("  InSafeZone: " + InSafeZone);
-            Debug.Log("  InBattleZone: " + InBattleZone);
-            Debug.Log("  PVPEnforced: " + PVPEnforced);
-            Debug.Log("  ServerForcePVP: " + ServerForcePVP);
-            Debug.Log("  PVPMode: " + PVPMode);
-            Debug.Log("  PVPSharePosition: " + PVPSharePosition);
+            Debug.Log("  InSafeZone: " + Client.InSafeZone);
+            Debug.Log("  InBattleZone: " + Client.InBattleZone);
+            Debug.Log("  PVPEnforced: " + Client.PVPEnforced);
+            Debug.Log("  ServerForcePVP: " + Client.ServerForcePVP);
+            Debug.Log("  PVPMode: " + Client.PVPMode);
+            Debug.Log("  PVPSharePosition: " + Client.PVPSharePosition);
         }
 #endif
 
@@ -72,13 +72,13 @@ public static class Client
         // Extract the data from the zipped data
         public static void Deserialize(ZPackage data)
         {
-            PVPEnforced = data.ReadBool();
-            ServerForcePVP = data.ReadBool();
-            InSafeZone = data.ReadBool();
-            InBattleZone = data.ReadBool();
-            PVPEnforced = data.ReadBool();
-            PVPMode = data.ReadBool();
-            PVPSharePosition = data.ReadBool();
+            Client.PVPEnforced = data.ReadBool();
+            Client.ServerForcePVP = data.ReadBool();
+            Client.InSafeZone = data.ReadBool();
+            Client.InBattleZone = data.ReadBool();
+            Client.PVPEnforced = data.ReadBool();
+            Client.PVPMode = data.ReadBool();
+            Client.PVPSharePosition = data.ReadBool();
         }
 
         // RPC function class. This is the class that you register to receive rpc data.
