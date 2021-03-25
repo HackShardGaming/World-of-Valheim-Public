@@ -239,7 +239,9 @@ namespace ValheimOnline
                 peer.m_rpc.Register<ZPackage>("Client", new Action<ZRpc, ZPackage>(Client.RPC));
 
                 // Reset the state of the server if we DC and reconnect.
+                ServerState.ClientMayDisconnect = false;
                 StandalonePatches.m_quitting = false;
+                StandalonePatches.m_logging = false;
             }
             peer.m_rpc.Register<ZPackage>("ServerVaultUpdate", new Action<ZRpc, ZPackage>(RPC.ServerVaultUpdate));
             peer.m_rpc.Register<ZPackage>("ServerQuit", new Action<ZRpc, ZPackage>(RPC.ServerQuit));
