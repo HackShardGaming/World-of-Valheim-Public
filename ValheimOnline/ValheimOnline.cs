@@ -22,11 +22,11 @@ namespace ValheimOnline
         public static ConfigEntry<string> ServerDefaultCharacterPath;
         public static ConfigEntry<string> ServerBattleZonePath;
         public static ConfigEntry<int> ServerSaveInterval;
-        public static ConfigEntry<bool> ServerPvpEnforced;
+        public static ConfigEntry<bool> ServerPVPEnforced;
         public static ConfigEntry<bool> PVPSharePosition;
 		public static ConfigEntry<bool> AllowCharacterSave;
 		public static ConfigEntry<bool> AllowSinglePlayer;
-		public static ConfigEntry<bool> ServerForcePVP;
+		public static ConfigEntry<bool> PVPisEnabled;
 
         public void Awake()
         {
@@ -37,9 +37,13 @@ namespace ValheimOnline
             ValheimOnline.ServerBattleZonePath = base.Config.Bind<string>("ValheimOnline", "ServerBattleZonePath", Path.Combine(Utils.GetSaveDataPath(), "Battle_zones.txt"), "SERVER ONLY: The file path to the Battle zone file. If it does not exist, it will be created with a default Battle zone.");
 
 			// Load Setttings
+			// Server Save Interval
             ValheimOnline.ServerSaveInterval = base.Config.Bind<int>("ValheimOnline", "ServerSaveInterval", 600, "SERVER ONLY: How often, in seconds, to save a copy of each character. Too low may result in performance issues. Too high may result in lost data in the event of a server crash.");
-            ValheimOnline.ServerPvpEnforced = base.Config.Bind<bool>("ValheimOnline", "ServerPvpEnforced", false, "SERVER ONLY: Enforce the servers PVP mode and prevent users from changing.");
-			ValheimOnline.ServerForcePVP = base.Config.Bind<bool>("ValheimOnline", "ServerForcePVP", false, "SERVER ONLY: Enforce the servers PVP mode and prevent users from changing.");
+			// Is the server enforcing PVP?
+            ValheimOnline.ServerPVPEnforced = base.Config.Bind<bool>("ValheimOnline", "ServerPVPEnforced", false, "SERVER ONLY: Are we going to enforce a PVP mode (PVPisEnabled).");
+			// What are we enforcing PVP On (TRUE) or off (FALSE)
+			ValheimOnline.PVPisEnabled = base.Config.Bind<bool>("ValheimOnline", "PVPisEnabled", false, "SERVER ONLY: Enforce the servers PVP mode and prevent users from changing.");
+			// What are we enforcing Share Position (TRUE) or Don't Share (FALSE)
 			ValheimOnline.PVPSharePosition = base.Config.Bind<bool>("ValheimOnline", "PVPSharePosition", true, "SERVER ONLY: Shows the user on the MAP.");
 			ValheimOnline.AllowCharacterSave = base.Config.Bind<bool>("ValheimOnline", "AllowCharacterSave", false, "CLIENT ONLY: Should we allow the client to not only send the character back to the server but save a local copy. (WARNING: THIS WILL OVERWRITE YOUR LOCAL CHARACTER FILE!! PLEASE USE A BLANK CHARACTER FILE!)");
 			ValheimOnline.AllowSinglePlayer = base.Config.Bind<bool>("ValheimOnline", "AllowSinglePlayer", false, "CLIENT ONLY: Should we allow the client to play Single Player?  (WARNING: LOTS OF CONSOLE ERRORS RIGHT NOW BUT WORKS!)");
@@ -52,9 +56,9 @@ namespace ValheimOnline
             //ServerState.ServerForcePVP = ValheimOnline.ServerForcePVP.Value;
 
 			// Setup client state configuration
-            Client.PVPEnforced = ValheimOnline.ServerPvpEnforced.Value;
+            Client.PVPEnforced = ValheimOnline.ServerPVPEnforced.Value;
             Client.PVPSharePosition = ValheimOnline.PVPSharePosition.Value;
-            Client.ServerForcePVP = ValheimOnline.ServerForcePVP.Value;
+            Client.PVPisEnabled = ValheimOnline.PVPisEnabled.Value;
 
 			/*
              * Setup default character file for server to use.

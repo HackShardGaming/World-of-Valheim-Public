@@ -144,7 +144,7 @@ namespace ValheimOnline
                 }
                 if (Client.PVPEnforced == true)
                 {
-                    if (Client.ServerForcePVP == true)
+                    if (Client.PVPisEnabled == true)
                     {
                         if (flag && !Client.InSafeZone)
                         {
@@ -167,7 +167,7 @@ namespace ValheimOnline
                             Client.PVPMode = true;
                         }
                     }
-                    else
+                    else if (Client.PVPisEnabled == false)
                     {
                         if (flag2 && !Client.InBattleZone)
                         {
@@ -190,12 +190,9 @@ namespace ValheimOnline
                         }
                     }
 #if DEBUG
-//Debug.Log("Player.m_localPlayer.SetPVP( " + Client.PVPMode + ");");
-//Debug.Log("ZNet.instance.SetPublicReferencePosition( " + Client.PVPSharePosition + ");");
-
+                    //Debug.Log("Player.m_localPlayer.SetPVP( " + Client.PVPMode + ");");
+                    //Debug.Log("ZNet.instance.SetPublicReferencePosition( " + Client.PVPSharePosition + ");");
 #endif
-
-
                     // Process the state of player based on the flag.
                     Player.m_localPlayer.SetPVP(Client.PVPMode);
                     // Tells the world where we are in reference
@@ -230,7 +227,7 @@ namespace ValheimOnline
         [HarmonyPatch(typeof(ZNet), "OnNewConnection")]
         private static void ZNet__OnNewConnection(ZNet __instance, ZNetPeer peer)
         {
-            Debug.Log($"Server PVP Enforce: {Client.ServerForcePVP}");
+            Debug.Log($"Server PVP Enforce: {Client.PVPEnforced}");
             if (!__instance.IsServer())
             {
                 peer.m_rpc.Register<ZPackage>("ServerVaultData", new Action<ZRpc, ZPackage>(RPC.ServerVaultData));

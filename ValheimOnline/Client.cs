@@ -32,7 +32,8 @@ public static class Client
         // PVP Details
         // Can we toggle PVP on the client
         public static bool PVPEnforced = false;
-        public static bool ServerForcePVP = false;
+        // Are we enforcing PVP On (TRUE) or Off (FALSE)
+        public static bool PVPisEnabled = false;
 
         // Current PVP mode for the client
         public static bool PVPMode = false;
@@ -49,7 +50,7 @@ public static class Client
             Debug.Log("  InSafeZone: " + Client.InSafeZone);
             Debug.Log("  InBattleZone: " + Client.InBattleZone);
             Debug.Log("  PVPEnforced: " + Client.PVPEnforced);
-            Debug.Log("  ServerForcePVP: " + Client.ServerForcePVP);
+            Debug.Log("  PVPisEnabled: " + Client.PVPisEnabled);
             Debug.Log("  PVPMode: " + Client.PVPMode);
             Debug.Log("  PVPSharePosition: " + Client.PVPSharePosition);
         }
@@ -60,7 +61,7 @@ public static class Client
         {
             var zip = new ZPackage();
             zip.Write(PVPEnforced);
-            zip.Write(ServerForcePVP);
+            zip.Write(PVPisEnabled);
             zip.Write(InSafeZone);
             zip.Write(InBattleZone);
             zip.Write(PVPEnforced);
@@ -73,7 +74,7 @@ public static class Client
         public static void Deserialize(ZPackage data)
         {
             Client.PVPEnforced = data.ReadBool();
-            Client.ServerForcePVP = data.ReadBool();
+            Client.PVPisEnabled = data.ReadBool();
             Client.InSafeZone = data.ReadBool();
             Client.InBattleZone = data.ReadBool();
             Client.PVPEnforced = data.ReadBool();
