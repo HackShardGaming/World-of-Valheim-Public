@@ -1,8 +1,12 @@
-﻿using System;
+#define DEBUG
+
+using System;
 using System.IO;
+using System.Net.NetworkInformation;
 using BepInEx;
 using BepInEx.Configuration;
 using HarmonyLib;
+
 
 namespace ValheimOnline
 {
@@ -19,34 +23,58 @@ namespace ValheimOnline
         public static ConfigEntry<string> ServerDefaultCharacterPath;
         public static ConfigEntry<string> ServerBattleZonePath;
         public static ConfigEntry<int> ServerSaveInterval;
-        public static ConfigEntry<bool> ServerPvpEnforced;
+        public static ConfigEntry<bool> ServerPVPEnforced;
         public static ConfigEntry<bool> PVPSharePosition;
 		public static ConfigEntry<bool> AllowCharacterSave;
 		public static ConfigEntry<bool> AllowSinglePlayer;
-		public static ConfigEntry<bool> ServerForcePVP;
+		public static ConfigEntry<bool> PVPisEnabled;
+		public static ConfigEntry<bool> PositionEnforced;
 
         public void Awake()
         {
+			Debug.Log("Haz awoke!!?!");
+
+			if (Util.isServer())
+			{
+				Debug.Log("[Server Mode]");
+			}
+            else
+            {
+                Debug.Log("[Client Mode]");
+			}
+
 			// Load Paths
-            ValheimOnline.ServerVaultPath = base.Config.Bind<string>("ValheimOnline", "ServerVaultPath", Path.Combine(Utils.GetSaveDataPath(), "characters_vault"), "SERVER ONLY: The root directory for the server vault.");
+			ValheimOnline.ServerVaultPath = base.Config.Bind<string>("ValheimOnline", "ServerVaultPath", Path.Combine(Utils.GetSaveDataPath(), "characters_vault"), "SERVER ONLY: The root directory for the server vault.");
             ValheimOnline.ServerSafeZonePath = base.Config.Bind<string>("ValheimOnline", "ServerSafeZonePath", Path.Combine(Utils.GetSaveDataPath(), "safe_zones.txt"), "SERVER ONLY: The file path to the safe zone file. If it does not exist, it will be created with a default safe zone.");
             ValheimOnline.ServerDefaultCharacterPath = base.Config.Bind<string>("ValheimOnline", "ServerDefaultCharacterPath", Path.Combine(Utils.GetSaveDataPath(), "default_character.fch"), "SERVER ONLY: The file path to the default character file. If it does not exist, it will be created with a default character file.");
             ValheimOnline.ServerBattleZonePath = base.Config.Bind<string>("ValheimOnline", "ServerBattleZonePath", Path.Combine(Utils.GetSaveDataPath(), "Battle_zones.txt"), "SERVER ONLY: The file path to the Battle zone file. If it does not exist, it will be created with a default Battle zone.");
 
-			// Load Setttings
+			// Load Settings
+			// Server Save Interval
             ValheimOnline.ServerSaveInterval = base.Config.Bind<int>("ValheimOnline", "ServerSaveInterval", 600, "SERVER ONLY: How often, in seconds, to save a copy of each character. Too low may result in performance issues. Too high may result in lost data in the event of a server crash.");
-            ValheimOnline.ServerPvpEnforced = base.Config.Bind<bool>("ValheimOnline", "ServerPvpEnforced", false, "SERVER ONLY: Enforce the servers PVP mode and prevent users from changing.");
-			ValheimOnline.ServerForcePVP = base.Config.Bind<bool>("ValheimOnline", "ServerForcePVP", false, "SERVER ONLY: Enforce the servers PVP mode and prevent users from changing.");
-			ValheimOnline.PVPSharePosition = base.Config.Bind<bool>("ValheimOnline", "PVPSharePosition", true, "SERVER ONLY: Shows the user on the MAP.");
+			// Is the server enforcing PVP?
+            ValheimOnline.ServerPVPEnforced = base.Config.Bind<bool>("ValheimOnline", "ServerPVPEnforced", false, "SERVER ONLY: Are we going to enforce a PVP mode (PVPisEnabled).");
+			// What are we enforcing PVP On (TRUE) or off (FALSE)
+			ValheimOnline.PVPisEnabled = base.Config.Bind<bool>("ValheimOnline", "PVPisEnabled", false, "SERVER ONLY: Enforce the servers PVP mode and prevent users from changing.");
+			// Is the server enforcing Shared Positions?
+			ValheimOnline.PositionEnforced = base.Config.Bind<bool>("ValheimOnline", "PositionEnforced", true, "SERVER ONLY: Are we going to enforce sharing positioning?.");
+			// What are we enforcing Share Position (TRUE) or Don't Share (FALSE)
+			ValheimOnline.PVPSharePosition = base.Config.Bind<bool>("ValheimOnline", "PVPSharePosition", true, "SERVER ONLY: What mode are we enforcing? Share the users position or not?");
 			ValheimOnline.AllowCharacterSave = base.Config.Bind<bool>("ValheimOnline", "AllowCharacterSave", false, "CLIENT ONLY: Should we allow the client to not only send the character back to the server but save a local copy. (WARNING: THIS WILL OVERWRITE YOUR LOCAL CHARACTER FILE!! PLEASE USE A BLANK CHARACTER FILE!)");
 			ValheimOnline.AllowSinglePlayer = base.Config.Bind<bool>("ValheimOnline", "AllowSinglePlayer", false, "CLIENT ONLY: Should we allow the client to play Single Player?  (WARNING: LOTS OF CONSOLE ERRORS RIGHT NOW BUT WORKS!)");
 			new Harmony(ModInfo.Guid).PatchAll();
 
 			// Setup server state configuration
 
-            ServerState.PVPEnforced = ValheimOnline.ServerPvpEnforced.Value;
-            ServerState.PVPSharePosition = ValheimOnline.PVPSharePosition.Value;
-            ServerState.ServerForcePVP = ValheimOnline.ServerForcePVP.Value;
+            //ServerState.PVPEnforced = ValheimOnline.ServerPvpEnforced.Value;
+            //ServerState.PVPSharePosition = ValheimOnline.PVPSharePosition.Value;
+            //ServerState.ServerForcePVP = ValheimOnline.ServerForcePVP.Value;
+
+			// Setup client state configuration
+            Client.PVPEnforced = ValheimOnline.ServerPVPEnforced.Value;
+            Client.PVPSharePosition = ValheimOnline.PVPSharePosition.Value;
+            Client.PVPisEnabled = ValheimOnline.PVPisEnabled.Value;
+			Client.PositionEnforced = ValheimOnline.PositionEnforced.Value;
 
 			/*
              * Setup default character file for server to use.
@@ -54,7 +82,7 @@ namespace ValheimOnline
 			if (!File.Exists(ValheimOnline.ServerDefaultCharacterPath.Value))
             {
                 Debug.Log($"Creating default character file at {ValheimOnline.ServerDefaultCharacterPath.Value}");
-                File.WriteAllBytes(ValheimOnline.ServerDefaultCharacterPath.Value, global::ValheimOnline.Properties.Resources._default_character);
+                File.WriteAllBytes(ValheimOnline.ServerDefaultCharacterPath.Value,  global::ValheimOnline.Properties.Resources._default_character);
             }
             else
             {
@@ -70,7 +98,7 @@ namespace ValheimOnline
 			if (!File.Exists(ValheimOnline.ServerSafeZonePath.Value))
 			{
 				Debug.Log($"Creating safe zone file at {ValheimOnline.ServerSafeZonePath.Value}");
-				string text = "# format: name x z radius\nDefaultSpawnSafeZone 0.0 0.0 50.0";
+				string text = "# format: name x z radius\nDefaultSafeZone 0.0 0.0 5.0";
 				File.WriteAllText(ValheimOnline.ServerSafeZonePath.Value, text);
 			}
 			foreach (string text2 in File.ReadAllLines(ValheimOnline.ServerSafeZonePath.Value))
@@ -104,7 +132,7 @@ namespace ValheimOnline
 			if (!File.Exists(ValheimOnline.ServerBattleZonePath.Value))
 			{
 				Debug.Log($"Creating battle zone file at {ValheimOnline.ServerBattleZonePath.Value}");
-				string text = "# format: name x z radius\nDefaultSpawnBattleZone 0.0 0.0 50.0";
+				string text = "# format: name x z radius\nDefaultBattleZone 0.0 0.0 5.0";
 				File.WriteAllText(ValheimOnline.ServerBattleZonePath.Value, text);
 			}
 			foreach (string text2 in File.ReadAllLines(ValheimOnline.ServerBattleZonePath.Value))

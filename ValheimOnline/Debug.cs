@@ -15,5 +15,6 @@ namespace ValheimOnline
 		{
 			System.Console.WriteLine("Valheim Online: " + str);
 		}
-	}
+
+    }
 }

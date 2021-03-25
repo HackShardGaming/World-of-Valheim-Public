@@ -1,4 +1,6 @@
 ﻿
+using System.Collections.Generic;
+
 namespace ValheimOnline
 {
 
@@ -11,6 +13,11 @@ namespace ValheimOnline
 			Debug.Assert(!ZNet.instance.IsServer());
 			Debug.Assert(ServerState.ClientPendingLoadData == null);
 			ServerState.ClientPendingLoadData = data;
+			if (!ZNet.instance.IsServer())
+			{
+				Debug.Log("Clearing out any old RPC connections");
+				ServerState.Connections = new List<ServerState.ConnectionData>();
+			}
 			ServerState.Connections.Add(new ServerState.ConnectionData
 			{
 				rpc = rpc
@@ -24,7 +31,7 @@ namespace ValheimOnline
 				Debug.Log("C2S ServerVaultUpdate");
 				string hostName = rpc.GetSocket().GetHostName();
 				string characterPathForSteamId = Util.GetCharacterPathForSteamId(hostName);
-				Debug.Log(string.Format("Saving character from SteamID {0}.", hostName));
+				Debug.Log($"Saving character from SteamID {hostName}.");
 				Util.WriteCharacter(characterPathForSteamId, Util.Decompress(data).GetArray());
 				return;
 			}
@@ -55,6 +62,9 @@ namespace ValheimOnline
 				return;
 			}
 			Debug.Log("S2C ServerQuit");
+            ServerState.Connections.RemoveAll((ServerState.ConnectionData conn) => conn.rpc.GetSocket() == rpc.GetSocket());
+			// Reset EVERYTHING!!!
+            ServerState.Connections = new List<ServerState.ConnectionData>();
 			ServerState.ClientMayDisconnect = true;
 		}
 
@@ -64,5 +74,12 @@ namespace ValheimOnline
 			Debug.Assert(!ZNet.instance.IsServer());
 			ServerState.SafeZones.Deserialize(data);
 		}
+
+        public static void BattleZones(ZRpc rpc, ZPackage data)
+        {
+            Debug.Log("S2C BattleZones");
+            Debug.Assert(!ZNet.instance.IsServer());
+            ServerState.BattleZones.Deserialize(data);
+        }
 	}
 }

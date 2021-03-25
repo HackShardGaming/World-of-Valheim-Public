@@ -88,6 +88,7 @@
     <Compile Include="RemoveBirdArrival.cs" />
     <Compile Include="PVPHandler.cs" />
     <Compile Include="RPC.cs" />
+    <Compile Include="Client.cs" />
     <Compile Include="ServerState.cs" />
     <Compile Include="StandalonePatches.cs" />
     <Compile Include="Util.cs" />
@@ -105,6 +106,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>call $(SolutionDir)copyDll.bat $(ProjectName)</PostBuildEvent>
+    <PostBuildEvent>call "$(SolutionDir)copyDll.bat" $(ProjectName)</PostBuildEvent>
   </PropertyGroup>
 </Project>

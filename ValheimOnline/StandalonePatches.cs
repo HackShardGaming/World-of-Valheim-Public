@@ -113,66 +113,93 @@ namespace ValheimOnline
 
                 ServerState.BattleZone battleZone;
                 bool flag2 = Util.PointInBattleZone(Player.m_localPlayer.transform.position, out battleZone);
-                if (ServerState.PVPEnforced == false)
+                if (Client.PVPEnforced == false)
                 {
-                    if (flag && !ServerState.ClientInSafeZone)
+                    if (flag && !Client.InSafeZone)
                     {
+#if DEBUG
+                        Client._debug();
+#endif
                         Player.m_localPlayer.Message(MessageHud.MessageType.Center, $"You have now entered safe zone {safeZone.name}", 0, null);
-                        ServerState.ClientInSafeZone = true;
+                        Client.InSafeZone = true;
 
                     }
-                    else if (flag2 && !ServerState.ClientInBattleZone)
+                    else if (flag2 && !Client.InBattleZone)
                     {
+#if DEBUG
+                        Client._debug();
+#endif
                         Player.m_localPlayer.Message(MessageHud.MessageType.Center, $"You have now entered battle zone {battleZone.name}", 0, null);
-                        ServerState.ClientInBattleZone = true;
+                        Client.InBattleZone = true;
                     }
-                    else if (!flag && !flag2 && ServerState.ClientInSafeZone && ServerState.ClientInBattleZone)
+                    else if (!flag && !flag2 && Client.InSafeZone && Client.InBattleZone)
                     {
+#if DEBUG
+                        Client._debug();
+#endif
                         Player.m_localPlayer.Message(MessageHud.MessageType.Center, "You are now in the wilderness", 0, null);
-                        ServerState.ClientInSafeZone = false;
-                        ServerState.ClientInBattleZone = false;
+                        Client.InSafeZone = false;
+                        Client.InBattleZone = false;
                     }
                 }
-                if (ServerState.PVPEnforced == true)
+                if (Client.PVPEnforced == true)
                 {
-                    if (ServerState.ServerForcePVP == true)
+                    if (Client.PVPisEnabled == true)
                     {
-                        if (flag && !ServerState.ClientInSafeZone)
+                        if (flag && !Client.InSafeZone)
                         {
+#if DEBUG
+                            Client._debug();
+#endif
                             Player.m_localPlayer.Message(MessageHud.MessageType.Center, $"You have now entered safe zone {safeZone.name}", 0, null);
-                            ServerState.ClientInSafeZone = true;
-                            ServerState.PVPMode = false;
+                            Client.InSafeZone = true;
+                            Client.PVPMode = false;
 
                         }
-                        else if (!flag && ServerState.ClientInSafeZone)
+                        else if (!flag && Client.InSafeZone)
                         {
+#if DEBUG
+                            Client._debug();
+#endif
                             Player.m_localPlayer.Message(MessageHud.MessageType.Center, "You are now in the wilderness", 0, null);
 
-                            ServerState.ClientInSafeZone = false;
-                            ServerState.PVPMode = true;
+                            Client.InSafeZone = false;
+                            Client.PVPMode = true;
                         }
                     }
-                    else
+                    else if (Client.PVPisEnabled == false)
                     {
-                        if (flag2 && !ServerState.ClientInBattleZone)
+                        if (flag2 && !Client.InBattleZone)
                         {
+#if DEBUG
+                            Client._debug();
+#endif
                             Player.m_localPlayer.Message(MessageHud.MessageType.Center, $"You have now entered battle zone {battleZone.name}", 0, null);
-                            ServerState.ClientInBattleZone = true;
-                            ServerState.PVPMode = true;
+                            Client.InBattleZone = true;
+                            Client.PVPMode = true;
                         }
-                        else if (!flag2 && ServerState.ClientInBattleZone)
+                        else if (!flag2 && Client.InBattleZone)
                         {
+#if DEBUG
+                            Client._debug();
+#endif
                             Player.m_localPlayer.Message(MessageHud.MessageType.Center, "You are now in the wilderness", 0, null);
 
-                            ServerState.ClientInBattleZone = false;
-                            ServerState.PVPMode = false;
+                            Client.InBattleZone = false;
+                            Client.PVPMode = false;
                         }
                     }
+#if DEBUG
+                    //Debug.Log("Player.m_localPlayer.SetPVP( " + Client.PVPMode + ");");
+                    //Debug.Log("ZNet.instance.SetPublicReferencePosition( " + Client.PVPSharePosition + ");");
+#endif
                     // Process the state of player based on the flag.
-                    Player.m_localPlayer.SetPVP(ServerState.PVPMode);
+                    Player.m_localPlayer.SetPVP(Client.PVPMode);
                     // Tells the world where we are in reference
-                    ZNet.instance.SetPublicReferencePosition(ServerState.PVPSharePosition);
-
+                    if (Client.PositionEnforced == true)
+                    {
+                        ZNet.instance.SetPublicReferencePosition(Client.PVPSharePosition);
+                    }
                 }
             }
 
@@ -194,15 +221,27 @@ namespace ValheimOnline
             }
         }
 
+        // Patch ZNet::OnNewConnection
+        // This is where a client setup a connection to the server (vice versa)
+        // Put any RPC register here to sync between server/client.
+        //
         [HarmonyPostfix]
         [HarmonyPatch(typeof(ZNet), "OnNewConnection")]
         private static void ZNet__OnNewConnection(ZNet __instance, ZNetPeer peer)
         {
-            Debug.Log($"Server PVP Enforce: {ServerState.ServerForcePVP}");
+            Debug.Log($"Server PVP Enforce: {Client.PVPEnforced}");
             if (!__instance.IsServer())
             {
+                // Client special RPC calls
                 peer.m_rpc.Register<ZPackage>("ServerVaultData", new Action<ZRpc, ZPackage>(RPC.ServerVaultData));
                 peer.m_rpc.Register<ZPackage>("SafeZones", new Action<ZRpc, ZPackage>(RPC.SafeZones));
+                peer.m_rpc.Register<ZPackage>("BattleZones", new Action<ZRpc, ZPackage>(RPC.BattleZones));
+                peer.m_rpc.Register<ZPackage>("Client", new Action<ZRpc, ZPackage>(Client.RPC));
+
+                // Reset the state of the server if we DC and reconnect.
+                ServerState.ClientMayDisconnect = false;
+                StandalonePatches.m_quitting = false;
+                StandalonePatches.m_logging = false;
             }
             peer.m_rpc.Register<ZPackage>("ServerVaultUpdate", new Action<ZRpc, ZPackage>(RPC.ServerVaultUpdate));
             peer.m_rpc.Register<ZPackage>("ServerQuit", new Action<ZRpc, ZPackage>(RPC.ServerQuit));
@@ -228,10 +267,15 @@ namespace ValheimOnline
             }
         }
 
+        // Patch ZNet::SendPeerInfo
+        // During connection, use to send info to the peer.
+        // Great point to send to client.
+
         [HarmonyPostfix]
         [HarmonyPatch(typeof(ZNet), "SendPeerInfo")]
         private static void ZNet__SendPeerInfo(ZNet __instance, ZRpc rpc)
         {
+            // Run away clients, we don't want you here!?!?
             if (!__instance.IsServer())
             {
                 return;
@@ -244,6 +288,21 @@ namespace ValheimOnline
             rpc.Invoke("SafeZones", new object[] {
                 ServerState.SafeZones.Serialize()
             });
+
+            Debug.Log("S2C BattleZone");
+            rpc.Invoke("BattleZones", new object[] {
+                ServerState.BattleZones.Serialize()
+            });
+
+            Debug.Log("S2C ClientState (SendPeerInfo)");
+#if DEBUG
+            Client._debug();
+#endif
+            rpc.Invoke("Client", new object[] {
+                Client.Serialize()
+            });
+
+
             ServerState.Connections.Add(new ServerState.ConnectionData
             {
                 rpc = rpc
@@ -254,6 +313,7 @@ namespace ValheimOnline
         [HarmonyPatch(typeof(Menu), "OnQuitYes")]
         private static bool Menu__OnQuitYes()
         {
+            Debug.Log("Quit Detected.");
             if (StandalonePatches.m_quitting)
             {
                 return true;
@@ -269,9 +329,30 @@ namespace ValheimOnline
         }
 
         [HarmonyPrefix]
+        [HarmonyPatch(typeof(Game), "Shutdown")]
+        private static bool Game__Shutdown()
+        {
+            Debug.Log("Shutdown Detected.");
+            if (StandalonePatches.m_quitting)
+            {
+                return true;
+            }
+            StandalonePatches.m_quitting = true;
+            Debug.Assert(!ZNet.instance.IsServer());
+            Debug.Log("Quitting: sending ServerQuit and waiting.");
+            Util.GetServer().rpc.Invoke("ServerQuit", new object[]
+            {
+                Util.Compress(Game.instance.GetPlayerProfile().Serialize(Player.m_localPlayer, true))
+            });
+            return false;
+        }
+
+
+        [HarmonyPrefix]
         [HarmonyPatch(typeof(Menu), "OnLogoutYes")]
         private static bool Menu__OnLogoutYes()
         {
+            Debug.Log("Logout Detected.");
             if (StandalonePatches.m_logging)
             {
                 return true;
