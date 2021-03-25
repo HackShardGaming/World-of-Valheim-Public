@@ -24,7 +24,7 @@ namespace ValheimOnline
 				Debug.Log("C2S ServerVaultUpdate");
 				string hostName = rpc.GetSocket().GetHostName();
 				string characterPathForSteamId = Util.GetCharacterPathForSteamId(hostName);
-				Debug.Log(string.Format("Saving character from SteamID {0}.", hostName));
+				Debug.Log($"Saving character from SteamID {hostName}.");
 				Util.WriteCharacter(characterPathForSteamId, Util.Decompress(data).GetArray());
 				return;
 			}

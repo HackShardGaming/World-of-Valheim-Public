@@ -232,11 +232,14 @@ namespace ValheimOnline
             Debug.Log($"Server PVP Enforce: {Client.PVPEnforced}");
             if (!__instance.IsServer())
             {
+                // Client special RPC calls
                 peer.m_rpc.Register<ZPackage>("ServerVaultData", new Action<ZRpc, ZPackage>(RPC.ServerVaultData));
                 peer.m_rpc.Register<ZPackage>("SafeZones", new Action<ZRpc, ZPackage>(RPC.SafeZones));
                 peer.m_rpc.Register<ZPackage>("BattleZones", new Action<ZRpc, ZPackage>(RPC.BattleZones));
                 peer.m_rpc.Register<ZPackage>("Client", new Action<ZRpc, ZPackage>(Client.RPC));
 
+                // Reset the state of the server if we DC and reconnect.
+                StandalonePatches.m_quitting = false;
             }
             peer.m_rpc.Register<ZPackage>("ServerVaultUpdate", new Action<ZRpc, ZPackage>(RPC.ServerVaultUpdate));
             peer.m_rpc.Register<ZPackage>("ServerQuit", new Action<ZRpc, ZPackage>(RPC.ServerQuit));

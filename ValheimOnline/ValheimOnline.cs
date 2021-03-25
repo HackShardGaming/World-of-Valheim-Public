@@ -49,7 +49,7 @@ namespace ValheimOnline
             ValheimOnline.ServerDefaultCharacterPath = base.Config.Bind<string>("ValheimOnline", "ServerDefaultCharacterPath", Path.Combine(Utils.GetSaveDataPath(), "default_character.fch"), "SERVER ONLY: The file path to the default character file. If it does not exist, it will be created with a default character file.");
             ValheimOnline.ServerBattleZonePath = base.Config.Bind<string>("ValheimOnline", "ServerBattleZonePath", Path.Combine(Utils.GetSaveDataPath(), "Battle_zones.txt"), "SERVER ONLY: The file path to the Battle zone file. If it does not exist, it will be created with a default Battle zone.");
 
-			// Load Setttings
+			// Load Settings
 			// Server Save Interval
             ValheimOnline.ServerSaveInterval = base.Config.Bind<int>("ValheimOnline", "ServerSaveInterval", 600, "SERVER ONLY: How often, in seconds, to save a copy of each character. Too low may result in performance issues. Too high may result in lost data in the event of a server crash.");
 			// Is the server enforcing PVP?
@@ -82,7 +82,7 @@ namespace ValheimOnline
 			if (!File.Exists(ValheimOnline.ServerDefaultCharacterPath.Value))
             {
                 Debug.Log($"Creating default character file at {ValheimOnline.ServerDefaultCharacterPath.Value}");
-                File.WriteAllBytes(ValheimOnline.ServerDefaultCharacterPath.Value, global::ValheimOnline.Properties.Resources._default_character);
+                File.WriteAllBytes(ValheimOnline.ServerDefaultCharacterPath.Value,  global::ValheimOnline.Properties.Resources._default_character);
             }
             else
             {
