@@ -2,6 +2,7 @@
 
 using System;
 using System.IO;
+using System.Net.NetworkInformation;
 using BepInEx;
 using BepInEx.Configuration;
 using HarmonyLib;
@@ -31,8 +32,19 @@ namespace ValheimOnline
 
         public void Awake()
         {
+			Debug.Log("Haz awoke!!?!");
+
+			if (Util.isServer())
+			{
+				Debug.Log("[Server Mode]");
+			}
+            else
+            {
+                Debug.Log("[Client Mode]");
+			}
+
 			// Load Paths
-            ValheimOnline.ServerVaultPath = base.Config.Bind<string>("ValheimOnline", "ServerVaultPath", Path.Combine(Utils.GetSaveDataPath(), "characters_vault"), "SERVER ONLY: The root directory for the server vault.");
+			ValheimOnline.ServerVaultPath = base.Config.Bind<string>("ValheimOnline", "ServerVaultPath", Path.Combine(Utils.GetSaveDataPath(), "characters_vault"), "SERVER ONLY: The root directory for the server vault.");
             ValheimOnline.ServerSafeZonePath = base.Config.Bind<string>("ValheimOnline", "ServerSafeZonePath", Path.Combine(Utils.GetSaveDataPath(), "safe_zones.txt"), "SERVER ONLY: The file path to the safe zone file. If it does not exist, it will be created with a default safe zone.");
             ValheimOnline.ServerDefaultCharacterPath = base.Config.Bind<string>("ValheimOnline", "ServerDefaultCharacterPath", Path.Combine(Utils.GetSaveDataPath(), "default_character.fch"), "SERVER ONLY: The file path to the default character file. If it does not exist, it will be created with a default character file.");
             ValheimOnline.ServerBattleZonePath = base.Config.Bind<string>("ValheimOnline", "ServerBattleZonePath", Path.Combine(Utils.GetSaveDataPath(), "Battle_zones.txt"), "SERVER ONLY: The file path to the Battle zone file. If it does not exist, it will be created with a default Battle zone.");

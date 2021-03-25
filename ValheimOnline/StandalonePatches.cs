@@ -308,6 +308,7 @@ namespace ValheimOnline
         [HarmonyPatch(typeof(Menu), "OnQuitYes")]
         private static bool Menu__OnQuitYes()
         {
+            Debug.Log("Quit Detected.");
             if (StandalonePatches.m_quitting)
             {
                 return true;
@@ -323,9 +324,30 @@ namespace ValheimOnline
         }
 
         [HarmonyPrefix]
+        [HarmonyPatch(typeof(Game), "Shutdown")]
+        private static bool Game__Shutdown()
+        {
+            Debug.Log("Shutdown Detected.");
+            if (StandalonePatches.m_quitting)
+            {
+                return true;
+            }
+            StandalonePatches.m_quitting = true;
+            Debug.Assert(!ZNet.instance.IsServer());
+            Debug.Log("Quitting: sending ServerQuit and waiting.");
+            Util.GetServer().rpc.Invoke("ServerQuit", new object[]
+            {
+                Util.Compress(Game.instance.GetPlayerProfile().Serialize(Player.m_localPlayer, true))
+            });
+            return false;
+        }
+
+
+        [HarmonyPrefix]
         [HarmonyPatch(typeof(Menu), "OnLogoutYes")]
         private static bool Menu__OnLogoutYes()
         {
+            Debug.Log("Logout Detected.");
             if (StandalonePatches.m_logging)
             {
                 return true;
