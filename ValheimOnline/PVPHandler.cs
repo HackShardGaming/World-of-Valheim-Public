@@ -86,7 +86,10 @@ namespace ValheimOnline
         public static void HandleInteraction(InventoryGui instance, Player player)
         {
             instance.m_pvp.interactable = !Client.PVPEnforced;
-            instance.m_pvp.isOn = Client.PVPMode;
+            if (Client.PVPEnforced == true)
+            {
+                instance.m_pvp.isOn = Client.PVPMode;
+            }
         }
 
         private static MethodInfo func_message = AccessTools.Method(typeof(Character), "Message", null, null);
