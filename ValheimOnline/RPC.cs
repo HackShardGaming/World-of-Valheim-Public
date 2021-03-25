@@ -1,4 +1,6 @@
 ﻿
+using System.Collections.Generic;
+
 namespace ValheimOnline
 {
 
@@ -56,6 +58,9 @@ namespace ValheimOnline
 			}
 			Debug.Log("S2C ServerQuit");
             ServerState.Connections.RemoveAll((ServerState.ConnectionData conn) => conn.rpc.GetSocket() == rpc.GetSocket());
+
+			// Reset EVERYTHING!!!
+            ServerState.Connections = new List<ServerState.ConnectionData>();
 			ServerState.ClientMayDisconnect = true;
 		}
 
