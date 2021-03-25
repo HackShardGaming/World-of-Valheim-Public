@@ -23,7 +23,7 @@ namespace ValheimOnline
     //      });
     //
 
-public static class Client
+    public static class Client
     {
         // Zone Details
         public static bool InSafeZone = false;
@@ -37,6 +37,7 @@ public static class Client
 
         // Current PVP mode for the client
         public static bool PVPMode = false;
+
 
         // Show our position on the map
         public static bool PVPSharePosition = false;
@@ -62,6 +63,14 @@ public static class Client
         public static ZPackage Serialize()
         {
             var zip = new ZPackage();
+            if (Client.PVPEnforced && Client.PVPisEnabled)
+            {
+                Client.PVPMode = true;
+            }
+            else
+            {
+                Client.PVPMode = false;
+            }
             zip.Write(Client.PVPEnforced);
             zip.Write(Client.PVPisEnabled);
             zip.Write(Client.InSafeZone);
