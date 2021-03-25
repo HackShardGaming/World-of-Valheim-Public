@@ -1,4 +1,4 @@
-﻿
+
 namespace ValheimOnline
 {
     // 
@@ -60,13 +60,12 @@ public static class Client
         public static ZPackage Serialize()
         {
             var zip = new ZPackage();
-            zip.Write(PVPEnforced);
-            zip.Write(PVPisEnabled);
-            zip.Write(InSafeZone);
-            zip.Write(InBattleZone);
-            zip.Write(PVPEnforced);
-            zip.Write(PVPMode);
-            zip.Write(PVPSharePosition);
+            zip.Write(Client.PVPEnforced);
+            zip.Write(Client.PVPisEnabled);
+            zip.Write(Client.InSafeZone);
+            zip.Write(Client.InBattleZone);
+            zip.Write(Client.PVPMode);
+            zip.Write(Client.PVPSharePosition);
             return zip;
         }
 
@@ -77,7 +76,6 @@ public static class Client
             Client.PVPisEnabled = data.ReadBool();
             Client.InSafeZone = data.ReadBool();
             Client.InBattleZone = data.ReadBool();
-            Client.PVPEnforced = data.ReadBool();
             Client.PVPMode = data.ReadBool();
             Client.PVPSharePosition = data.ReadBool();
         }

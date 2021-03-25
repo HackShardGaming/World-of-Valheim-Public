@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -18,7 +18,7 @@ namespace ValheimOnline
         [HarmonyPatch(typeof(Minimap), "Start")]
         public static void Minimap_Start(Toggle ___m_publicPosition)
         {
-            // PVPEnforced : True -> Disable interactable
+            // PVPEnforced : True -> Disable intractable
             ___m_publicPosition.interactable = !Client.PVPEnforced;
         }
 
@@ -44,6 +44,22 @@ namespace ValheimOnline
         {
         }
 
+
+        // Harmony Transpiler
+        // Patch the InventoryGui::UpdateCharacterStats
+
+        /* code section in game (dnSpy results for reference)
+        public void UpdateCharacterStats(Player player)
+        {
+            PlayerProfile playerProfile = Game.instance.GetPlayerProfile();
+            this.m_playerName.text = playerProfile.GetName();
+            float bodyArmor = player.GetBodyArmor();
+            this.m_armor.text = bodyArmor.ToString();
+            this.m_pvp.interactable = player.CanSwitchPVP();
+            player.SetPVP(this.m_pvp.isOn);
+        }*/
+
+
         [HarmonyTranspiler]
         [HarmonyPatch(typeof(InventoryGui), "UpdateCharacterStats")]
         public static IEnumerable<CodeInstruction> Transpiler__UpdateCharacterStats(IEnumerable<CodeInstruction> instructions)
@@ -51,7 +67,10 @@ namespace ValheimOnline
             List<CodeInstruction> list = instructions.ToList<CodeInstruction>();
             for (int i = 0; i < list.Count; i++)
             {
-                if (list[i].LoadsField(PVPHandler.f_m_pvp, !Client.PVPEnforced))
+                // Will go through all the Code Instructions until we find the following handler in the code.
+                // Do NOT change the values below.
+                // This function just looks for the handler and the by address field is meant to be false.
+                if (list[i].LoadsField(PVPHandler.f_m_pvp, false))
                 {
                     i--;
                     list.RemoveRange(i, list.Count - i - 1);
@@ -67,7 +86,7 @@ namespace ValheimOnline
         public static void HandleInteraction(InventoryGui instance, Player player)
         {
             instance.m_pvp.interactable = !Client.PVPEnforced;
-            instance.m_pvp.isOn = player.IsPVPEnabled();
+            instance.m_pvp.isOn = Client.PVPMode;
         }
 
         private static MethodInfo func_message = AccessTools.Method(typeof(Character), "Message", null, null);
