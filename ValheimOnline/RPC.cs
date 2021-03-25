@@ -55,6 +55,7 @@ namespace ValheimOnline
 				return;
 			}
 			Debug.Log("S2C ServerQuit");
+            ServerState.Connections.RemoveAll((ServerState.ConnectionData conn) => conn.rpc.GetSocket() == rpc.GetSocket());
 			ServerState.ClientMayDisconnect = true;
 		}
 
