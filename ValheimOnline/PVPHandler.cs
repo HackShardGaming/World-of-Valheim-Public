@@ -15,11 +15,12 @@ namespace ValheimOnline
     {
 
         [HarmonyPostfix]
-        [HarmonyPatch(typeof(Minimap), "Start")]
+        [HarmonyPatch(typeof(Minimap), "Update")]
         public static void Minimap_Start(Toggle ___m_publicPosition)
         {
-            // PVPEnforced : True -> Disable intractable
-            ___m_publicPosition.interactable = !Client.PVPEnforced;
+            // PositionEnforced : True -> Disable intractable
+
+                ___m_publicPosition.interactable = !Client.PositionEnforced;
         }
 
         [HarmonyTranspiler]

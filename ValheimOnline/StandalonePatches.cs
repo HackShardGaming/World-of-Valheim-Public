@@ -196,8 +196,10 @@ namespace ValheimOnline
                     // Process the state of player based on the flag.
                     Player.m_localPlayer.SetPVP(Client.PVPMode);
                     // Tells the world where we are in reference
-                    ZNet.instance.SetPublicReferencePosition(Client.PVPSharePosition);
-
+                    if (Client.PositionEnforced == true)
+                    {
+                        ZNet.instance.SetPublicReferencePosition(Client.PVPSharePosition);
+                    }
                 }
             }
 

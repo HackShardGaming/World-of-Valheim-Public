@@ -27,6 +27,7 @@ namespace ValheimOnline
 		public static ConfigEntry<bool> AllowCharacterSave;
 		public static ConfigEntry<bool> AllowSinglePlayer;
 		public static ConfigEntry<bool> PVPisEnabled;
+		public static ConfigEntry<bool> PositionEnforced;
 
         public void Awake()
         {
@@ -43,8 +44,10 @@ namespace ValheimOnline
             ValheimOnline.ServerPVPEnforced = base.Config.Bind<bool>("ValheimOnline", "ServerPVPEnforced", false, "SERVER ONLY: Are we going to enforce a PVP mode (PVPisEnabled).");
 			// What are we enforcing PVP On (TRUE) or off (FALSE)
 			ValheimOnline.PVPisEnabled = base.Config.Bind<bool>("ValheimOnline", "PVPisEnabled", false, "SERVER ONLY: Enforce the servers PVP mode and prevent users from changing.");
+			// Is the server enforcing Shared Positions?
+			ValheimOnline.PositionEnforced = base.Config.Bind<bool>("ValheimOnline", "PositionEnforced", true, "SERVER ONLY: Are we going to enforce sharing positioning?.");
 			// What are we enforcing Share Position (TRUE) or Don't Share (FALSE)
-			ValheimOnline.PVPSharePosition = base.Config.Bind<bool>("ValheimOnline", "PVPSharePosition", true, "SERVER ONLY: Shows the user on the MAP.");
+			ValheimOnline.PVPSharePosition = base.Config.Bind<bool>("ValheimOnline", "PVPSharePosition", true, "SERVER ONLY: What mode are we enforcing? Share the users position or not?");
 			ValheimOnline.AllowCharacterSave = base.Config.Bind<bool>("ValheimOnline", "AllowCharacterSave", false, "CLIENT ONLY: Should we allow the client to not only send the character back to the server but save a local copy. (WARNING: THIS WILL OVERWRITE YOUR LOCAL CHARACTER FILE!! PLEASE USE A BLANK CHARACTER FILE!)");
 			ValheimOnline.AllowSinglePlayer = base.Config.Bind<bool>("ValheimOnline", "AllowSinglePlayer", false, "CLIENT ONLY: Should we allow the client to play Single Player?  (WARNING: LOTS OF CONSOLE ERRORS RIGHT NOW BUT WORKS!)");
 			new Harmony(ModInfo.Guid).PatchAll();
@@ -59,6 +62,7 @@ namespace ValheimOnline
             Client.PVPEnforced = ValheimOnline.ServerPVPEnforced.Value;
             Client.PVPSharePosition = ValheimOnline.PVPSharePosition.Value;
             Client.PVPisEnabled = ValheimOnline.PVPisEnabled.Value;
+			Client.PositionEnforced = ValheimOnline.PositionEnforced.Value;
 
 			/*
              * Setup default character file for server to use.

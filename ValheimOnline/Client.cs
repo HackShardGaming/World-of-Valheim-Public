@@ -40,6 +40,7 @@ public static class Client
 
         // Show our position on the map
         public static bool PVPSharePosition = false;
+        public static bool PositionEnforced = false;
 
         // Generic debug output
         // Do not change name to debug. Will break "debug()" function in class.
@@ -52,6 +53,7 @@ public static class Client
             Debug.Log("  PVPEnforced: " + Client.PVPEnforced);
             Debug.Log("  PVPisEnabled: " + Client.PVPisEnabled);
             Debug.Log("  PVPMode: " + Client.PVPMode);
+            Debug.Log("  PositionEnforced: " + Client.PositionEnforced);
             Debug.Log("  PVPSharePosition: " + Client.PVPSharePosition);
         }
 #endif
@@ -65,6 +67,7 @@ public static class Client
             zip.Write(Client.InSafeZone);
             zip.Write(Client.InBattleZone);
             zip.Write(Client.PVPMode);
+            zip.Write(Client.PositionEnforced);
             zip.Write(Client.PVPSharePosition);
             return zip;
         }
@@ -77,6 +80,7 @@ public static class Client
             Client.InSafeZone = data.ReadBool();
             Client.InBattleZone = data.ReadBool();
             Client.PVPMode = data.ReadBool();
+            Client.PositionEnforced = data.ReadBool();
             Client.PVPSharePosition = data.ReadBool();
         }
 
