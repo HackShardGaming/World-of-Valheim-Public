@@ -23,6 +23,7 @@ namespace ValheimOnline
         public static ConfigEntry<string> ServerDefaultCharacterPath;
         public static ConfigEntry<string> ServerBattleZonePath;
         public static ConfigEntry<int> ServerSaveInterval;
+		public static ConfigEntry<int> NexusID;
         public static ConfigEntry<bool> ServerPVPEnforced;
         public static ConfigEntry<bool> PVPSharePosition;
 		public static ConfigEntry<bool> AllowCharacterSave;
@@ -43,6 +44,9 @@ namespace ValheimOnline
                 Debug.Log("[Client Mode]");
 			}
 
+			
+			// Nexus ID For Nexus Update
+			ValheimOnline.NexusID = base.Config.Bind<int>("ValheimOnline", "NexusID", 626, "Nexus ID to make Nexus Update Happy!");
 			// Load Paths
 			ValheimOnline.ServerVaultPath = base.Config.Bind<string>("ValheimOnline", "ServerVaultPath", Path.Combine(Utils.GetSaveDataPath(), "characters_vault"), "SERVER ONLY: The root directory for the server vault.");
             ValheimOnline.ServerSafeZonePath = base.Config.Bind<string>("ValheimOnline", "ServerSafeZonePath", Path.Combine(Utils.GetSaveDataPath(), "safe_zones.txt"), "SERVER ONLY: The file path to the safe zone file. If it does not exist, it will be created with a default safe zone.");
