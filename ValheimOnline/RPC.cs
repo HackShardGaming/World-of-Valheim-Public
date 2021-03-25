@@ -13,6 +13,11 @@ namespace ValheimOnline
 			Debug.Assert(!ZNet.instance.IsServer());
 			Debug.Assert(ServerState.ClientPendingLoadData == null);
 			ServerState.ClientPendingLoadData = data;
+			if (!ZNet.instance.IsServer())
+			{
+				Debug.Log("Clearing out any old RPC connections");
+				ServerState.Connections = new List<ServerState.ConnectionData>();
+			}
 			ServerState.Connections.Add(new ServerState.ConnectionData
 			{
 				rpc = rpc
@@ -58,7 +63,6 @@ namespace ValheimOnline
 			}
 			Debug.Log("S2C ServerQuit");
             ServerState.Connections.RemoveAll((ServerState.ConnectionData conn) => conn.rpc.GetSocket() == rpc.GetSocket());
-
 			// Reset EVERYTHING!!!
             ServerState.Connections = new List<ServerState.ConnectionData>();
 			ServerState.ClientMayDisconnect = true;
