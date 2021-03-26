@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using HarmonyLib;
 using UnityEngine;
@@ -132,7 +132,7 @@ namespace ValheimOnline
                         Player.m_localPlayer.Message(MessageHud.MessageType.Center, $"You have now entered battle zone {battleZone.name}", 0, null);
                         Client.InBattleZone = true;
                     }
-                    else if (!flag && !flag2 && Client.InSafeZone && Client.InBattleZone)
+                    else if (!flag && !flag2 && ( Client.InSafeZone || Client.InBattleZone) )
                     {
 #if DEBUG
                         Client._debug();
