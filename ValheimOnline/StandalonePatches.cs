@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using HarmonyLib;
 using UnityEngine;
@@ -132,7 +132,7 @@ namespace ValheimOnline
                         Player.m_localPlayer.Message(MessageHud.MessageType.Center, $"You have now entered battle zone {battleZone.name}", 0, null);
                         Client.InBattleZone = true;
                     }
-                    else if (!flag && !flag2 && Client.InSafeZone && Client.InBattleZone)
+                    else if (!flag && !flag2 && ( Client.InSafeZone || Client.InBattleZone) )
                     {
 #if DEBUG
                         Client._debug();
@@ -189,10 +189,7 @@ namespace ValheimOnline
                             Client.PVPMode = false;
                         }
                     }
-#if DEBUG
-                    //Debug.Log("Player.m_localPlayer.SetPVP( " + Client.PVPMode + ");");
-                    //Debug.Log("ZNet.instance.SetPublicReferencePosition( " + Client.PVPSharePosition + ");");
-#endif
+
                     // Process the state of player based on the flag.
                     Player.m_localPlayer.SetPVP(Client.PVPMode);
                     // Tells the world where we are in reference
@@ -338,13 +335,35 @@ namespace ValheimOnline
                 return true;
             }
             StandalonePatches.m_quitting = true;
-            Debug.Assert(!ZNet.instance.IsServer());
-            Debug.Log("Quitting: sending ServerQuit and waiting.");
-            Util.GetServer().rpc.Invoke("ServerQuit", new object[]
+
+            if (ZNet.instance.IsServer())
             {
-                Util.Compress(Game.instance.GetPlayerProfile().Serialize(Player.m_localPlayer, true))
-            });
-            return false;
+                float realtimeSinceStartup = Time.realtimeSinceStartup;
+                using (List<ServerState.ConnectionData>.Enumerator enumerator = ServerState.Connections.GetEnumerator())
+                {
+                    while (enumerator.MoveNext())
+                    {
+                        ServerState.ConnectionData connectionData = enumerator.Current;
+                        connectionData.rpc.Invoke("ServerVaultUpdate", new object[]
+                        {
+                            new ZPackage()
+                        });
+                        connectionData.last_save_time = realtimeSinceStartup;
+                    }
+                    Debug.Log("Sending Requests to clients to save!");
+                }
+                return false;
+            }
+            else
+            {
+                Debug.Assert(!ZNet.instance.IsServer());
+                Debug.Log("Quitting: sending ServerQuit and waiting.");
+                Util.GetServer().rpc.Invoke("ServerQuit", new object[]
+                {
+                    Util.Compress(Game.instance.GetPlayerProfile().Serialize(Player.m_localPlayer, true))
+                });
+                return false;
+            }
         }
 
 
