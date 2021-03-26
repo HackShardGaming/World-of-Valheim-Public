@@ -35,8 +35,14 @@ namespace ValheimOnline
         {
 			Debug.Log("Haz awoke!!?!");
 
+#if DEBUG
+            Debug.Log("Development Version Activated!!!");
+            Debug.Log("Warning: This may break your game (90% stable)");
+            Debug.Log("***Do Not Release To Public***");
+#endif
 
-			// Process through the configurations
+
+            // Process through the configurations
 
             // Nexus ID For Nexus Update
             ValheimOnline.NexusID = base.Config.Bind<int>("ValheimOnline", "NexusID", 626, "Nexus ID to make Nexus Update Happy!");

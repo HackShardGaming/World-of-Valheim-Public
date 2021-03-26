@@ -11,8 +11,8 @@ namespace ValheimOnline
         public const string Group = "HackShardGaming";
         public const string Guid = "HackShardGaming.ValheimOnline";
         // Version follow Semantic Versioning Scheme (https://semver.org/)
-        public const string Version = "0.2.6";
-        public const string buildDate = "2021-03-25";
+        public const string Version = "0.2.7";
+        public const string buildDate = "2021-03-26";
 
         // Use GetBuildDate(Assembly.GetExecutingAssembly()); to get build date
         private static DateTime m_GetBuildDate(Assembly assembly)
