@@ -1,5 +1,3 @@
-#define DEBUG
-
 using System;
 using System.IO;
 using System.Net.NetworkInformation;
