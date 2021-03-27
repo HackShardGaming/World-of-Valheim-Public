@@ -29,7 +29,11 @@ namespace ValheimOnline
         [HarmonyPatch(typeof(Version), "GetVersionString")]
         private static void Version__GetVersionString(ref string __result)
         {
+#if DEBUG
+            __result = $"{__result} ({ModInfo.Name} v{ModInfo.Version}-Dev)";
+#else
             __result = $"{__result} ({ModInfo.Name} v{ModInfo.Version})";
+#endif
         }
 
         // Patches assembly_valheim::FejdStartup::Update
