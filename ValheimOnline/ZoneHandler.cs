@@ -79,6 +79,7 @@ namespace ValheimOnline
             public string Name;
             public string Type;
             public int Priority;
+            public int Shape;//0 - circle, 1 - square
             public Vector2 Position;
             public float Radius;
             public bool pvp;
@@ -131,9 +132,25 @@ namespace ValheimOnline
 
             foreach (Zone checkZone in Zones)
             {
-                if (Vector2.Distance(a, checkZone.Position) <= checkZone.Radius)
+                // are we a circle
+                if (checkZone.Shape == 0)
                 {
-                    occupiedZones.Add(checkZone);
+                    if (Vector2.Distance(a, checkZone.Position) <= checkZone.Radius)
+                    {
+                        occupiedZones.Add(checkZone);
+                    }
+                }
+                else
+                {
+                    // Square check if you are in the boundaries
+                    float boundary = checkZone.Radius / 2;
+                    if (((checkZone.Position.x + boundary) > a.x) &&
+                        ((checkZone.Position.x - boundary) < a.x) &&
+                        ((checkZone.Position.y + boundary) > a.y) &&
+                        ((checkZone.Position.y - boundary) < a.y))
+                    {
+                        occupiedZones.Add(checkZone);
+                    }
                 }
             }
             return occupiedZones;
@@ -145,17 +162,6 @@ namespace ValheimOnline
         {
             // Sort the Zone list and output the one on top.
             z.Sort((Zone a, Zone b) => a.Priority.CompareTo(b.Priority));
-            // Remove the first zone and go through and compare.
-            /*
-            Zone occupiedZones = ZoneList;
-            foreach (Zone checkZone in ZoneList)
-            {
-                if (occupiedZones.type < checkZone.type)
-                {
-                    occupiedZones = checkZone;
-                }
-            }
-            */
             return z[0];
         }
 
@@ -212,6 +218,7 @@ namespace ValheimOnline
                 zip.Write(z.Name);
                 zip.Write(z.Type);
                 zip.Write(z.Priority);
+                zip.Write(z.Shape);
                 //zip.Write((int)z.type);
                 zip.Write(z.Position.x);
                 zip.Write(z.Position.y);
@@ -233,6 +240,7 @@ namespace ValheimOnline
                     Name = package.ReadString(),
                     Type = package.ReadString(),
                     Priority = package.ReadInt(),
+                    Shape = package.ReadInt(),
                     //type = (zoneType) package.ReadInt(),
                     Position = new Vector2(package.ReadSingle(), package.ReadSingle()),
                     Radius = package.ReadSingle(),
@@ -275,22 +283,23 @@ namespace ValheimOnline
                 if (!string.IsNullOrWhiteSpace(text2) && text2[0] != '#')
                 {
                     string[] array2 = text2.Split(Array.Empty<char>());
-                    if (array2.Length != 7)
+                    if (array2.Length != 8)
                     {
                         Debug.Log($"Zone {text2} is not correctly formatted.");
                     }
                     else
                     {
-                        
+
                         Zone z = new Zone();
                         z.Name = array2[0];
                         z.Type = array2[1];
                         z.Priority = int.Parse(array2[2]);
+                        z.Shape = int.Parse(array2[3]);
                         //z.type = (zoneType) Enum.Parse(typeof(zoneType), array2[1]);
-                        z.Position.x = float.Parse(array2[3]);
-                        z.Position.y = float.Parse(array2[4]);
-                        z.Radius = float.Parse(array2[5]);
-                        z.pvp = bool.Parse(array2[6]);
+                        z.Position.x = float.Parse(array2[4]);
+                        z.Position.y = float.Parse(array2[5]);
+                        z.Radius = float.Parse(array2[6]);
+                        z.pvp = bool.Parse(array2[7]);
                         z.ID = pos;
 
                         Zones.Add(z);
