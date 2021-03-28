@@ -20,6 +20,7 @@ namespace ValheimOnline
         public static ConfigEntry<string> ServerSafeZonePath;
         public static ConfigEntry<string> ServerDefaultCharacterPath;
         public static ConfigEntry<string> ServerBattleZonePath;
+        public static ConfigEntry<string> ServerZonePath;
         public static ConfigEntry<int> ServerSaveInterval;
 		public static ConfigEntry<int> NexusID;
         public static ConfigEntry<bool> ServerPVPEnforced;
@@ -55,6 +56,8 @@ namespace ValheimOnline
                 ValheimOnline.ServerSafeZonePath = base.Config.Bind<string>("ValheimOnline", "ServerSafeZonePath", Path.Combine(Utils.GetSaveDataPath(), "safe_zones.txt"), "SERVER ONLY: The file path to the safe zone file. If it does not exist, it will be created with a default safe zone.");
                 ValheimOnline.ServerDefaultCharacterPath = base.Config.Bind<string>("ValheimOnline", "ServerDefaultCharacterPath", Path.Combine(Utils.GetSaveDataPath(), "default_character.fch"), "SERVER ONLY: The file path to the default character file. If it does not exist, it will be created with a default character file.");
                 ValheimOnline.ServerBattleZonePath = base.Config.Bind<string>("ValheimOnline", "ServerBattleZonePath", Path.Combine(Utils.GetSaveDataPath(), "Battle_zones.txt"), "SERVER ONLY: The file path to the Battle zone file. If it does not exist, it will be created with a default Battle zone.");
+                ValheimOnline.ServerZonePath = base.Config.Bind<string>("ValheimOnline", "ServerZonePath", Path.Combine(Utils.GetSaveDataPath(), "zones.txt"), "SERVER ONLY: The file path to the zone file. If it does not exist, it will be created with a default zone.");
+
 
                 // Load Settings
                 // Server Save Interval
@@ -115,6 +118,8 @@ namespace ValheimOnline
                 /*
                  * Setup safe zones.
                  */
+                ZoneHandler.LoadZoneData(ValheimOnline.ServerZonePath.Value);
+
 
                 if (!File.Exists(ValheimOnline.ServerSafeZonePath.Value))
                 {

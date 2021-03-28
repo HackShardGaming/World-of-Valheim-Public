@@ -112,6 +112,40 @@ namespace ValheimOnline
                 // 
                 //
                 // Goes through the zones and setup the necessary enforcements.
+
+                ZoneHandler.Zone zone;
+                bool changed;
+                bool zonedDetected = ZoneHandler.Detect(Player.m_localPlayer.transform.position, out changed, out zone);
+                if (changed)
+                {
+                    if (zonedDetected)
+                    {
+                        Player.m_localPlayer.Message(MessageHud.MessageType.Center, $"You have now entered {zone.Name}",
+                            0, null);
+                        if (Client.PVPEnforced == true)
+                        {
+                            Client.PVPMode = zone.pvp;
+                        }
+                    }
+                    else
+                    {
+                        Player.m_localPlayer.Message(MessageHud.MessageType.Center, $"You have now entered the wilderness",
+                            0, null);
+                        if (Client.PVPEnforced == true)
+                        {
+                            Client.PVPMode = Client.PVPisEnabled;
+                        }
+                    }
+
+                    // Process the state of player based on the flag.
+                    Player.m_localPlayer.SetPVP(Client.PVPMode);
+                    // Tells the world where we are in reference
+                    if (Client.PositionEnforced == true)
+                    {
+                        ZNet.instance.SetPublicReferencePosition(Client.PVPSharePosition);
+                    }
+                }
+                /*
                 ServerState.SafeZone safeZone;
                 bool flag = Util.PointInSafeZone(Player.m_localPlayer.transform.position, out safeZone);
 
@@ -202,6 +236,8 @@ namespace ValheimOnline
                         ZNet.instance.SetPublicReferencePosition(Client.PVPSharePosition);
                     }
                 }
+
+                */
             }
 
             if (ServerState.ClientMayDisconnect)
@@ -235,6 +271,7 @@ namespace ValheimOnline
             {
                 // Client special RPC calls
                 peer.m_rpc.Register<ZPackage>("ServerVaultData", new Action<ZRpc, ZPackage>(RPC.ServerVaultData));
+                peer.m_rpc.Register<ZPackage>("ZoneHandler", new Action<ZRpc, ZPackage>(ZoneHandler.RPC));
                 peer.m_rpc.Register<ZPackage>("SafeZones", new Action<ZRpc, ZPackage>(RPC.SafeZones));
                 peer.m_rpc.Register<ZPackage>("BattleZones", new Action<ZRpc, ZPackage>(RPC.BattleZones));
                 peer.m_rpc.Register<ZPackage>("Client", new Action<ZRpc, ZPackage>(Client.RPC));
@@ -285,6 +322,13 @@ namespace ValheimOnline
             rpc.Invoke("ServerVaultData", new object[] {
                 Util.Compress(Util.LoadOrMakeCharacter(rpc.GetSocket().GetHostName()))
             });
+
+            Debug.Log("S2C ZoneHandler (SendPeerInfo)");
+            ZoneHandler._debug();
+            rpc.Invoke("ZoneHandler", new object[] {
+                ZoneHandler.Serialize()
+            });
+
             Debug.Log("S2C SafeZones");
             rpc.Invoke("SafeZones", new object[] {
                 ServerState.SafeZones.Serialize()

@@ -75,6 +75,7 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ZoneHandler.cs" />
     <Compile Include="Debug.cs" />
     <Compile Include="DisableSave.cs" />
     <Compile Include="LoadServerCharacterOnClient.cs" />
