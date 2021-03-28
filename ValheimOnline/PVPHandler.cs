@@ -89,7 +89,12 @@ namespace ValheimOnline
             instance.m_pvp.interactable = !Client.PVPEnforced;
             if (Client.PVPEnforced == true)
             {
+
                 instance.m_pvp.isOn = Client.PVPMode;
+            }
+            else
+            {
+                player.SetPVP(instance.m_pvp.isOn);
             }
         }
 
