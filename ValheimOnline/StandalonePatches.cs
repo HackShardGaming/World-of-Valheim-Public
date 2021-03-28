@@ -138,7 +138,11 @@ namespace ValheimOnline
                     }
 
                     // Process the state of player based on the flag.
-                    Player.m_localPlayer.SetPVP(Client.PVPMode);
+                    if (Client.PVPEnforced == true)
+                    {
+                        Player.m_localPlayer.SetPVP(Client.PVPMode);
+                    }
+
                     // Tells the world where we are in reference
                     if (Client.PositionEnforced == true)
                     {

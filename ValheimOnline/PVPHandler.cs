@@ -20,7 +20,7 @@ namespace ValheimOnline
         {
             // PositionEnforced : True -> Disable intractable
 
-                ___m_publicPosition.interactable = !Client.PositionEnforced;
+            ___m_publicPosition.interactable = !Client.PositionEnforced;
         }
 
         [HarmonyTranspiler]
@@ -90,6 +90,10 @@ namespace ValheimOnline
             if (Client.PVPEnforced == true)
             {
                 instance.m_pvp.isOn = Client.PVPMode;
+            }
+            else
+            {
+                player.SetPVP(instance.m_pvp.isOn);
             }
         }
 
