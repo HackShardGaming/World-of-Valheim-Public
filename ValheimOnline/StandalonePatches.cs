@@ -337,8 +337,9 @@ namespace ValheimOnline
         private static bool Game__Shutdown()
         {
             Debug.Log("Shutdown Detected.");
-            if (StandalonePatches.m_quitting)
+            if (StandalonePatches.m_quitting || StandalonePatches.m_logging)
             {
+                Debug.Log("We are logging out with the Logout or Quit button! Skipping this patch!");
                 return true;
             }
             StandalonePatches.m_quitting = true;
