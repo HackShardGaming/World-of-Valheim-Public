@@ -129,13 +129,7 @@ namespace ValheimOnline
                     {
                         Player.m_localPlayer.Message(MessageHud.MessageType.Center, $"You have now entered the wilderness",
                             0, null);
-                        /*
-                        if (Client.PVPEnforced == true)
-                        {
-                            Client.PVPMode = Client.PVPisEnabled;
-                        }
-                        */
-
+                        
                     }
 
                     // Zones are now being enforced?
