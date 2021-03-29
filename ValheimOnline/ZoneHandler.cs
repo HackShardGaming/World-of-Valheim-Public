@@ -369,6 +369,10 @@ namespace ValheimOnline
                 //string text = "# format: name type x z radius\nDefaultSafeZone safe 1 0.0 0.0 5.0 true";
                 File.WriteAllText(ZonePath, text);
             }
+            else
+            {
+                Debug.Log($"Loading zone file: {ZonePath}");
+            }
 
             int pos = 0;
             foreach (string text2 in File.ReadAllLines(ZonePath))
