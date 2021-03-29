@@ -114,134 +114,57 @@ namespace ValheimOnline
                 // Goes through the zones and setup the necessary enforcements.
 
                 ZoneHandler.Zone zone;
+                ZoneHandler.ZoneTypes ztype;
                 bool changed;
-                bool zonedDetected = ZoneHandler.Detect(Player.m_localPlayer.transform.position, out changed, out zone);
+                bool zonedDetected = ZoneHandler.Detect(Player.m_localPlayer.transform.position, out changed, out zone, out ztype);
                 if (changed)
                 {
                     if (zonedDetected)
                     {
                         Player.m_localPlayer.Message(MessageHud.MessageType.Center, $"You have now entered {zone.Name}",
                             0, null);
-                        if (Client.PVPEnforced == true)
-                        {
-                            Client.PVPMode = zone.pvp;
-                        }
+
                     }
                     else
                     {
                         Player.m_localPlayer.Message(MessageHud.MessageType.Center, $"You have now entered the wilderness",
                             0, null);
+                        /*
                         if (Client.PVPEnforced == true)
                         {
                             Client.PVPMode = Client.PVPisEnabled;
                         }
+                        */
+
                     }
 
-                    // Process the state of player based on the flag.
-                    if (Client.PVPEnforced == true)
+                    // Zones are now being enforced?
+                    if (Client.EnforceZones)
                     {
+                        // Update the client settings based on zone type
+
+                        // PVP settings:
+                        Client.PVPEnforced = ztype.PVPEnforce;
+                        if (ztype.PVPEnforce)
+                            Client.PVPMode = ztype.PVP;
+
+                        // Position settings:
+                        Client.PositionEnforce = ztype.PositionEnforce;
+                        if (ztype.PositionEnforce)
+                            Client.ShowPosition = ztype.ShowPosition;
+
+                        // Run the updated settings for the Clients
                         Player.m_localPlayer.SetPVP(Client.PVPMode);
-                    }
+                        ZNet.instance.SetPublicReferencePosition(Client.ShowPosition);
 
-                    // Tells the world where we are in reference
-                    if (Client.PositionEnforced == true)
-                    {
-                        ZNet.instance.SetPublicReferencePosition(Client.PVPSharePosition);
+                        // Other settings are scattered among the wind to other functions
+                        // (Use Client class for the current state)
                     }
+#if DEBUG
+                    ZoneHandler._debug(ztype);
+                    Client._debug();
+#endif
                 }
-                /*
-                ServerState.SafeZone safeZone;
-                bool flag = Util.PointInSafeZone(Player.m_localPlayer.transform.position, out safeZone);
-
-                ServerState.BattleZone battleZone;
-                bool flag2 = Util.PointInBattleZone(Player.m_localPlayer.transform.position, out battleZone);
-                if (Client.PVPEnforced == false)
-                {
-                    if (flag && !Client.InSafeZone)
-                    {
-#if DEBUG
-                        Client._debug();
-#endif
-                        Player.m_localPlayer.Message(MessageHud.MessageType.Center, $"You have now entered safe zone {safeZone.name}", 0, null);
-                        Client.InSafeZone = true;
-
-                    }
-                    else if (flag2 && !Client.InBattleZone)
-                    {
-#if DEBUG
-                        Client._debug();
-#endif
-                        Player.m_localPlayer.Message(MessageHud.MessageType.Center, $"You have now entered battle zone {battleZone.name}", 0, null);
-                        Client.InBattleZone = true;
-                    }
-                    else if (!flag && !flag2 && ( Client.InSafeZone || Client.InBattleZone) )
-                    {
-#if DEBUG
-                        Client._debug();
-#endif
-                        Player.m_localPlayer.Message(MessageHud.MessageType.Center, "You are now in the wilderness", 0, null);
-                        Client.InSafeZone = false;
-                        Client.InBattleZone = false;
-                    }
-                }
-                if (Client.PVPEnforced == true)
-                {
-                    if (Client.PVPisEnabled == true)
-                    {
-                        if (flag && !Client.InSafeZone)
-                        {
-#if DEBUG
-                            Client._debug();
-#endif
-                            Player.m_localPlayer.Message(MessageHud.MessageType.Center, $"You have now entered safe zone {safeZone.name}", 0, null);
-                            Client.InSafeZone = true;
-                            Client.PVPMode = false;
-
-                        }
-                        else if (!flag && Client.InSafeZone)
-                        {
-#if DEBUG
-                            Client._debug();
-#endif
-                            Player.m_localPlayer.Message(MessageHud.MessageType.Center, "You are now in the wilderness", 0, null);
-
-                            Client.InSafeZone = false;
-                            Client.PVPMode = true;
-                        }
-                    }
-                    else if (Client.PVPisEnabled == false)
-                    {
-                        if (flag2 && !Client.InBattleZone)
-                        {
-#if DEBUG
-                            Client._debug();
-#endif
-                            Player.m_localPlayer.Message(MessageHud.MessageType.Center, $"You have now entered battle zone {battleZone.name}", 0, null);
-                            Client.InBattleZone = true;
-                            Client.PVPMode = true;
-                        }
-                        else if (!flag2 && Client.InBattleZone)
-                        {
-#if DEBUG
-                            Client._debug();
-#endif
-                            Player.m_localPlayer.Message(MessageHud.MessageType.Center, "You are now in the wilderness", 0, null);
-
-                            Client.InBattleZone = false;
-                            Client.PVPMode = false;
-                        }
-                    }
-
-                    // Process the state of player based on the flag.
-                    Player.m_localPlayer.SetPVP(Client.PVPMode);
-                    // Tells the world where we are in reference
-                    if (Client.PositionEnforced == true)
-                    {
-                        ZNet.instance.SetPublicReferencePosition(Client.PVPSharePosition);
-                    }
-                }
-
-                */
             }
 
             if (ServerState.ClientMayDisconnect)
@@ -270,7 +193,7 @@ namespace ValheimOnline
         [HarmonyPatch(typeof(ZNet), "OnNewConnection")]
         private static void ZNet__OnNewConnection(ZNet __instance, ZNetPeer peer)
         {
-            Debug.Log($"Server PVP Enforce: {Client.PVPEnforced}");
+            Debug.Log($"Server Zone Enforced: {Client.EnforceZones}");
             if (!__instance.IsServer())
             {
                 // Client special RPC calls

@@ -24,11 +24,13 @@ namespace ValheimOnline
         public static ConfigEntry<int> ServerSaveInterval;
 		public static ConfigEntry<int> NexusID;
         public static ConfigEntry<bool> ServerPVPEnforced;
-        public static ConfigEntry<bool> PVPSharePosition;
+        //public static ConfigEntry<bool> PVPSharePosition;
 		public static ConfigEntry<bool> AllowCharacterSave;
 		public static ConfigEntry<bool> AllowSinglePlayer;
-		public static ConfigEntry<bool> PVPisEnabled;
-		public static ConfigEntry<bool> PositionEnforced;
+		//public static ConfigEntry<bool> PVPisEnabled;
+		//public static ConfigEntry<bool> PositionEnforced;
+
+        public static ConfigEntry<bool> EnforceZones;
 
         public void Awake()
         {
@@ -53,11 +55,12 @@ namespace ValheimOnline
 				Debug.Log("[Server Mode]");
                 // Load Paths
                 ValheimOnline.ServerVaultPath = base.Config.Bind<string>("ValheimOnline", "ServerVaultPath", Path.Combine(Utils.GetSaveDataPath(), "characters_vault"), "SERVER ONLY: The root directory for the server vault.");
-                ValheimOnline.ServerSafeZonePath = base.Config.Bind<string>("ValheimOnline", "ServerSafeZonePath", Path.Combine(Utils.GetSaveDataPath(), "safe_zones.txt"), "SERVER ONLY: The file path to the safe zone file. If it does not exist, it will be created with a default safe zone.");
+                //ValheimOnline.ServerSafeZonePath = base.Config.Bind<string>("ValheimOnline", "ServerSafeZonePath", Path.Combine(Utils.GetSaveDataPath(), "safe_zones.txt"), "SERVER ONLY: The file path to the safe zone file. If it does not exist, it will be created with a default safe zone.");
                 ValheimOnline.ServerDefaultCharacterPath = base.Config.Bind<string>("ValheimOnline", "ServerDefaultCharacterPath", Path.Combine(Utils.GetSaveDataPath(), "default_character.fch"), "SERVER ONLY: The file path to the default character file. If it does not exist, it will be created with a default character file.");
-                ValheimOnline.ServerBattleZonePath = base.Config.Bind<string>("ValheimOnline", "ServerBattleZonePath", Path.Combine(Utils.GetSaveDataPath(), "Battle_zones.txt"), "SERVER ONLY: The file path to the Battle zone file. If it does not exist, it will be created with a default Battle zone.");
+                //ValheimOnline.ServerBattleZonePath = base.Config.Bind<string>("ValheimOnline", "ServerBattleZonePath", Path.Combine(Utils.GetSaveDataPath(), "Battle_zones.txt"), "SERVER ONLY: The file path to the Battle zone file. If it does not exist, it will be created with a default Battle zone.");
                 ValheimOnline.ServerZonePath = base.Config.Bind<string>("ValheimOnline", "ServerZonePath", Path.Combine(Utils.GetSaveDataPath(), "zones.txt"), "SERVER ONLY: The file path to the zone file. If it does not exist, it will be created with a default zone.");
-
+                
+                ValheimOnline.EnforceZones = base.Config.Bind<bool>("ValheimOnline", "EnforceZones", false, "SERVER ONLY: Are we going to enforce zone settings.");
 
                 // Load Settings
                 // Server Save Interval
@@ -65,18 +68,19 @@ namespace ValheimOnline
                 // Is the server enforcing PVP?
                 ValheimOnline.ServerPVPEnforced = base.Config.Bind<bool>("ValheimOnline", "ServerPVPEnforced", false, "SERVER ONLY: Are we going to enforce a PVP mode (PVPisEnabled).");
                 // What are we enforcing PVP On (TRUE) or off (FALSE)
-                ValheimOnline.PVPisEnabled = base.Config.Bind<bool>("ValheimOnline", "PVPisEnabled", false, "SERVER ONLY: Enforce the servers PVP mode and prevent users from changing.");
+                //ValheimOnline.PVPisEnabled = base.Config.Bind<bool>("ValheimOnline", "PVPisEnabled", false, "SERVER ONLY: PVPEnforce the servers PVP mode and prevent users from changing.");
                 // Is the server enforcing Shared Positions?
-                ValheimOnline.PositionEnforced = base.Config.Bind<bool>("ValheimOnline", "PositionEnforced", true, "SERVER ONLY: Are we going to enforce sharing positioning?.");
+                //ValheimOnline.PositionEnforced = base.Config.Bind<bool>("ValheimOnline", "PositionEnforce", true, "SERVER ONLY: Are we going to enforce sharing positioning?.");
                 // What are we enforcing Share Position (TRUE) or Don't Share (FALSE)
-                ValheimOnline.PVPSharePosition = base.Config.Bind<bool>("ValheimOnline", "PVPSharePosition", true, "SERVER ONLY: What mode are we enforcing? Share the users position or not?");
+                //ValheimOnline.PVPSharePosition = base.Config.Bind<bool>("ValheimOnline", "ShowPosition", true, "SERVER ONLY: What mode are we enforcing? Share the users position or not?");
 
 
                 // Setup client state configuration
-                Client.PVPEnforced = ValheimOnline.ServerPVPEnforced.Value;
-                Client.PVPSharePosition = ValheimOnline.PVPSharePosition.Value;
-                Client.PVPisEnabled = ValheimOnline.PVPisEnabled.Value;
-                Client.PositionEnforced = ValheimOnline.PositionEnforced.Value;
+                //Client.PVPEnforced = ValheimOnline.ServerPVPEnforced.Value;
+                //Client.ShowPosition = ValheimOnline.PVPSharePosition.Value;
+                //Client.PVPisEnabled = ValheimOnline.PVPisEnabled.Value;
+                //Client.PositionEnforce = ValheimOnline.PositionEnforced.Value;
+                Client.EnforceZones = ValheimOnline.EnforceZones.Value;
             }
 			else
             {
@@ -120,77 +124,6 @@ namespace ValheimOnline
                  */
                 ZoneHandler.LoadZoneData(ValheimOnline.ServerZonePath.Value);
 
-
-                if (!File.Exists(ValheimOnline.ServerSafeZonePath.Value))
-                {
-                    Debug.Log($"Creating safe zone file at {ValheimOnline.ServerSafeZonePath.Value}");
-                    string text = "# format: name x z radius\nDefaultSafeZone 0.0 0.0 5.0";
-                    File.WriteAllText(ValheimOnline.ServerSafeZonePath.Value, text);
-                }
-
-                foreach (string text2 in File.ReadAllLines(ValheimOnline.ServerSafeZonePath.Value))
-                {
-                    if (!string.IsNullOrWhiteSpace(text2) && text2[0] != '#')
-                    {
-                        string[] array2 = text2.Split(Array.Empty<char>());
-                        if (array2.Length != 4)
-                        {
-                            Debug.Log($"Safe zone {text2} is not correctly formatted.");
-                        }
-                        else
-                        {
-                            ServerState.SafeZone safeZone;
-                            safeZone.name = array2[0];
-                            safeZone.position.x = float.Parse(array2[1]);
-                            safeZone.position.y = float.Parse(array2[2]);
-                            safeZone.radius = float.Parse(array2[3]);
-                            Debug.Log(string.Format("Loaded safe zone {0} ({1}, {2}) radius {3}", new object[]
-                            {
-                                safeZone.name,
-                                safeZone.position.x,
-                                safeZone.position.y,
-                                safeZone.radius
-                            }));
-                            ServerState.SafeZones.Add(safeZone);
-                        }
-                    }
-                }
-
-                // Battle Zone
-                if (!File.Exists(ValheimOnline.ServerBattleZonePath.Value))
-                {
-                    Debug.Log($"Creating battle zone file at {ValheimOnline.ServerBattleZonePath.Value}");
-                    string text = "# format: name x z radius\nDefaultBattleZone 0.0 0.0 5.0";
-                    File.WriteAllText(ValheimOnline.ServerBattleZonePath.Value, text);
-                }
-
-                foreach (string text2 in File.ReadAllLines(ValheimOnline.ServerBattleZonePath.Value))
-                {
-                    if (!string.IsNullOrWhiteSpace(text2) && text2[0] != '#')
-                    {
-                        string[] array2 = text2.Split(Array.Empty<char>());
-                        if (array2.Length != 4)
-                        {
-                            Debug.Log($"Battle zone {text2} is not correctly formatted.");
-                        }
-                        else
-                        {
-                            ServerState.BattleZone battleZone;
-                            battleZone.name = array2[0];
-                            battleZone.position.x = float.Parse(array2[1]);
-                            battleZone.position.y = float.Parse(array2[2]);
-                            battleZone.radius = float.Parse(array2[3]);
-                            Debug.Log(string.Format("Loaded Battle zone {0} ({1}, {2}) radius {3}", new object[]
-                            {
-                                battleZone.name,
-                                battleZone.position.x,
-                                battleZone.position.y,
-                                battleZone.radius
-                            }));
-                            ServerState.BattleZones.Add(battleZone);
-                        }
-                    }
-                }
             }
         }
     }

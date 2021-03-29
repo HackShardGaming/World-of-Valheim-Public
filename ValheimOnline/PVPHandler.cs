@@ -18,9 +18,9 @@ namespace ValheimOnline
         [HarmonyPatch(typeof(Minimap), "Update")]
         public static void Minimap_Start(Toggle ___m_publicPosition)
         {
-            // PositionEnforced : True -> Disable intractable
+            // PositionEnforce : True -> Disable intractable
 
-            ___m_publicPosition.interactable = !Client.PositionEnforced;
+            ___m_publicPosition.interactable = !Client.PositionEnforce;
         }
 
         [HarmonyTranspiler]

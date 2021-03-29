@@ -2,8 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using UnityEngine;
+
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
 namespace ValheimOnline
 {
@@ -53,13 +57,20 @@ namespace ValheimOnline
         // ZoneSettings is the configuration for the zone.
         // Try to only handle the struct and not individual since it will update A LOT
 
-        public class ZoneSettings
+        public class ZoneTypes
         {
             //What affect does the zone provide?
-            public bool pvp = false;
-            //public bool enforce = false;
-            //public bool viewDistance = false;
-            //public bool autoheal = false;
+            public string Name = "Unknown";
+            // PVP settings
+            public bool PVP = false;
+            public bool PVPEnforce = false;
+            // Show position settings
+            public bool ShowPosition = true;
+            public bool PositionEnforce = false;
+
+            // Other features in the future.
+            public int ViewDistance = 30;
+            public bool AutoHeal = false;
         }
 
         // ./addzone Neutral Reisucks Square 50 100
@@ -75,14 +86,14 @@ namespace ValheimOnline
         //   Zone Parameters
         public struct Zone
         {
-            public int ID;
+            public int ID; // Use for id to maintain current zone
             public string Name;
             public string Type;
             public int Priority;
-            public int Shape;//0 - circle, 1 - square
+            public string Shape;//0 - circle, 1 - square, 2 - coords
             public Vector2 Position;
             public float Radius;
-            public bool pvp;
+            //public bool pvp;
             //public ZoneSettings Settings;
         }
 
@@ -95,6 +106,10 @@ namespace ValheimOnline
 
         // List of all the zones
         public static List<Zone> Zones = new List<Zone>();
+
+        public static List<ZoneTypes> ZoneT = new List<ZoneTypes>();
+
+
 
         // Generic debug output
         // Do not change name to debug. Will break "debug()" function in class.
@@ -117,9 +132,28 @@ namespace ValheimOnline
                 }
             }
         }
+        public static void _debug(ZoneTypes zt)
+        {
+            Debug.Log($"  Type: {zt.Name} -> [ {zt.PVP}, {zt.PVPEnforce}, {zt.ShowPosition}, {zt.PositionEnforce}, {zt.ViewDistance}, {zt.AutoHeal} ]");
+        }
+
+        public static void _debug(List<ZoneTypes> zt)
+        {
+            Debug.Log("Loaded Zone Type Data: ");
+            Debug.Log("  Zone Type Cnt: " + zt.Count);
+
+            using (List<ZoneTypes>.Enumerator enumerator = zt.GetEnumerator())
+            {
+                while (enumerator.MoveNext())
+                {
+                    _debug(enumerator.Current);
+                }
+            }
+        }
 
         public static void _debug()
         {
+            _debug(ZoneT);
             _debug(Zones);
         }
 #endif
@@ -132,25 +166,31 @@ namespace ValheimOnline
 
             foreach (Zone checkZone in Zones)
             {
-                // are we a circle
-                if (checkZone.Shape == 0)
+                switch (checkZone.Shape)
                 {
-                    if (Vector2.Distance(a, checkZone.Position) <= checkZone.Radius)
-                    {
-                        occupiedZones.Add(checkZone);
-                    }
-                }
-                else
-                {
-                    // Square check if you are in the boundaries
-                    float boundary = checkZone.Radius / 2;
-                    if (((checkZone.Position.x + boundary) > a.x) &&
-                        ((checkZone.Position.x - boundary) < a.x) &&
-                        ((checkZone.Position.y + boundary) > a.y) &&
-                        ((checkZone.Position.y - boundary) < a.y))
-                    {
-                        occupiedZones.Add(checkZone);
-                    }
+                    case "square":
+                        // Square check if you are in the boundaries
+                        float boundary = checkZone.Radius / 2;
+                        if (((checkZone.Position.x + boundary) > a.x) &&
+                            ((checkZone.Position.x - boundary) < a.x) &&
+                            ((checkZone.Position.y + boundary) > a.y) &&
+                            ((checkZone.Position.y - boundary) < a.y))
+                        {
+                            occupiedZones.Add(checkZone);
+                        }
+                        break;
+                    /*
+                    case 2:
+                        // Coords checks
+                        break;
+                    */
+                    default:
+                        //Default: We are a circle.
+                        if (Vector2.Distance(a, checkZone.Position) <= checkZone.Radius)
+                        {
+                            occupiedZones.Add(checkZone);
+                        }
+                        break;
                 }
             }
             return occupiedZones;
@@ -165,18 +205,42 @@ namespace ValheimOnline
             return z[0];
         }
 
-        public static bool Detect(Vector3 position, out bool changed, out Zone z)
+        public static ZoneTypes FindZoneType(string ztType)
+        {
+            //Debug.Log($"Searching for: {ztName}");
+            return ZoneT.Find(a => a.Name == ztType) ?? new ZoneTypes();
+            /*
+            //ZoneTypes zt = ZoneT.Find(a => a.Name == ztName) ?? new ZoneTypes();
+            //zt = ZoneT.Where(a => a.Name.Contains(ztName));
+
+            foreach (ZoneTypes zt in ZoneT)
+            {
+                if (zt.Name.ToLower() == ztType)
+                {
+                    Debug.Log($"Found Zone: {ztType}");
+                    _debug(zt);
+                    return zt;
+                }
+            }
+
+            return new ZoneTypes();
+            */
+        }
+
+        public static bool Detect(Vector3 position, out bool changed, out Zone z, out ZoneTypes zt)
         {
             List<Zone> zlist = ListOccupiedZones(position);
             if (zlist.Count == 0)
             {
                 // No Zones occupied (We are in the wilderness)
                 z = new Zone();
+                zt = new ZoneTypes();
 
                 // Did we change to the wilderness?
                 if (CurrentZoneID != -1)
                 {
                     CurrentZoneID = -1;
+                    zt = FindZoneType("wilderness");
                     changed = true;
                 }
                 else
@@ -191,9 +255,11 @@ namespace ValheimOnline
             {
                 // We are in a zone
                 z = TopZone(zlist);
+                zt = new ZoneTypes();
 
                 if (CurrentZoneID != z.ID)
                 {
+                    zt = FindZoneType(z.Type);//.ToLower());
                     CurrentZoneID = z.ID;
                     changed = true;
                 }
@@ -211,6 +277,17 @@ namespace ValheimOnline
         public static ZPackage Serialize()
         {
             ZPackage zip = new ZPackage();
+            zip.Write(ZoneT.Count);
+            foreach (ZoneTypes zt in ZoneT)
+            {
+                zip.Write(zt.Name);
+                zip.Write(zt.PVP);
+                zip.Write(zt.PVPEnforce);
+                zip.Write(zt.ShowPosition);
+                zip.Write(zt.PositionEnforce);
+                zip.Write(zt.ViewDistance);
+                zip.Write(zt.AutoHeal);
+            }
             zip.Write(Zones.Count);
             foreach (Zone z in Zones)
             {
@@ -223,13 +300,30 @@ namespace ValheimOnline
                 zip.Write(z.Position.x);
                 zip.Write(z.Position.y);
                 zip.Write(z.Radius);
-                zip.Write(z.pvp);
+                //zip.Write(z.pvp);
             }
             return zip;
         }
 
         public static void Deserialize(ZPackage package)
         {
+            ZoneT.Clear();
+            int tnum = package.ReadInt();
+            for (int i = 0; i < tnum; i++)
+            {
+                ZoneT.Add(new ZoneTypes
+                    {
+                    Name = package.ReadString(),
+                    PVP = package.ReadBool(),
+                    PVPEnforce = package.ReadBool(),
+                    ShowPosition = package.ReadBool(),
+                    PositionEnforce = package.ReadBool(),
+                    ViewDistance = package.ReadInt(),
+                    AutoHeal = package.ReadBool()
+                    }
+                    );
+            }
+
             Zones.Clear();
             int num = package.ReadInt();
             for (int i = 0; i < num; i++)
@@ -240,11 +334,11 @@ namespace ValheimOnline
                     Name = package.ReadString(),
                     Type = package.ReadString(),
                     Priority = package.ReadInt(),
-                    Shape = package.ReadInt(),
+                    Shape = package.ReadString(),
                     //type = (zoneType) package.ReadInt(),
                     Position = new Vector2(package.ReadSingle(), package.ReadSingle()),
                     Radius = package.ReadSingle(),
-                    pvp = package.ReadBool()
+                    //pvp = package.ReadBool()
                 });
             }
         }
@@ -273,7 +367,8 @@ namespace ValheimOnline
             if (!File.Exists(ZonePath))
             {
                 Debug.Log($"Creating zone file at {ZonePath}");
-                string text = "# format: name type x z radius\nDefaultSafeZone safe 1 0.0 0.0 5.0 true";
+                string text = global::ValheimOnline.Properties.Resources.Default_zones;
+                //string text = "# format: name type x z radius\nDefaultSafeZone safe 1 0.0 0.0 5.0 true";
                 File.WriteAllText(ZonePath, text);
             }
 
@@ -283,28 +378,62 @@ namespace ValheimOnline
                 if (!string.IsNullOrWhiteSpace(text2) && text2[0] != '#')
                 {
                     string[] array2 = text2.Split(Array.Empty<char>());
-                    if (array2.Length != 8)
+
+                    // Check if it is a type
+                    if (array2[0].ToLower() == "type:")
                     {
-                        Debug.Log($"Zone {text2} is not correctly formatted.");
+                        Debug.Log("Loading Type ...");
+                        ZoneTypes zt = new ZoneTypes {Name = array2[1]};
+                        
+                        // Go through each argument to override defaults.
+
+                        if(array2.Length >= 3)
+                            zt.PVP = bool.Parse(array2[2]);
+
+                        if (array2.Length >= 4)
+                            zt.PVPEnforce = bool.Parse(array2[3]);
+
+                        if (array2.Length >= 5)
+                            zt.ShowPosition = bool.Parse(array2[4]);
+
+                        if (array2.Length >= 6)
+                            zt.PositionEnforce = bool.Parse(array2[5]);
+
+                        if (array2.Length >= 7)
+                            zt.ViewDistance = int.Parse(array2[6]);
+                        
+                        if (array2.Length >= 8)
+                            zt.AutoHeal = bool.Parse(array2[7]);
+
+                        ZoneT.Add(zt);
+
                     }
                     else
                     {
+                        if (array2.Length != 7)
+                        {
+                            Debug.Log($"Zone '{text2}' is not correctly formatted.");
+                        }
+                        else
+                        {
 
-                        Zone z = new Zone();
-                        z.Name = array2[0];
-                        z.Type = array2[1];
-                        z.Priority = int.Parse(array2[2]);
-                        z.Shape = int.Parse(array2[3]);
-                        //z.type = (zoneType) Enum.Parse(typeof(zoneType), array2[1]);
-                        z.Position.x = float.Parse(array2[4]);
-                        z.Position.y = float.Parse(array2[5]);
-                        z.Radius = float.Parse(array2[6]);
-                        z.pvp = bool.Parse(array2[7]);
-                        z.ID = pos;
+                            Debug.Log("Loading Zone ...");
+                            Zone z = new Zone();
+                            z.Name = array2[0];
+                            z.Type = array2[1];
+                            z.Priority = int.Parse(array2[2]);
+                            z.Shape = array2[3];
+                            //z.type = (zoneType) Enum.Parse(typeof(zoneType), array2[1]);
+                            z.Position.x = float.Parse(array2[4]);
+                            z.Position.y = float.Parse(array2[5]);
+                            z.Radius = float.Parse(array2[6]);
+                            //z.pvp = bool.Parse(array2[7]);
+                            z.ID = pos;
 
-                        Zones.Add(z);
+                            Zones.Add(z);
 
-                        pos++;
+                            pos++;
+                        }
                     }
                 }
             }

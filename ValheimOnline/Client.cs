@@ -26,22 +26,24 @@ namespace ValheimOnline
     public static class Client
     {
         // Zone Details
-        public static bool InSafeZone = false;
-        public static bool InBattleZone = false;
+        //public static bool InSafeZone = false;
+        //public static bool InBattleZone = false;
+
+        public static bool EnforceZones = false;
 
         // PVP Details
         // Can we toggle PVP on the client
         public static bool PVPEnforced = false;
-        // Are we enforcing PVP On (TRUE) or Off (FALSE)
-        public static bool PVPisEnabled = false;
+        // Are we enforcing PVP On (TRUE) or Off (FALSE) <- Replaced to zones
+        //public static bool PVPisEnabled = false;
 
         // Current PVP mode for the client
         public static bool PVPMode = false;
 
 
         // Show our position on the map
-        public static bool PVPSharePosition = false;
-        public static bool PositionEnforced = false;
+        public static bool ShowPosition = false;
+        public static bool PositionEnforce = false;
 
         // Generic debug output
         // Do not change name to debug. Will break "debug()" function in class.
@@ -49,13 +51,12 @@ namespace ValheimOnline
         public static void _debug()
         {
             Debug.Log("Loaded Client Data: ");
-            Debug.Log("  InSafeZone: " + Client.InSafeZone);
-            Debug.Log("  InBattleZone: " + Client.InBattleZone);
+            Debug.Log("  EnforceZones: " + Client.EnforceZones);
             Debug.Log("  PVPEnforced: " + Client.PVPEnforced);
-            Debug.Log("  PVPisEnabled: " + Client.PVPisEnabled);
+            //Debug.Log("  PVPisEnabled: " + Client.PVPisEnabled);
             Debug.Log("  PVPMode: " + Client.PVPMode);
-            Debug.Log("  PositionEnforced: " + Client.PositionEnforced);
-            Debug.Log("  PVPSharePosition: " + Client.PVPSharePosition);
+            Debug.Log("  PositionEnforce: " + Client.PositionEnforce);
+            Debug.Log("  ShowPosition: " + Client.ShowPosition);
         }
 #endif
 
@@ -63,7 +64,7 @@ namespace ValheimOnline
         public static ZPackage Serialize()
         {
             var zip = new ZPackage();
-            if (Client.PVPEnforced && Client.PVPisEnabled)
+            if (Client.PVPEnforced)// && Client.PVPisEnabled)
             {
                 Client.PVPMode = true;
             }
@@ -71,26 +72,24 @@ namespace ValheimOnline
             {
                 Client.PVPMode = false;
             }
+            zip.Write(Client.EnforceZones);
             zip.Write(Client.PVPEnforced);
-            zip.Write(Client.PVPisEnabled);
-            zip.Write(Client.InSafeZone);
-            zip.Write(Client.InBattleZone);
+            //zip.Write(Client.PVPisEnabled);
             zip.Write(Client.PVPMode);
-            zip.Write(Client.PositionEnforced);
-            zip.Write(Client.PVPSharePosition);
+            zip.Write(Client.PositionEnforce);
+            zip.Write(Client.ShowPosition);
             return zip;
         }
 
         // Extract the data from the zipped data
         public static void Deserialize(ZPackage data)
         {
+            Client.EnforceZones = data.ReadBool();
             Client.PVPEnforced = data.ReadBool();
-            Client.PVPisEnabled = data.ReadBool();
-            Client.InSafeZone = data.ReadBool();
-            Client.InBattleZone = data.ReadBool();
+            //Client.PVPisEnabled = data.ReadBool();
             Client.PVPMode = data.ReadBool();
-            Client.PositionEnforced = data.ReadBool();
-            Client.PVPSharePosition = data.ReadBool();
+            Client.PositionEnforce = data.ReadBool();
+            Client.ShowPosition = data.ReadBool();
         }
 
         // RPC function class. This is the class that you register to receive rpc data.

@@ -69,5 +69,22 @@ namespace ValheimOnline.Properties {
                 return ((byte[])(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to # Type: [ZoneTypeName] [PVP_Mode] [PVP_Enforce] [Position_Show] Position_Enforce]
+        ///Type: wilderness true false
+        ///Type: safe false true true true
+        ///Type: battle true true false true
+        ///
+        ///# [Name] [ZoneType] [Priority] [Shape(circle/square)] [x] [y] [r]
+        ///DefaultSafeZone safe 5 circle 0.0 0.0 50.0
+        ///DefaultBattle battle 4 square 50.0 50.0 20.0
+        ///.
+        /// </summary>
+        internal static string Default_zones {
+            get {
+                return ResourceManager.GetString("Default_zones", resourceCulture);
+            }
+        }
     }
 }
