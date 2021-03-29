@@ -6,8 +6,6 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using UnityEngine;
 
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
 
 namespace ValheimOnline
 {
@@ -170,7 +168,7 @@ namespace ValheimOnline
                 {
                     case "square":
                         // Square check if you are in the boundaries
-                        float boundary = checkZone.Radius / 2;
+                        float boundary = checkZone.Radius;// / 2;
                         if (((checkZone.Position.x + boundary) > a.x) &&
                             ((checkZone.Position.x - boundary) < a.x) &&
                             ((checkZone.Position.y + boundary) > a.y) &&
