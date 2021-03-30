@@ -1,9 +1,11 @@
 using System;
 using System.IO;
 using System.Net.NetworkInformation;
+using System.Threading;
 using BepInEx;
 using BepInEx.Configuration;
 using HarmonyLib;
+using ValheimOnline.Console;
 
 
 namespace ValheimOnline
@@ -32,6 +34,12 @@ namespace ValheimOnline
 
         public static ConfigEntry<bool> EnforceZones;
 
+        // Apparently if this is called in a async then we crash. So there is a variable dedicated to check if we are the server.
+        public static bool ServerMode = Util.isServer();
+
+        private static Runner console;
+        public bool runConsole = true;
+
         public void Awake()
         {
 			Debug.Log("Haz awoke!!?!");
@@ -50,7 +58,7 @@ namespace ValheimOnline
 
 
 
-			if (Util.isServer())
+			if (ServerMode)
 			{
 				Debug.Log("[Server Mode]");
                 // Load Paths
@@ -98,7 +106,7 @@ namespace ValheimOnline
 
 
             // Process through the server data needed
-            if (Util.isServer())
+            if (ServerMode)
             {
                 Debug.Log("[Server Mode]");
 
@@ -125,6 +133,39 @@ namespace ValheimOnline
                 ZoneHandler.LoadZoneData(ValheimOnline.ServerZonePath.Value);
 
             }
+        }
+
+        public async void Start()
+        {
+            await System.Threading.Tasks.Task.Run(() =>
+            {
+                /*
+                while ((ZNet.instance == null))
+                {
+                    Thread.Sleep(1000);// waiting for zNet to initialize
+                }*/
+
+                console = new Runner();
+
+                while (runConsole)
+                {
+                    string input = "";
+                    try
+                    {
+                        input = System.Console.ReadLine();
+                        console.RunCommand(input, false);
+                        input = "";
+                    }
+                    catch
+                    {
+                        if (!input.Trim().IsNullOrWhiteSpace())
+                        {
+                            Console.CUtils.Print($"Please don't use {input} as its causing error," +
+                                                $" please report with the dev team, please include input command used");
+                        }
+                    }
+                }
+            });
         }
     }
 }

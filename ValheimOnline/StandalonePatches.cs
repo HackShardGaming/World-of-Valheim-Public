@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.UI;
+using ValheimOnline.Console;
 
 namespace ValheimOnline
 {
@@ -35,6 +36,20 @@ namespace ValheimOnline
             __result = $"{__result} ({ModInfo.Name} v{ModInfo.Version})";
 #endif
         }
+
+#if client_cli
+        // Patches assembly_valheim::Version::GetVersionString
+        // Links in our version detail to override games original one to maintain compatibility
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(Chat), "InputText")]
+        private static void Chat__InputText(ref Chat __instance)
+        {
+            var text = __instance.m_input.text;
+            // Parse client or server commands.
+            Runner console = new Runner();
+            console.RunCommand(text, false);
+        }
+#endif
 
         // Patches assembly_valheim::FejdStartup::Update
         // Note: Main class for the game
@@ -246,9 +261,7 @@ namespace ValheimOnline
 
             Debug.Log("S2C ZoneHandler (SendPeerInfo)");
             ZoneHandler._debug();
-            rpc.Invoke("ZoneHandler", new object[] {
-                ZoneHandler.Serialize()
-            });
+
 
             Debug.Log("S2C SafeZones");
             rpc.Invoke("SafeZones", new object[] {
@@ -304,23 +317,10 @@ namespace ValheimOnline
                 return true;
             }
             StandalonePatches.m_quitting = true;
-
+            
             if (ZNet.instance.IsServer())
             {
-                float realtimeSinceStartup = Time.realtimeSinceStartup;
-                using (List<ServerState.ConnectionData>.Enumerator enumerator = ServerState.Connections.GetEnumerator())
-                {
-                    while (enumerator.MoveNext())
-                    {
-                        ServerState.ConnectionData connectionData = enumerator.Current;
-                        connectionData.rpc.Invoke("ServerVaultUpdate", new object[]
-                        {
-                            new ZPackage()
-                        });
-                        connectionData.last_save_time = realtimeSinceStartup;
-                    }
-                    Debug.Log("Sending Requests to clients to save!");
-                }
+                Util.ServerShutdown();
                 return false;
             }
             else
@@ -355,8 +355,8 @@ namespace ValheimOnline
             return false;
         }
 
-        private static bool m_quitting;
+        public static bool m_quitting;
 
-        private static bool m_logging;
+        public static bool m_logging;
     }
 }

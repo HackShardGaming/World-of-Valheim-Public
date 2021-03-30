@@ -362,6 +362,8 @@ namespace ValheimOnline
         // ValheimOnline.ServerSafeZonePath.Value
         public static void LoadZoneData(string ZonePath)
         {
+            
+
             if (!File.Exists(ZonePath))
             {
                 Debug.Log($"Creating zone file at {ZonePath}");
@@ -373,6 +375,10 @@ namespace ValheimOnline
             {
                 Debug.Log($"Loading zone file: {ZonePath}");
             }
+
+            // Clean up the old zone data
+            ZoneT.Clear();
+            Zones.Clear();
 
             int pos = 0;
             foreach (string text2 in File.ReadAllLines(ZonePath))
