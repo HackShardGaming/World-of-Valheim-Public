@@ -25,7 +25,7 @@ namespace ValheimOnline
 		public static ConfigEntry<int> NexusID;
         public static ConfigEntry<bool> ServerPVPEnforced;
         //public static ConfigEntry<bool> PVPSharePosition;
-		public static ConfigEntry<bool> AllowCharacterSave;
+		public static ConfigEntry<bool> ExportCharacter;
 		public static ConfigEntry<bool> AllowSinglePlayer;
 		//public static ConfigEntry<bool> PVPisEnabled;
 		//public static ConfigEntry<bool> PositionEnforced;
@@ -86,7 +86,7 @@ namespace ValheimOnline
             {
                 Debug.Log("[Client Mode]");
 
-                ValheimOnline.AllowCharacterSave = base.Config.Bind<bool>("ValheimOnline", "AllowCharacterSave", false, "CLIENT ONLY: Should we allow the client to not only send the character back to the server but save a local copy. (WARNING: THIS WILL OVERWRITE YOUR LOCAL CHARACTER FILE!! PLEASE USE A BLANK CHARACTER FILE!)");
+                ValheimOnline.ExportCharacter = base.Config.Bind<bool>("ValheimOnline", "ExportCharacter", false, "CLIENT ONLY: Export character from server for single player use and/or retain character. Previously AllowCharacterSave (WARNING: THIS WILL OVERWRITE YOUR LOCAL CHARACTER FILE!! PLEASE USE A BLANK CHARACTER FILE!)");
                 ValheimOnline.AllowSinglePlayer = base.Config.Bind<bool>("ValheimOnline", "AllowSinglePlayer", false, "CLIENT ONLY: Should we allow the client to play Single Player?  (WARNING: LOTS OF CONSOLE ERRORS RIGHT NOW BUT WORKS!)");
                 
                 // Leave the client state configuration default (Will grab from the server)

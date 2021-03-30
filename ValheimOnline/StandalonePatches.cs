@@ -45,8 +45,8 @@ namespace ValheimOnline
             if (___m_startGamePanel.activeInHierarchy)
             {
                 // Should we allow single player? Yes or no.
-                // Config must have both AllowSinglePlayer and AllowCharacterSave set to true in order to continue.
-                if (ValheimOnline.AllowSinglePlayer.Value && ValheimOnline.AllowCharacterSave.Value)
+                // Config must have both AllowSinglePlayer and ExportCharacter set to true in order to continue.
+                if (ValheimOnline.AllowSinglePlayer.Value && ValheimOnline.ExportCharacter.Value)
                 {
                     GameObject gameObject = GameObject.Find("Start");
                     if (gameObject != null)
