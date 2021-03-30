@@ -299,7 +299,7 @@ namespace ValheimOnline
         private static bool Game__Shutdown()
         {
             Debug.Log("Shutdown Detected.");
-            if (StandalonePatches.m_quitting)
+            if (StandalonePatches.m_quitting || StandalonePatches.m_logging)
             {
                 return true;
             }
