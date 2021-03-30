@@ -445,7 +445,9 @@ namespace ValheimOnline
                     }
                 }
             }
+#if DEBUG
             _debug();
+#endif
         }
 
     }

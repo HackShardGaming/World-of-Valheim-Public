@@ -260,7 +260,9 @@ namespace ValheimOnline
             });
 
             Debug.Log("S2C ZoneHandler (SendPeerInfo)");
+#if DEBUG
             ZoneHandler._debug();
+#endif
 
 
             Debug.Log("S2C SafeZones");
