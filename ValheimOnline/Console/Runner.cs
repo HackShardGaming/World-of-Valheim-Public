@@ -47,14 +47,14 @@ namespace ValheimOnline.Console
 
         public void RegisterClientCommands()
         {
-            commands.Add(new Command("!help", "help - List of all commands", Help, false));
-            commands.Add(new Command("!version", "version - prints server version", PrintVersion, false));
+            commands.Add(new Command("!help", "!help - List of all commands", Help, false));
+            commands.Add(new Command("!version", "!version - prints server version", PrintVersion, false));
         }
         public void RegisterServerCommands()
         {
-            commands.Add(new Command("!zone-reload", "zone-reload - Reload zones from zones.txt file", ZoneReload, true));
-            commands.Add(new Command("!shutdown", "shutdown - Shutdown the server", Shutdown, true));
-            commands.Add(new Command("!save-all", "save-all - Save all the characters currently connected to the server", SaveAll, true));
+            commands.Add(new Command("!zone-reload", "!zone-reload - Reload zones from zones.txt file", ZoneReload, true));
+            commands.Add(new Command("!shutdown", "!shutdown - Shutdown the server", Shutdown, true));
+            commands.Add(new Command("!save-all", "!save-all - Save all the characters currently connected to the server", SaveAll, true));
         }
 
         public void RunCommand(string text, bool calledFromClient)
