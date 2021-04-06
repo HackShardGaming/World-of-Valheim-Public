@@ -61,25 +61,20 @@ namespace WorldofValheimZones.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] _default_character {
-            get {
-                object obj = ResourceManager.GetObject("_default_character", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to # Type: [ZoneTypeName] [PVP_Mode] [PVP_Enforce] [Position_Show] Position_Enforce]
-        ///Type: wilderness true false
-        ///Type: safe false true true true
-        ///Type: battle true true false true
+        ///   Looks up a localized string similar to # Zone Configuration File
+        ///# Here you will specify the zone types and zones they occupy.
         ///
-        ///# [Name] [ZoneType] [Priority] [Shape(circle/square)] [x] [y] [r]
-        ///DefaultSafeZone safe 5 circle 0.0 0.0 50.0
-        ///DefaultBattle battle 4 square 50.0 50.0 20.0
-        ///.
+        ///# [ZoneType]
+        ///# ZoneTypeName: Unique name for the zone type (zones will use)
+        ///# PVP_Mode: PVP state for the Zone.
+        ///# PVP_Enforce: Force PVP mode on the users.
+        ///# Position_Show: Should we show our position in the zone?
+        ///# Position_Enforce: Force position on the users.
+        ///#
+        ///# Type: [ZoneTypeName] [PVP_Mode] [PVP_Enforce] [Position_Show] [Position_Enforce]
+        ///
+        ///# wilderness is the default zone for everywhere
+        ///Type: wildern [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string Default_zones {
             get {
