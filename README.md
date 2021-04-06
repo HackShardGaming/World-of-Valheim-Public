@@ -1,9 +1,8 @@
-# Valheim Online
- 
-This is a mod of Valheim online by AluvielDev (Go support them)
+# World of Valheim
 
-With the rush for stabilization, this package was setup provide people the ability to fix critical aspects of the plugin.
+Welcome to the World of Valheim mod collection. 
 
-# Helpful guides to get going
+[Zones](Zones): Adds the capability of "Zones" to a server. This will allow PVP/SafeZone capabilities and more.
 
-https://github.com/risk-of-thunder/R2Wiki/wiki/Debugging-Your-Mods-With-dnSpy
+[ServerSideCharacter](ServerSideCharacter): Have the server handle the character saves.
+

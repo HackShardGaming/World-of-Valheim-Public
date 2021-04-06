@@ -12,7 +12,7 @@ set CONFIG=%2
 
 REM Predetermine Paths
 set CUR_DIR=%~dp0
-set MOD_NAME=ValheimOnline
+set MOD_NAME=%APP_NAME%
 set MOD_DIR=%CUR_DIR%\%MOD_NAME%
 set MOD_DLL=%MOD_DIR%\bin\%CONFIG%\%MOD_NAME%.dll
 set PLUGIN_DIR=BepInEx\plugins
