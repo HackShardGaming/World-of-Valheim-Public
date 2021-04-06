@@ -16,6 +16,18 @@ namespace ValheimOnline
         {
             return SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
         }
+
+        public static void Broadcast(string text, string username = "server")
+        {
+            ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.Everybody, "ChatMessage", new object[]
+            {
+                new Vector3(0,100,0),
+                2,
+                username,
+                text
+            });
+        }
+
         public static void WriteCharacter(string path, byte[] data)
         {
             Debug.Log($"Writing character to {path}.");
@@ -268,6 +280,62 @@ namespace ValheimOnline
             Debug.Assert(!ZNet.instance.IsServer());
             Debug.Assert(ServerState.Connections.Count == 1);
             return ServerState.Connections[0];
+        }
+
+        public static void SaveAll()
+        {
+            using (List<ServerState.ConnectionData>.Enumerator enumerator = ServerState.Connections.GetEnumerator())
+            {
+                while (enumerator.MoveNext())
+                {
+                    ServerState.ConnectionData connectionData = enumerator.Current;
+                    connectionData.rpc.Invoke("ServerVaultUpdate", new object[]
+                    {
+                        new ZPackage()
+                    });
+                }
+            }
+        }
+
+        public static void DisconnectAll()
+        {
+            using (List<ServerState.ConnectionData>.Enumerator enumerator = ServerState.Connections.GetEnumerator())
+            {
+                while (enumerator.MoveNext())
+                {
+                    ServerState.ConnectionData connectionData = enumerator.Current;
+                    connectionData.rpc.Invoke("Disconnect", Array.Empty<object>());
+                }
+            }
+        }
+
+        public static void ServerShutdown()
+        {
+            if (ValheimOnline.ServerMode)
+            {
+                StandalonePatches.m_quitting = true;
+                SaveAll();
+
+                Broadcast("Server Shutdown Initiated, Requesting a final save from all clients!!");
+                
+                int i = 15;
+                while (i > 0)
+                {
+#if DEBUG
+                    if (i % 5 == 0)
+                        Broadcast($"Server shutting down in {i} Seconds!!");
+#endif
+                    System.Threading.Thread.Sleep(1000);
+                    i--;
+                }
+
+                Broadcast($"Server is shutting down!");
+
+                ZNet.instance.Save(true);
+                DisconnectAll();
+                Application.Quit();
+                System.Console.Out.Close();
+            }
         }
 
         private static MethodInfo func_Serialize = AccessTools.Method(typeof(PlayerProfile), "SavePlayerToDisk", null, null);

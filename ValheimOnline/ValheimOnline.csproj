@@ -75,6 +75,11 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Console\Runner.cs" />
+    <Compile Include="Console\Command.cs" />
+    <Compile Include="Console\CMethods.cs" />
+    <Compile Include="Console\CUtils.cs" />
+    <Compile Include="ZoneHandler.cs" />
     <Compile Include="Debug.cs" />
     <Compile Include="DisableSave.cs" />
     <Compile Include="LoadServerCharacterOnClient.cs" />
@@ -104,6 +109,10 @@
   <ItemGroup>
     <None Include="Properties\default_character.fch" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Properties\Default_zones.txt" />
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>call "$(SolutionDir)copyDll.bat" $(ProjectName) $(Configuration)</PostBuildEvent>

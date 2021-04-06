@@ -7,5 +7,5 @@ start cmd /k start_headless_server.bat
 POPD
 
 PUSHD %GAME_DIR%
-CALL valheim.exe
+CALL valheim.exe -windows-mode exclusive -console
 POPD

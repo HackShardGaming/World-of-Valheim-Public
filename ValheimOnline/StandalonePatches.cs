@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.UI;
+using ValheimOnline.Console;
 
 namespace ValheimOnline
 {
@@ -36,6 +37,20 @@ namespace ValheimOnline
 #endif
         }
 
+#if client_cli
+        // Patches assembly_valheim::Version::GetVersionString
+        // Links in our version detail to override games original one to maintain compatibility
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(Chat), "InputText")]
+        private static void Chat__InputText(ref Chat __instance)
+        {
+            var text = __instance.m_input.text;
+            // Parse client or server commands.
+            Runner console = new Runner();
+            console.RunCommand(text, false);
+        }
+#endif
+
         // Patches assembly_valheim::FejdStartup::Update
         // Note: Main class for the game
         [HarmonyPostfix]
@@ -45,8 +60,8 @@ namespace ValheimOnline
             if (___m_startGamePanel.activeInHierarchy)
             {
                 // Should we allow single player? Yes or no.
-                // Config must have both AllowSinglePlayer and AllowCharacterSave set to true in order to continue.
-                if (ValheimOnline.AllowSinglePlayer.Value && ValheimOnline.AllowCharacterSave.Value)
+                // Config must have both AllowSinglePlayer and ExportCharacter set to true in order to continue.
+                if (ValheimOnline.AllowSinglePlayer.Value && ValheimOnline.ExportCharacter.Value)
                 {
                     GameObject gameObject = GameObject.Find("Start");
                     if (gameObject != null)
@@ -112,98 +127,52 @@ namespace ValheimOnline
                 // 
                 //
                 // Goes through the zones and setup the necessary enforcements.
-                ServerState.SafeZone safeZone;
-                bool flag = Util.PointInSafeZone(Player.m_localPlayer.transform.position, out safeZone);
 
-                ServerState.BattleZone battleZone;
-                bool flag2 = Util.PointInBattleZone(Player.m_localPlayer.transform.position, out battleZone);
-                if (Client.PVPEnforced == false)
+                ZoneHandler.Zone zone;
+                ZoneHandler.ZoneTypes ztype;
+                bool changed;
+                bool zonedDetected = ZoneHandler.Detect(Player.m_localPlayer.transform.position, out changed, out zone, out ztype);
+                if (changed)
                 {
-                    if (flag && !Client.InSafeZone)
+                    if (zonedDetected)
                     {
-#if DEBUG
-                        Client._debug();
-#endif
-                        Player.m_localPlayer.Message(MessageHud.MessageType.Center, $"You have now entered safe zone {safeZone.name}", 0, null);
-                        Client.InSafeZone = true;
+                        Player.m_localPlayer.Message(MessageHud.MessageType.Center, $"You have now entered {zone.Name}",
+                            0, null);
 
                     }
-                    else if (flag2 && !Client.InBattleZone)
+                    else
                     {
-#if DEBUG
-                        Client._debug();
-#endif
-                        Player.m_localPlayer.Message(MessageHud.MessageType.Center, $"You have now entered battle zone {battleZone.name}", 0, null);
-                        Client.InBattleZone = true;
-                    }
-                    else if (!flag && !flag2 && ( Client.InSafeZone || Client.InBattleZone) )
-                    {
-#if DEBUG
-                        Client._debug();
-#endif
-                        Player.m_localPlayer.Message(MessageHud.MessageType.Center, "You are now in the wilderness", 0, null);
-                        Client.InSafeZone = false;
-                        Client.InBattleZone = false;
-                    }
-                }
-                if (Client.PVPEnforced == true)
-                {
-                    if (Client.PVPisEnabled == true)
-                    {
-                        if (flag && !Client.InSafeZone)
-                        {
-#if DEBUG
-                            Client._debug();
-#endif
-                            Player.m_localPlayer.Message(MessageHud.MessageType.Center, $"You have now entered safe zone {safeZone.name}", 0, null);
-                            Client.InSafeZone = true;
-                            Client.PVPMode = false;
-
-                        }
-                        else if (!flag && Client.InSafeZone)
-                        {
-#if DEBUG
-                            Client._debug();
-#endif
-                            Player.m_localPlayer.Message(MessageHud.MessageType.Center, "You are now in the wilderness", 0, null);
-
-                            Client.InSafeZone = false;
-                            Client.PVPMode = true;
-                        }
-                    }
-                    else if (Client.PVPisEnabled == false)
-                    {
-                        if (flag2 && !Client.InBattleZone)
-                        {
-#if DEBUG
-                            Client._debug();
-#endif
-                            Player.m_localPlayer.Message(MessageHud.MessageType.Center, $"You have now entered battle zone {battleZone.name}", 0, null);
-                            Client.InBattleZone = true;
-                            Client.PVPMode = true;
-                        }
-                        else if (!flag2 && Client.InBattleZone)
-                        {
-#if DEBUG
-                            Client._debug();
-#endif
-                            Player.m_localPlayer.Message(MessageHud.MessageType.Center, "You are now in the wilderness", 0, null);
-
-                            Client.InBattleZone = false;
-                            Client.PVPMode = false;
-                        }
+                        Player.m_localPlayer.Message(MessageHud.MessageType.Center, $"You have now entered the wilderness",
+                            0, null);
+                        
                     }
 
-                    // Process the state of player based on the flag.
-                    if (Client.PVPEnforced == true)
+                    // Zones are now being enforced?
+                    if (Client.EnforceZones)
                     {
+                        // Update the client settings based on zone type
+
+                        // PVP settings:
+                        Client.PVPEnforced = ztype.PVPEnforce;
+                        if (ztype.PVPEnforce)
+                            Client.PVPMode = ztype.PVP;
+
+                        // Position settings:
+                        Client.PositionEnforce = ztype.PositionEnforce;
+                        if (ztype.PositionEnforce)
+                            Client.ShowPosition = ztype.ShowPosition;
+
+                        // Run the updated settings for the Clients
                         Player.m_localPlayer.SetPVP(Client.PVPMode);
+                        ZNet.instance.SetPublicReferencePosition(Client.ShowPosition);
+
+                        // Other settings are scattered among the wind to other functions
+                        // (Use Client class for the current state)
                     }
-                    // Tells the world where we are in reference
-                    if (Client.PositionEnforced == true)
-                    {
-                        ZNet.instance.SetPublicReferencePosition(Client.PVPSharePosition);
-                    }
+#if DEBUG
+                    ZoneHandler._debug(ztype);
+                    Client._debug();
+#endif
                 }
             }
 
@@ -233,11 +202,12 @@ namespace ValheimOnline
         [HarmonyPatch(typeof(ZNet), "OnNewConnection")]
         private static void ZNet__OnNewConnection(ZNet __instance, ZNetPeer peer)
         {
-            Debug.Log($"Server PVP Enforce: {Client.PVPEnforced}");
+            Debug.Log($"Server Zone Enforced: {Client.EnforceZones}");
             if (!__instance.IsServer())
             {
                 // Client special RPC calls
                 peer.m_rpc.Register<ZPackage>("ServerVaultData", new Action<ZRpc, ZPackage>(RPC.ServerVaultData));
+                peer.m_rpc.Register<ZPackage>("ZoneHandler", new Action<ZRpc, ZPackage>(ZoneHandler.RPC));
                 peer.m_rpc.Register<ZPackage>("SafeZones", new Action<ZRpc, ZPackage>(RPC.SafeZones));
                 peer.m_rpc.Register<ZPackage>("BattleZones", new Action<ZRpc, ZPackage>(RPC.BattleZones));
                 peer.m_rpc.Register<ZPackage>("Client", new Action<ZRpc, ZPackage>(Client.RPC));
@@ -288,6 +258,13 @@ namespace ValheimOnline
             rpc.Invoke("ServerVaultData", new object[] {
                 Util.Compress(Util.LoadOrMakeCharacter(rpc.GetSocket().GetHostName()))
             });
+
+            Debug.Log("S2C ZoneHandler (SendPeerInfo)");
+#if DEBUG
+            ZoneHandler._debug();
+#endif
+
+
             Debug.Log("S2C SafeZones");
             rpc.Invoke("SafeZones", new object[] {
                 ServerState.SafeZones.Serialize()
@@ -343,23 +320,10 @@ namespace ValheimOnline
                 return true;
             }
             StandalonePatches.m_quitting = true;
-
+            
             if (ZNet.instance.IsServer())
             {
-                float realtimeSinceStartup = Time.realtimeSinceStartup;
-                using (List<ServerState.ConnectionData>.Enumerator enumerator = ServerState.Connections.GetEnumerator())
-                {
-                    while (enumerator.MoveNext())
-                    {
-                        ServerState.ConnectionData connectionData = enumerator.Current;
-                        connectionData.rpc.Invoke("ServerVaultUpdate", new object[]
-                        {
-                            new ZPackage()
-                        });
-                        connectionData.last_save_time = realtimeSinceStartup;
-                    }
-                    Debug.Log("Sending Requests to clients to save!");
-                }
+                Util.ServerShutdown();
                 return false;
             }
             else
@@ -394,8 +358,8 @@ namespace ValheimOnline
             return false;
         }
 
-        private static bool m_quitting;
+        public static bool m_quitting;
 
-        private static bool m_logging;
+        public static bool m_logging;
     }
 }

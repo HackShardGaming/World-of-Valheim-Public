@@ -24,8 +24,8 @@ namespace ValheimOnline
 		private static bool PlayerProfile__SavePlayerToDisk()
 		{
 			// Should we allow saving? Yes or no.
-			// If AllowCharacterSave is true it will overwrite there existing client side character file upon exiting game.
-			if (ValheimOnline.AllowCharacterSave.Value)
+			// If ExportCharacter is true it will overwrite there existing client side character file upon exiting game.
+			if (ValheimOnline.ExportCharacter.Value)
 			{
 				return true;
 			}

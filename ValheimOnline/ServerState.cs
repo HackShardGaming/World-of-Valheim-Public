@@ -16,7 +16,7 @@ namespace ValheimOnline
 
 		//public static bool PVPEnforced = true;
         //public static bool PVPMode = false;
-        //public static bool PVPSharePosition = true;
+        //public static bool ShowPosition = true;
 		//public static bool ServerForcePVP = false;
 
         public static byte[] default_character = global::ValheimOnline.Properties.Resources._default_character;
