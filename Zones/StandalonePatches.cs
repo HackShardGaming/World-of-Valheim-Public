@@ -129,6 +129,9 @@ namespace WorldofValheimZones
                 // Client special RPC calls
                 peer.m_rpc.Register<ZPackage>("ZoneHandler", new Action<ZRpc, ZPackage>(ZoneHandler.RPC));
                 peer.m_rpc.Register<ZPackage>("Client", new Action<ZRpc, ZPackage>(Client.RPC));
+
+                // Reset zone ID
+                ZoneHandler.CurrentZoneID = -2;
             }
         }
 
