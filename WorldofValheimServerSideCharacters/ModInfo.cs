@@ -2,23 +2,17 @@
 using System.Reflection;
 using System.Globalization;
 
-namespace WorldofValheimZones
+namespace WorldofValheimServerSideCharacters
 {
     public static class ModInfo
     {
-        public const string Name = "WOV-Zones";
-        public const string Title = "World Of Valheim Zones";
+        public const string Name = "WorldofValheimServerSideCharacters";
+        public const string Title = "World of Valheim - SSC";
         public const string Group = "HackShardGaming";
-        public const string Guid = "WorldofValheimZones";
-
+        public const string Guid = "HackShardGaming.WorldofValheimServerSideCharacters";
         // Version follow Semantic Versioning Scheme (https://semver.org/)
         public const string Version = "0.2.0";
-
-        // Nexus Plugin ID (Use to maintain updates with Nexus)
-        public const int NexusID = 891;
-
-        /*
-        public const string buildDate = "2021-03-30";
+        public const string buildDate = "2021-04-07";
 
         // Use GetBuildDate(Assembly.GetExecutingAssembly()); to get build date
         private static DateTime m_GetBuildDate(Assembly assembly)
@@ -49,6 +43,5 @@ namespace WorldofValheimZones
             //DateTime buildDate = m_GetBuildDate(Assembly.GetExecutingAssembly());
             //return buildDate.ToString("yyyy-MM-dd");
         }
-        */
     }
 }

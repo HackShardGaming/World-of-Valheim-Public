@@ -94,7 +94,7 @@ namespace WorldofValheimZones
             public Vector2 Position;
             public float Radius;
         }
-
+        
         // Zone Details
 
         // Which zone are we currently in.

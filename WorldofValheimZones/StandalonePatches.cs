@@ -1,5 +1,9 @@
 using System;
 using HarmonyLib;
+using System.Linq;
+using System.Reflection;
+using System.Collections.Generic;
+
 
 #if client_cli
 using WorldofValheimZones.Console;
@@ -23,17 +27,42 @@ namespace WorldofValheimZones
             ___m_changeLog = new TextAsset(str + ___m_changeLog.text);
         }
 #endif
+        //Remove that bird!
+        [HarmonyPatch(typeof(Game), "UpdateRespawn")]
+        public static class NoArrival
+        {
 
+            [HarmonyTranspiler]
+            public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+            {
+                List<CodeInstruction> list = instructions.ToList<CodeInstruction>();
+                for (int i = 0; i < list.Count; i++)
+                {
+                    if (list[i].Calls(NoArrival.func_sendText))
+                    {
+                        list.RemoveRange(i - 3, 4);
+                        break;
+                    }
+                }
+                return list.AsEnumerable<CodeInstruction>();
+            }
+
+            private static MethodInfo func_sendText = AccessTools.Method(typeof(Chat), "SendText", null, null);
+        }
         // Patches assembly_valheim::Version::GetVersionString
         // Links in our version detail to override games original one to maintain compatibility
-        [HarmonyPostfix]
         [HarmonyPatch(typeof(Version), "GetVersionString")]
-        private static void Version__GetVersionString(ref string __result)
+        public static class Version_GetVersionString_Patch
         {
+            private static void Postfix(ref string __result)
+            {
 #if DEBUG
-            __result = $"{__result} ({ModInfo.Name} v{ModInfo.Version}-Dev)";
+                __result = $"{__result} ({ModInfo.Name} v{ModInfo.Version}-Dev)";
 #else
-            __result = $"{__result} ({ModInfo.Name} v{ModInfo.Version})";
+                
+                __result = $"{__result} ({ModInfo.Name} v{ModInfo.Version})";
+                Debug.Log($"Version Generated: {__result}");
+            }
 #endif
         }
 
@@ -50,7 +79,7 @@ namespace WorldofValheimZones
             console.RunCommand(text, false);
         }
 #endif
-        
+
         //
         // This is the bread and butter of maintaining the user PVP state
         //
@@ -82,7 +111,7 @@ namespace WorldofValheimZones
                     {
                         Player.m_localPlayer.Message(MessageHud.MessageType.Center, $"You have now entered the wilderness",
                             0, null);
-                        
+
                     }
 
                     // Zones are now being enforced?
@@ -127,6 +156,7 @@ namespace WorldofValheimZones
             if (!__instance.IsServer())
             {
                 // Client special RPC calls
+                ZoneHandler.CurrentZoneID = -2;
                 peer.m_rpc.Register<ZPackage>("ZoneHandler", new Action<ZRpc, ZPackage>(ZoneHandler.RPC));
                 peer.m_rpc.Register<ZPackage>("Client", new Action<ZRpc, ZPackage>(Client.RPC));
 
@@ -167,7 +197,7 @@ namespace WorldofValheimZones
             rpc.Invoke("Client", new object[] {
                 Client.Serialize()
             });
-            
+
 
             Util.Connections.Add(new Util.ConnectionData
             {

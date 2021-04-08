@@ -41,7 +41,7 @@ namespace WorldofValheimZones.Console
         {
             SkipArg(args);
             Print($"Reloading Zones");
-            ZoneHandler.LoadZoneData(WorldofValheimZones.ServerZonePath.Value);
+            ZoneHandler.LoadZoneData(WorldofValheimZones.ZonePath.Value);
 
             /*
             Util.GetServer().rpc.Invoke("ChatMessage", new object[] {
