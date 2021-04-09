@@ -62,8 +62,8 @@ namespace WorldofValheimZones
                 
                 __result = $"{__result} ({ModInfo.Name} v{ModInfo.Version})";
                 Debug.Log($"Version Generated: {__result}");
-            }
 #endif
+            }
         }
 
 #if client_cli

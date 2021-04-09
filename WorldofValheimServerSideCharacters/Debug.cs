@@ -1,4 +1,8 @@
-﻿using HarmonyLib;
+﻿using BepInEx;
+using BepInEx.Configuration;
+using HarmonyLib;
+using UnityEngine;
+
 
 namespace WorldofValheimServerSideCharacters
 {
@@ -13,8 +17,7 @@ namespace WorldofValheimServerSideCharacters
 
 		public static void Log(string str)
 		{
-			System.Console.WriteLine("World of Valheim Server Side Characters: " + str);
+			System.Console.WriteLine("WoV-SSC: " + str);
 		}
-
-    }
+	}
 }

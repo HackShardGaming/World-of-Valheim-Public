@@ -2,6 +2,8 @@ using System.IO;
 using BepInEx;
 using BepInEx.Configuration;
 using HarmonyLib;
+using UnityEngine;
+using System.Collections.Generic;
 
 #if client_cli
 using WorldofValheimZones.Console;
@@ -9,10 +11,11 @@ using WorldofValheimZones.Console;
 
 namespace WorldofValheimZones
 {
-
     [BepInPlugin(ModInfo.Guid, ModInfo.Name, ModInfo.Version)]
     public class WorldofValheimZones : BaseUnityPlugin
     {
+        private static WorldofValheimZones context;
+
         public const string Name = ModInfo.Name;
         public const string Guid = ModInfo.Guid;
         public const string Version = ModInfo.Version;
@@ -29,7 +32,8 @@ namespace WorldofValheimZones
 
         public void Awake()
         {
-			Debug.Log("Haz awoke!!?!");
+            context = this;
+            Debug.Log("Haz awoke!!?!");
 
 #if DEBUG
             Debug.Log("Development Version Activated!!!");
