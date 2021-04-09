@@ -27,6 +27,14 @@ namespace WorldofValheimZones
             ___m_changeLog = new TextAsset(str + ___m_changeLog.text);
         }
 #endif
+        [HarmonyPatch(typeof(Game), "Start")]
+        public static class GameStartPatch
+        {
+            private static void Prefix()
+            {
+                ZRoutedRpc.instance.Register<ZPackage>("AddZone", new Action<long, ZPackage>(RPC.AddZone));
+            }
+        }
         //Remove that bird!
         [HarmonyPatch(typeof(Game), "UpdateRespawn")]
         public static class NoArrival
@@ -143,6 +151,21 @@ namespace WorldofValheimZones
                 }
             }
         }
+        // Patch Znet::OnDeath
+        // We died! We need to reset variables to default
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(Player), "OnDeath")]
+        private static void Player__OnDeath(Player __instance)
+        {
+            if (ZNet.instance.IsServer())
+            {
+                return;
+            }
+            if (__instance == Player.m_localPlayer)
+            {
+                ZoneHandler.CurrentZoneID = -2;
+            }
+        }
 
         // Patch ZNet::OnNewConnection
         // This is where a client setup a connection to the server (vice versa)
@@ -159,6 +182,7 @@ namespace WorldofValheimZones
                 ZoneHandler.CurrentZoneID = -2;
                 peer.m_rpc.Register<ZPackage>("ZoneHandler", new Action<ZRpc, ZPackage>(ZoneHandler.RPC));
                 peer.m_rpc.Register<ZPackage>("Client", new Action<ZRpc, ZPackage>(Client.RPC));
+                peer.m_rpc.Register<ZPackage>("AddZone", new Action<ZRpc, ZPackage>(RPC.AddZone));
 
                 // Reset zone ID
                 ZoneHandler.CurrentZoneID = -2;

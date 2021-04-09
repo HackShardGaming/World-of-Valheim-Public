@@ -358,7 +358,6 @@ namespace WorldofValheimZones
 #endif
         }
 
-
         // WorldofValheimZones.ServerSafeZonePath.Value
         public static void LoadZoneData(string ZonePath)
         {

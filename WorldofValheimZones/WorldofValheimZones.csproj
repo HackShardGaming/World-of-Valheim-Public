@@ -46,6 +46,9 @@
     <Reference Include="0Harmony">
       <HintPath>..\libs\0Harmony.dll</HintPath>
     </Reference>
+    <Reference Include="assembly_steamworks_publicized">
+      <HintPath>..\..\publicized_assemblies\assembly_steamworks_publicized.dll</HintPath>
+    </Reference>
     <Reference Include="assembly_utils">
       <HintPath>..\libs\assembly_utils.dll</HintPath>
     </Reference>
@@ -75,6 +78,8 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="RPC.cs" />
+    <Compile Include="Console\F5Console.cs" />
     <Compile Include="Zones.cs" />
     <Compile Include="ZoneHandler.cs" />
     <Compile Include="Console\Runner.cs" />
