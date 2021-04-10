@@ -27,6 +27,13 @@ namespace WorldofValheimZones
                     return false;
                 }
                 // Add Zone
+                if (text.ToLower().StartsWith($"!getcoords"))
+                {
+                    Vector3 point = Player.m_localPlayer.transform.position;
+                    Vector2 a = new Vector2(point.x, point.z);
+                    Traverse.Create(__instance).Method("AddString", new object[] { $"Your current position is X: {a.x} Y: {a.y}" }).GetValue();
+                }
+                
                 if (text.ToLower().StartsWith($"!reload-zones"))
                 {
                     ZPackage pkg = new ZPackage(); // Create ZPackage
@@ -34,6 +41,13 @@ namespace WorldofValheimZones
                     pkg.Write(msg);
                     ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "ReloadZones", new object[] { pkg });
                     return false;
+                }
+                if (text.ToLower().StartsWith($"!help"))
+                {
+                    Traverse.Create(__instance).Method("AddString", new object[] { text }).GetValue();
+                    Traverse.Create(__instance).Method("AddString", new object[] { $"!getcoords (Show your current X and Y coords!)" }).GetValue();
+                    Traverse.Create(__instance).Method("AddString", new object[] { $"!addzone [Name] [ZoneType] [Priority] [Shape(circle/square)] [x] [y] [r] (Add a zone to server **ADMIN COMMAND**)" }).GetValue();
+                    Traverse.Create(__instance).Method("AddString", new object[] { $"!reload-zones (Reload all zones and update all users that are connected **ADMIN COMMAND**)" }).GetValue();
                 }
                 if (text.ToLower().StartsWith($"!addzone"))
                 {

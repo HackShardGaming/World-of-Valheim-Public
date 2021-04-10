@@ -357,6 +357,20 @@ namespace WorldofValheimZones
             _debug();
 #endif
         }
+        public static void RPC2(long rpc, ZPackage data)
+        {
+            Debug.Log("S2C Zone (RPC Call)");
+            Debug.Assert(!ZNet.instance.IsServer());
+#if DEBUG
+            Debug.Log("Before");
+            _debug();
+#endif
+            Deserialize(data);
+#if DEBUG
+            Debug.Log("After");
+            _debug();
+#endif
+        }
         /*
         public static void AddZone(long sender, ZPackage pkg)
         {
@@ -398,9 +412,13 @@ namespace WorldofValheimZones
                     ZoneHandler.LoadZoneData(WorldofValheimZones.ZonePath.Value);
                     Util.Broadcast("Reloading Zone");
                     Debug.Log("S2C ZoneHandler (SendPeerInfo)");
-                    Util.GetServer().rpc.Invoke("ZoneHandler", new object[] {
-                            ZoneHandler.Serialize()
+                    ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.Everybody, "ZoneHandler", new object[] {
+                        ZoneHandler.Serialize()
                     });
+                }
+                else
+                {
+                    Debug.Log($"An unauthorized user {peerSteamID} attempted to use the Reload-Zones RPC!");
                 }
             }
         }
@@ -421,31 +439,19 @@ namespace WorldofValheimZones
                         string[] results = msg.Split(' ');
                         string Name = results[0];
                         Debug.Log($"C-<S AddZone (RPC Call)");
-                        Debug.Log($"Zone Name: {Name}");
                         string Type = results[1];
-                        Debug.Log($"Zone Type: {Type}");
                         string Priority = results[2];
-                        Debug.Log($"Priority: {Priority}");
                         string Shape = results[3];
-                        Debug.Log($"Shape: {Shape}");
                         if (Shape != "circle" && Shape != "square")
                         {
                             return;
                         }
                         string X = results[4];
-                        Debug.Log($"X: {X}");
                         string Y = results[5];
-                        Debug.Log($"Y: {Y}");
                         string R = results[6];
-                        Debug.Log($"Radius: {R}");
-                        string addline = results[0] + " " + results[1] + " " + results[2] + " " + results[3] + " " + results[4] + " " + results[5] + " " + results[6];
+                        string addline = Name + " " + Type + " " + Priority+ " " + Shape + " " + X + " " + Y + " " + R;
                         File.AppendAllText(WorldofValheimZones.ZonePath.Value, addline + Environment.NewLine);
-                        ZoneHandler.LoadZoneData(WorldofValheimZones.ZonePath.Value);
-                        Util.Broadcast("Reloading Zone");
-                        Debug.Log("S2C ZoneHandler (SendPeerInfo)");
-                        Util.GetServer().rpc.Invoke("ZoneHandler", new object[] {
-                            ZoneHandler.Serialize()
-                        });
+                        ZoneHandler.ReloadZones(sender, pkg);
                     }
                     else
                     {

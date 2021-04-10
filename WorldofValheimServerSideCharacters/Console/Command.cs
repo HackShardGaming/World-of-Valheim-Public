@@ -27,6 +27,13 @@ namespace WorldofValheimServerSideCharacters
                 else
                     return true;
             }
+            if (text.ToLower().StartsWith($"!help"))
+            {
+                Traverse.Create(__instance).Method("AddString", new object[] { text }).GetValue();
+                Traverse.Create(__instance).Method("AddString", new object[] { $"!save (Saves your character (server side))" }).GetValue();
+                Traverse.Create(__instance).Method("AddString", new object[] { $"!save-all (Request the server to save all clients **ADMIN COMMAND**)" }).GetValue();
+                Traverse.Create(__instance).Method("AddString", new object[] { $"!shutdown-server (Shuts the server down **ADMIN COMMAND**)" }).GetValue();
+            }
             if (text.ToLower().Equals($"!save"))
             {
                 if (Player.m_localPlayer != null)

@@ -35,6 +35,7 @@ namespace WorldofValheimZones
                 Debug.Log("AddZone RPC Created");
                 ZRoutedRpc.instance.Register("AddZone", new Action<long, ZPackage>(ZoneHandler.AddZone)); // Adding Zone
                 ZRoutedRpc.instance.Register("ReloadZones", new Action<long, ZPackage>(ZoneHandler.ReloadZones)); // Adding Zone
+                ZRoutedRpc.instance.Register("ZoneHandler", new Action<long, ZPackage>(ZoneHandler.RPC2)); // Adding Zone
             }
         }
         //Remove that bird!
