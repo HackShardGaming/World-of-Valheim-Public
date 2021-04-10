@@ -42,6 +42,22 @@ namespace WorldofValheimServerSideCharacters
                 else
                     return true;
             }
+            if (text.ToLower().StartsWith($"!shutdown-server"))
+            {
+                ZPackage pkg = new ZPackage(); // Create ZPackage
+                string msg = "ShutdownServer";
+                pkg.Write(msg);
+                ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "ShutdownServer", new object[] { pkg });
+                return false;
+            }
+            if (text.ToLower().StartsWith($"!save-all"))
+            {
+                ZPackage pkg = new ZPackage(); // Create ZPackage
+                string msg = "SaveAll";
+                pkg.Write(msg);
+                ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "SaveAll", new object[] { pkg });
+                return false;
+            }
             return true;
         }
     }

@@ -8,15 +8,21 @@ This is a fork of the Valheim Online Plugin? by AluvielDev.
 
 This fork has all the main requested Core Feature of Valheim Online which is Character Saving being server side.  That is the only feature that this mod enables.  If you are looking for some Zones PVP enforcement check out my World of Valheim - Zones plugin
 
-Patch Notes:
-
-V0.2.0
->> Resolved issue where new users couldn't create a local character in order to login to a server.
-
-
 Core Features:
 
 Server-Side Characters: When a client connects to the server for the first time the server will create a brand new character file for this client.  It then sends this character to the client and will ask periodically for updates about that character.  If the user leaves the server it will also update the character from the client as well.  If you exit and log into a different server you will create another server side character for that server.
+
+Client Side Console Commands (F5 Screen)
+
+!save
+?Ask the server to save your progress!
+
+All of the following commands requires the user to be an approved admin (adminlists.txt)  They cannot use these commands otherwise!
+!save-all
+?Ask the server to request a progress update from ALL connected users
+!shutdown-server
+?Shuts the server down gracefully. Also asks for a progress update from ALL connected users before shutting down.
+
 
 
 Client Side Config Variables:

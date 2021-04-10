@@ -24,6 +24,37 @@ namespace WorldofValheimServerSideCharacters
 				rpc = rpc
 			});
 		}
+		public static void SaveAll(long sender, ZPackage pkg)
+		{
+			ZNetPeer peer = ZNet.instance.GetPeer(sender);
+			if (peer != null)
+			{
+				string peerSteamID = ((ZSteamSocket)peer.m_socket).GetPeerID().m_SteamID.ToString(); // Get the SteamID from peer.
+				if (
+					ZNet.instance.m_adminList != null &&
+					ZNet.instance.m_adminList.Contains(peerSteamID)
+				)
+				{
+					Util.SaveAll();
+				}
+			}
+		}
+		public static void ShutdownServer(long sender, ZPackage pkg)
+		{
+			ZNetPeer peer = ZNet.instance.GetPeer(sender);
+			if (peer != null)
+			{
+				string peerSteamID = ((ZSteamSocket)peer.m_socket).GetPeerID().m_SteamID.ToString(); // Get the SteamID from peer.
+				if (
+					ZNet.instance.m_adminList != null &&
+					ZNet.instance.m_adminList.Contains(peerSteamID)
+				)
+				{
+					Debug.Log($"Shutting down the server");
+					Util.ServerShutdown();
+				}
+			}
+		}
 
 		public static void CharacterUpdate(ZRpc rpc, ZPackage data)
 		{

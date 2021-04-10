@@ -27,6 +27,14 @@ namespace WorldofValheimZones
                     return false;
                 }
                 // Add Zone
+                if (text.ToLower().StartsWith($"!reload-zones"))
+                {
+                    ZPackage pkg = new ZPackage(); // Create ZPackage
+                    string msg = "reloadzones";
+                    pkg.Write(msg);
+                    ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "ReloadZones", new object[] { pkg });
+                    return false;
+                }
                 if (text.ToLower().StartsWith($"!addzone"))
                 {
                     string[] results = text.Split(' ');
@@ -43,6 +51,7 @@ namespace WorldofValheimZones
                             }
                             pkg.Write(msg); // Writes the msg to ZPackage
                             ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "AddZone", new object[] { pkg });
+
                             return false;
                         }
                     }

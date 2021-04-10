@@ -227,11 +227,8 @@ namespace WorldofValheimServerSideCharacters
             if (WorldofValheimServerSideCharacters.ServerMode)
             {
                 StandalonePatches.m_quitting = true;
-                SaveAll();
-
                 Broadcast("Server Shutdown Initiated by console command. Requesting a final character update from all players.  Please exit your game at this time.");
-                Broadcast("");
-
+                SaveAll();
                 int i = WorldofValheimServerSideCharacters.ShutdownDelay.Value;
                 while (i > 0)
                 {

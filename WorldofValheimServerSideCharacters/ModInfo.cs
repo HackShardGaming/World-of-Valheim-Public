@@ -7,12 +7,12 @@ namespace WorldofValheimServerSideCharacters
     public static class ModInfo
     {
         public const string Name = "WorldofValheimServerSideCharacters";
-        public const string Title = "World of Valheim - SSC";
+        public const string Title = "WoV - SSC";
         public const string Group = "HackShardGaming";
         public const string Guid = "HackShardGaming.WorldofValheimServerSideCharacters";
         // Version follow Semantic Versioning Scheme (https://semver.org/)
-        public const string Version = "0.2.0";
-        public const string buildDate = "2021-04-07";
+        public const string Version = "0.2.1";
+        public const string buildDate = "2021-04-10";
 
         // Use GetBuildDate(Assembly.GetExecutingAssembly()); to get build date
         private static DateTime m_GetBuildDate(Assembly assembly)

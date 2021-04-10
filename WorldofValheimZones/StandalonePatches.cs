@@ -32,7 +32,9 @@ namespace WorldofValheimZones
         {
             private static void Prefix()
             {
-                ZRoutedRpc.instance.Register<ZPackage>("AddZone", new Action<long, ZPackage>(RPC.AddZone));
+                Debug.Log("AddZone RPC Created");
+                ZRoutedRpc.instance.Register("AddZone", new Action<long, ZPackage>(ZoneHandler.AddZone)); // Adding Zone
+                ZRoutedRpc.instance.Register("ReloadZones", new Action<long, ZPackage>(ZoneHandler.ReloadZones)); // Adding Zone
             }
         }
         //Remove that bird!
@@ -182,8 +184,6 @@ namespace WorldofValheimZones
                 ZoneHandler.CurrentZoneID = -2;
                 peer.m_rpc.Register<ZPackage>("ZoneHandler", new Action<ZRpc, ZPackage>(ZoneHandler.RPC));
                 peer.m_rpc.Register<ZPackage>("Client", new Action<ZRpc, ZPackage>(Client.RPC));
-                peer.m_rpc.Register<ZPackage>("AddZone", new Action<ZRpc, ZPackage>(RPC.AddZone));
-
                 // Reset zone ID
                 ZoneHandler.CurrentZoneID = -2;
             }

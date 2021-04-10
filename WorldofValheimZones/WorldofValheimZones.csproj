@@ -78,7 +78,6 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="RPC.cs" />
     <Compile Include="Console\F5Console.cs" />
     <Compile Include="Zones.cs" />
     <Compile Include="ZoneHandler.cs" />

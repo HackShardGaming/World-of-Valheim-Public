@@ -1,6 +1,6 @@
 {
     "name": "World_of_Valheim_SSC",
-    "version_number": "0.2.0",
+    "version_number": "0.2.1",
     "website_url": "http://nexusmods.com/valheim/mods/892",
     "description": "World of Valheim - SSC is a mod that makes your character server side. This allows for server owners to prevent users from bringing external drops to the server.",
     "dependencies": [

@@ -15,9 +15,24 @@ Server-Side Zones configuration file: When a client connects to the server it is
 
 The arrival notification upon logging into a server has been removed.  This has no business in a PVP server as it will give away your location.
 
-Patch Notes:
-Version 0.2.0
->> Resolved issue involving logging into the wilderness not loading the wilderness settings.
+
+Client Side Console Commands (F5 Screen)
+
+WARNING: adding a zone the wrong way CAN and WILL break your zones file.  Make sure you know which "ZoneTypes" that you actually have!
+NOTE: We will be adding more checks into this in the future. For now it will write whatever you type there. SO.. if you type the wrong thing it WILL NOT load that zone and will have a dead line in your zones.txt!
+
+All of the following commands requires the user to be an approved admin (adminlists.txt)  They cannot use these commands otherwise!
+!addzone [Name] [ZoneType] [Priority] [Shape(circle/square)] [x] [y] [r]
+?Adds a zone into the current server and reloads the servers zones file.  Also sends the new zones list to all connected users!
+
+!reload-zones
+?Reload the servers zones file.  Also sends all the new zones list to all connected users!
+
+
+
+You must install this plugin on both the server & client in order to login to the server.
+
+
 
 Installation
 

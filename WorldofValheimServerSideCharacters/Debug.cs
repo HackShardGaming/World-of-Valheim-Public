@@ -17,7 +17,7 @@ namespace WorldofValheimServerSideCharacters
 
 		public static void Log(string str)
 		{
-			System.Console.WriteLine("WoV-SSC: " + str);
+			System.Console.WriteLine($"{ModInfo.Title}: " + str);
 		}
 	}
 }

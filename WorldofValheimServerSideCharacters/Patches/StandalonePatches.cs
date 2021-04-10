@@ -42,6 +42,15 @@ namespace WorldofValheimServerSideCharacters
             console.RunCommand(text, false);
         }
 #endif
+        [HarmonyPatch(typeof(Game), "Start")]
+        public static class GameStartPatch
+        {
+            private static void Prefix()
+            {
+                ZRoutedRpc.instance.Register("ShutdownServer", new Action<long, ZPackage>(RPC.ShutdownServer)); // Server Shutdown Registering
+                ZRoutedRpc.instance.Register("SaveAll", new Action<long, ZPackage>(RPC.SaveAll)); // Save all online users
+            }
+        }
 
         // Patches assembly_valheim::FejdStartup::Update
         // Note: Main class for the game

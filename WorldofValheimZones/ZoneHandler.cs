@@ -357,6 +357,105 @@ namespace WorldofValheimZones
             _debug();
 #endif
         }
+        /*
+        public static void AddZone(long sender, ZPackage pkg)
+        {
+            Debug.Log("C->S AddZone (RPC Call)");
+            string msg = pkg.ReadString(); // Read Message from client.
+            Debug.Assert(!ZNet.instance.IsServer());
+            if (pkg != null && pkg.Size() > 0)
+            { // Check that our Package is not null, and if it isn't check that it isn't empty.
+                ZNetPeer peer = ZNet.instance.GetPeer(sender); // Get the Peer from the sender, to later check the SteamID against our Adminlist.
+                if (peer != null)
+                { // Confirm the peer exists
+                    string peerSteamID = ((ZSteamSocket)peer.m_socket).GetPeerID().m_SteamID.ToString(); // Get the SteamID from peer.
+                    if (
+                        ZNet.instance.m_adminList != null &&
+                        ZNet.instance.m_adminList.Contains(peerSteamID)
+                    )
+                    { // Check that the SteamID is in our Admin List.
+                        Debug.Log($"User is an admin and sent: {msg}");
+                    }
+                }
+                else
+                {
+                    Debug.Log($"User is NOT an admin and sent: {msg}");
+                }
+            }
+        }
+        */
+        public static void ReloadZones(long sender, ZPackage pkg)
+        {
+            ZNetPeer peer = ZNet.instance.GetPeer(sender);
+            if (peer != null)
+            {
+                string peerSteamID = ((ZSteamSocket)peer.m_socket).GetPeerID().m_SteamID.ToString(); // Get the SteamID from peer.
+                if (
+                    ZNet.instance.m_adminList != null &&
+                    ZNet.instance.m_adminList.Contains(peerSteamID)
+                )
+                {
+                    ZoneHandler.LoadZoneData(WorldofValheimZones.ZonePath.Value);
+                    Util.Broadcast("Reloading Zone");
+                    Debug.Log("S2C ZoneHandler (SendPeerInfo)");
+                    Util.GetServer().rpc.Invoke("ZoneHandler", new object[] {
+                            ZoneHandler.Serialize()
+                    });
+                }
+            }
+        }
+        public static void AddZone(long sender, ZPackage pkg)
+        {
+            if (pkg != null && pkg.Size() > 0)
+            { // Check that our Package is not null, and if it isn't check that it isn't empty.
+                ZNetPeer peer = ZNet.instance.GetPeer(sender); // Get the Peer from the sender, to later check the SteamID against our Adminlist.
+                if (peer != null)
+                { // Confirm the peer exists
+                    string peerSteamID = ((ZSteamSocket)peer.m_socket).GetPeerID().m_SteamID.ToString(); // Get the SteamID from peer.
+                    if (
+                        ZNet.instance.m_adminList != null &&
+                        ZNet.instance.m_adminList.Contains(peerSteamID)
+                    )
+                    { // Check that the SteamID is in our Admin List.
+                        string msg = pkg.ReadString();
+                        string[] results = msg.Split(' ');
+                        string Name = results[0];
+                        Debug.Log($"C-<S AddZone (RPC Call)");
+                        Debug.Log($"Zone Name: {Name}");
+                        string Type = results[1];
+                        Debug.Log($"Zone Type: {Type}");
+                        string Priority = results[2];
+                        Debug.Log($"Priority: {Priority}");
+                        string Shape = results[3];
+                        Debug.Log($"Shape: {Shape}");
+                        if (Shape != "circle" && Shape != "square")
+                        {
+                            return;
+                        }
+                        string X = results[4];
+                        Debug.Log($"X: {X}");
+                        string Y = results[5];
+                        Debug.Log($"Y: {Y}");
+                        string R = results[6];
+                        Debug.Log($"Radius: {R}");
+                        string addline = results[0] + " " + results[1] + " " + results[2] + " " + results[3] + " " + results[4] + " " + results[5] + " " + results[6];
+                        File.AppendAllText(WorldofValheimZones.ZonePath.Value, addline + Environment.NewLine);
+                        ZoneHandler.LoadZoneData(WorldofValheimZones.ZonePath.Value);
+                        Util.Broadcast("Reloading Zone");
+                        Debug.Log("S2C ZoneHandler (SendPeerInfo)");
+                        Util.GetServer().rpc.Invoke("ZoneHandler", new object[] {
+                            ZoneHandler.Serialize()
+                        });
+                    }
+                    else
+                    {
+                        Debug.Log($"An unauthorized user {peerSteamID} attempted to use the AddZone RPC!");
+                        string msg = pkg.ReadString();
+                        Debug.Log($"Here is a log of the attempted AddZone {msg}");
+                    }
+                }
+            }
+        }
 
         // WorldofValheimZones.ServerSafeZonePath.Value
         public static void LoadZoneData(string ZonePath)
