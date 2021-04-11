@@ -15,6 +15,7 @@ namespace WorldofValheimZones
         {
             Traverse.Create(__instance).Method("AddString", new object[] { $"{ModInfo.Title}: !getcoords (Show your current X and Y coords!)" }).GetValue();
             Traverse.Create(__instance).Method("AddString", new object[] { $"{ModInfo.Title}: !addzone [Name] [ZoneType] [Priority] [Shape(circle/square)] [x] [y] [r] (Add a zone to server **ADMIN COMMAND**)" }).GetValue();
+            Traverse.Create(__instance).Method("AddString", new object[] { $"{ModInfo.Title}: !addzone [Name] [ZoneType] [Priority] [Shape(circle/square)] [r] (Add a zone to the server using YOUR current location! **ADMIN COMMAND**)" })
             Traverse.Create(__instance).Method("AddString", new object[] { $"{ModInfo.Title}: !reload-zones (Reload all zones and update all users that are connected **ADMIN COMMAND**)" }).GetValue();
         }
 
@@ -23,7 +24,9 @@ namespace WorldofValheimZones
         {
             Vector3 point = Player.m_localPlayer.transform.position;
             Vector2 a = new Vector2(point.x, point.z);
-            Traverse.Create(__instance).Method("AddString", new object[] { $"{ModInfo.Title}: Your current position is X: {a.x} Y: {a.y}" }).GetValue();
+            string x = a.x.ToString().Remove(a.x.ToString().Length - 3, 3);
+            string y = a.y.ToString().Remove(a.y.ToString().Length - 3, 3);
+            Traverse.Create(__instance).Method("AddString", new object[] { $"{ModInfo.Title}: Your current position is X: {x} Y: {y}" }).GetValue();
         }
         // Ask the server to reload all available zones **ADMIN ONLY**
         public static void ReloadZones()
@@ -38,6 +41,26 @@ namespace WorldofValheimZones
         public static void AddZone(Console __instance, string text)
         {
             string[] results = text.Split(' ');
+            if (results.Count() == 6)
+            {
+                if (results[4].ToLower() == "circle" || results[4].ToLower() == "square")
+                {
+                    Vector3 point = Player.m_localPlayer.transform.position;
+                    Vector2 a = new Vector2(point.x, point.z);
+                    string Name = results[1];
+                    string Type = results[2];
+                    string Priority = results[3];
+                    string Shape = results[4];
+                    string X = a.x.ToString().Remove(a.x.ToString().Length - 3, 3);
+                    string Y = a.y.ToString().Remove(a.y.ToString().Length - 3, 3);
+                    string Radius = results[5];
+                    string msg = $"{Name} {Type} {Priority} {Shape} {X} {Y} {Radius}";
+                    ZPackage pkg = new ZPackage();
+                    pkg.Write(msg);
+                    ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "AddZone", new object[] { pkg });
+                    return;
+                }
+            }
             if (results.Count() == 8)
             {
                 if (results[4].ToLower() == "circle" || results[4].ToLower() == "square")
@@ -54,8 +77,10 @@ namespace WorldofValheimZones
                     return;
                 }
             }
-            Traverse.Create(__instance).Method("AddString", new object[] { $"WoV-Zones: Error in formating. The proper formating is !addzone [Name] [ZoneType] [Priority] [Shape(circle/square)] [x] [y] [r]" }).GetValue();
-        }
+            Traverse.Create(__instance).Method("AddString", new object[] { $"WoV-Zones: Error in formating. Please look below for proper formating" }).GetValue();
+            Traverse.Create(__instance).Method("AddString", new object[] { $"WoV-Zones: !addzone [Name] [ZoneType] [Priority] [Shape(circle/square)] [x] [y] [r]" }).GetValue();
+            Traverse.Create(__instance).Method("AddString", new object[] { $"WoV-Zones: !addzone [Name] [ZoneType] [Priority] [Shape(circle/square)] [r] (This will make a zone using your CURRENT location!)" }).GetValue();
+            }
     }
 }
 
