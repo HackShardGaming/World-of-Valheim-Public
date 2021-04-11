@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections;
 using System.IO;
 using System.IO.Compression;
 using System.Reflection;
@@ -10,6 +11,7 @@ using UnityEngine.Rendering;
 namespace WorldofValheimServerSideCharacters
 {
 
+
     public static class Util
     {
         public static bool isServer()
@@ -17,7 +19,7 @@ namespace WorldofValheimServerSideCharacters
             return SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
         }
 
-        public static void Broadcast(string text, string username = "World of Valheim Server Side Characters")
+        public static void Broadcast(string text, string username = ModInfo.Title)
         {
             Debug.Log($"Broadcasting {text}");
             ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.Everybody, "ChatMessage", new object[]
@@ -222,28 +224,20 @@ namespace WorldofValheimServerSideCharacters
             }
         }
 
-        public static void ServerShutdown()
+        public static IEnumerator ShutdownServer()
         {
             if (WorldofValheimServerSideCharacters.ServerMode)
             {
-                StandalonePatches.m_quitting = true;
-                Broadcast("Server Shutdown Initiated by console command. Requesting a final character update from all players.  Please exit your game at this time.");
+                Broadcast("Server is being shutdown by Remote Command! Please disconnect your client now.!!");
                 SaveAll();
-                int i = WorldofValheimServerSideCharacters.ShutdownDelay.Value;
-                while (i > 0)
-                {
-#if DEBUG
-                    if (i % 5 == 0)
-                        Broadcast($"Server shutting down in {i} Seconds!!");
-#endif
-                    System.Threading.Thread.Sleep(1000);
-                    i--;
-                }
-
-                Broadcast($"Server shutting down NOW!!!");
-
+                int i = WorldofValheimServerSideCharacters.ShutdownDelay.Value-5;
+                int i2 = 5;
+                yield return new WaitForSeconds(i);
+                Broadcast("Server is shutting down 5 Seconds! Goodbye!");
+                StandalonePatches.m_quitting = true;
                 ZNet.instance.Save(true);
                 DisconnectAll();
+                yield return new WaitForSeconds(i2);
                 Application.Quit();
                 System.Console.Out.Close();
             }

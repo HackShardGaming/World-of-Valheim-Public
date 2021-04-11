@@ -155,7 +155,6 @@ namespace WorldofValheimZones
             _debug(Zones);
         }
 #endif
-
         //List all the zones were are currently occupy
         public static List<Zone> ListOccupiedZones(Vector3 point)
         {
@@ -245,7 +244,6 @@ namespace WorldofValheimZones
                 {
                     changed = false;
                 }
-
                 return false;
 
             }
@@ -265,7 +263,6 @@ namespace WorldofValheimZones
                 {
                     changed = false;
                 }
-
                 return true;
 
             }
@@ -356,6 +353,7 @@ namespace WorldofValheimZones
             Debug.Log("After");
             _debug();
 #endif
+
         }
         public static void RPC2(long rpc, ZPackage data)
         {
@@ -398,70 +396,6 @@ namespace WorldofValheimZones
             }
         }
         */
-        public static void ReloadZones(long sender, ZPackage pkg)
-        {
-            ZNetPeer peer = ZNet.instance.GetPeer(sender);
-            if (peer != null)
-            {
-                string peerSteamID = ((ZSteamSocket)peer.m_socket).GetPeerID().m_SteamID.ToString(); // Get the SteamID from peer.
-                if (
-                    ZNet.instance.m_adminList != null &&
-                    ZNet.instance.m_adminList.Contains(peerSteamID)
-                )
-                {
-                    ZoneHandler.LoadZoneData(WorldofValheimZones.ZonePath.Value);
-                    Util.Broadcast("Reloading Zone");
-                    Debug.Log("S2C ZoneHandler (SendPeerInfo)");
-                    ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.Everybody, "ZoneHandler", new object[] {
-                        ZoneHandler.Serialize()
-                    });
-                }
-                else
-                {
-                    Debug.Log($"An unauthorized user {peerSteamID} attempted to use the Reload-Zones RPC!");
-                }
-            }
-        }
-        public static void AddZone(long sender, ZPackage pkg)
-        {
-            if (pkg != null && pkg.Size() > 0)
-            { // Check that our Package is not null, and if it isn't check that it isn't empty.
-                ZNetPeer peer = ZNet.instance.GetPeer(sender); // Get the Peer from the sender, to later check the SteamID against our Adminlist.
-                if (peer != null)
-                { // Confirm the peer exists
-                    string peerSteamID = ((ZSteamSocket)peer.m_socket).GetPeerID().m_SteamID.ToString(); // Get the SteamID from peer.
-                    if (
-                        ZNet.instance.m_adminList != null &&
-                        ZNet.instance.m_adminList.Contains(peerSteamID)
-                    )
-                    { // Check that the SteamID is in our Admin List.
-                        string msg = pkg.ReadString();
-                        string[] results = msg.Split(' ');
-                        string Name = results[0];
-                        Debug.Log($"C-<S AddZone (RPC Call)");
-                        string Type = results[1];
-                        string Priority = results[2];
-                        string Shape = results[3];
-                        if (Shape != "circle" && Shape != "square")
-                        {
-                            return;
-                        }
-                        string X = results[4];
-                        string Y = results[5];
-                        string R = results[6];
-                        string addline = Name + " " + Type + " " + Priority+ " " + Shape + " " + X + " " + Y + " " + R;
-                        File.AppendAllText(WorldofValheimZones.ZonePath.Value, addline + Environment.NewLine);
-                        ZoneHandler.ReloadZones(sender, pkg);
-                    }
-                    else
-                    {
-                        Debug.Log($"An unauthorized user {peerSteamID} attempted to use the AddZone RPC!");
-                        string msg = pkg.ReadString();
-                        Debug.Log($"Here is a log of the attempted AddZone {msg}");
-                    }
-                }
-            }
-        }
 
         // WorldofValheimZones.ServerSafeZonePath.Value
         public static void LoadZoneData(string ZonePath)

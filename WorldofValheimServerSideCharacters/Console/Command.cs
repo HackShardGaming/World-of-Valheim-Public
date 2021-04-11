@@ -21,48 +21,34 @@ namespace WorldofValheimServerSideCharacters
                 if (Player.m_localPlayer != null)
                 {
                     Traverse.Create(__instance).Method("AddString", new object[] { text }).GetValue();
-                    Traverse.Create(__instance).Method("AddString", new object[] { $"WoV-SSC Version: {ModInfo.Version}" }).GetValue();
+                    Traverse.Create(__instance).Method("AddString", new object[] { $"{ModInfo.Title}: {ModInfo.Version}" }).GetValue();
                     return false;
                 }
                 else
                     return true;
             }
+            // Help Menu
             if (text.ToLower().StartsWith($"!help"))
             {
-                Traverse.Create(__instance).Method("AddString", new object[] { text }).GetValue();
-                Traverse.Create(__instance).Method("AddString", new object[] { $"!save (Saves your character (server side))" }).GetValue();
-                Traverse.Create(__instance).Method("AddString", new object[] { $"!save-all (Request the server to save all clients **ADMIN COMMAND**)" }).GetValue();
-                Traverse.Create(__instance).Method("AddString", new object[] { $"!shutdown-server (Shuts the server down **ADMIN COMMAND**)" }).GetValue();
-            }
-            if (text.ToLower().Equals($"!save"))
-            {
-                if (Player.m_localPlayer != null)
-                {
-                    Util.GetServer().rpc.Invoke("CharacterUpdate", new object[]
-                    {
-                    Util.Compress(Game.instance.GetPlayerProfile().Serialize(Player.m_localPlayer, true))
-                    });
-                    Traverse.Create(__instance).Method("AddString", new object[] { text }).GetValue();
-                    Traverse.Create(__instance).Method("AddString", new object[] { $"WoV-SSC: Clinet->Server CharacterUpdate" }).GetValue();
-                    return false;
-                }
-                else
-                    return true;
-            }
-            if (text.ToLower().StartsWith($"!shutdown-server"))
-            {
-                ZPackage pkg = new ZPackage(); // Create ZPackage
-                string msg = "ShutdownServer";
-                pkg.Write(msg);
-                ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "ShutdownServer", new object[] { pkg });
+                CMethods.Help(__instance);
                 return false;
             }
+            // Save my character
+            if (text.ToLower().Equals($"!save"))
+            {
+                CMethods.Save(__instance);
+                return false;
+            }
+            // Shutdown the server **Admin Command**
+            if (text.ToLower().StartsWith($"!shutdown-server"))
+            {
+                CMethods.ShutdownServer();
+                return false;
+            }
+            // Save all online users **Admin Command**
             if (text.ToLower().StartsWith($"!save-all"))
             {
-                ZPackage pkg = new ZPackage(); // Create ZPackage
-                string msg = "SaveAll";
-                pkg.Write(msg);
-                ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "SaveAll", new object[] { pkg });
+                CMethods.SaveAll();
                 return false;
             }
             return true;

@@ -51,7 +51,7 @@ namespace WorldofValheimServerSideCharacters
 				)
 				{
 					Debug.Log($"Shutting down the server");
-					Util.ServerShutdown();
+					Game.instance.StartCoroutine(Util.ShutdownServer());
 				}
 			}
 		}

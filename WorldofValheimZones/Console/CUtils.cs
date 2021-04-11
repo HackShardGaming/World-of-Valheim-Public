@@ -22,7 +22,7 @@ namespace WorldofValheimZones.Console
             return String.Join(" ", args).Trim();
         }
 
-        public static List<String> LoadModList(string ModPath)
+        public static List<String> LoadModList(string ModPath)B
         {
             List<String> ModList = new List<string>();
             if (!File.Exists(ModPath))

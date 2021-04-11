@@ -25,8 +25,8 @@ namespace WorldofValheimServerSideCharacters
 
                 __result = $"{__result} ({ModInfo.Name} v{ModInfo.Version})";
                 Debug.Log($"Version Generated: {__result}");
-            }
 #endif
+            }
         }
 
 #if client_cli
@@ -238,10 +238,10 @@ namespace WorldofValheimServerSideCharacters
                 return true;
             }
             StandalonePatches.m_quitting = true;
-            
+
             if (ZNet.instance.IsServer())
             {
-                Util.ServerShutdown();
+                Util.ShutdownServer();
                 return false;
             }
             else

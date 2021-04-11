@@ -6,6 +6,50 @@ using System.Text;
 using System.Threading.Tasks;
 using BepInEx;
 using UnityEngine;
+using HarmonyLib;
+
+namespace WorldofValheimServerSideCharacters
+{
+    class CMethods
+    {
+        // Help Menu
+        public static void Help(Console __instance)
+        {
+            Traverse.Create(__instance).Method("AddString", new object[] { $"{ModInfo.Title}: !save (Saves your character (server side))" }).GetValue();
+            Traverse.Create(__instance).Method("AddString", new object[] { $"{ModInfo.Title}: !save-all (Request the server to save all clients **ADMIN COMMAND**)" }).GetValue();
+            Traverse.Create(__instance).Method("AddString", new object[] { $"{ModInfo.Title}: !server-shutdown (Shuts the server down **ADMIN COMMAND**)" }).GetValue();
+        }
+        // Save my character
+        public static void Save(Console __instance)
+        {
+            if (Player.m_localPlayer != null)
+            {
+                Util.GetServer().rpc.Invoke("CharacterUpdate", new object[]
+                {
+                    Util.Compress(Game.instance.GetPlayerProfile().Serialize(Player.m_localPlayer, true))
+                });
+                Traverse.Create(__instance).Method("AddString", new object[] { $"{ModInfo.Title}: Clinet->Server CharacterUpdate" }).GetValue();
+            }
+        }
+        // Request that the server shuts itself down
+        public static void ShutdownServer()
+        {
+            ZPackage pkg = new ZPackage(); // Create ZPackage
+            string msg = "ShutdownServer";
+            pkg.Write(msg);
+            Debug.Log($"{ModInfo.Title}: C->S ShutdownServer");
+            ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "ShutdownServer", new object[] { pkg });
+        }
+        // Save all online players.
+        public static void SaveAll()
+        {
+            ZPackage pkg = new ZPackage(); // Create ZPackage
+            string msg = "SaveAll";
+            pkg.Write(msg);
+            ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "SaveAll", new object[] { pkg });
+        }
+    }
+}
 /* Disabling Until fixed
 using static WorldofValheimServerSideCharacters.Console.CUtils;
 
@@ -45,7 +89,7 @@ namespace WorldofValheimServerSideCharacters.Console
         {
             SkipArg(args);
             Debug.Log($"Shutting down the server");
-            Util.ServerShutdown();
+            Util.ShutdownServer();
             return true;
         }
 

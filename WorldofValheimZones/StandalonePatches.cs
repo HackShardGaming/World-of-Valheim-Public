@@ -33,8 +33,8 @@ namespace WorldofValheimZones
             private static void Prefix()
             {
                 Debug.Log("AddZone RPC Created");
-                ZRoutedRpc.instance.Register("AddZone", new Action<long, ZPackage>(ZoneHandler.AddZone)); // Adding Zone
-                ZRoutedRpc.instance.Register("ReloadZones", new Action<long, ZPackage>(ZoneHandler.ReloadZones)); // Adding Zone
+                ZRoutedRpc.instance.Register("AddZone", new Action<long, ZPackage>(Util.AddZone)); // Adding Zone
+                ZRoutedRpc.instance.Register("ReloadZones", new Action<long, ZPackage>(Util.ReloadZones)); // Adding Zone
                 ZRoutedRpc.instance.Register("ZoneHandler", new Action<long, ZPackage>(ZoneHandler.RPC2)); // Adding Zone
             }
         }
@@ -57,7 +57,6 @@ namespace WorldofValheimZones
                 }
                 return list.AsEnumerable<CodeInstruction>();
             }
-
             private static MethodInfo func_sendText = AccessTools.Method(typeof(Chat), "SendText", null, null);
         }
         // Patches assembly_valheim::Version::GetVersionString
@@ -131,6 +130,7 @@ namespace WorldofValheimZones
                         // Update the client settings based on zone type
 
                         // PVP settings:
+
                         Client.PVPEnforced = ztype.PVPEnforce;
                         if (ztype.PVPEnforce)
                             Client.PVPMode = ztype.PVP;
@@ -139,7 +139,6 @@ namespace WorldofValheimZones
                         Client.PositionEnforce = ztype.PositionEnforce;
                         if (ztype.PositionEnforce)
                             Client.ShowPosition = ztype.ShowPosition;
-
                         // Run the updated settings for the Clients
                         Player.m_localPlayer.SetPVP(Client.PVPMode);
                         ZNet.instance.SetPublicReferencePosition(Client.ShowPosition);
@@ -152,22 +151,41 @@ namespace WorldofValheimZones
                     Client._debug();
 #endif
                 }
+                else
+                {
+                    if (Client.PVPEnforced && (Player.m_localPlayer.m_pvp != Client.PVPMode))
+                    {
+                        Debug.Log($"{ModInfo.Title}: ERROR: Your PVP Mode was changed by another plugin.  Resetting client PVP!");
+                        Player.m_localPlayer.SetPVP(Client.PVPMode);
+                    }
+                    if (Client.PositionEnforce && (ZNet.instance.m_publicReferencePosition != Client.ShowPosition))
+                    {
+                        Debug.Log($"{ModInfo.Title}: ERROR: Your Position Sharing was changed by another plugin.  Resetting client Position Sharing!");
+                        ZNet.instance.SetPublicReferencePosition(Client.ShowPosition);
+                    }
+                }
             }
         }
         // Patch Znet::OnDeath
         // We died! We need to reset variables to default
         [HarmonyPostfix]
-        [HarmonyPatch(typeof(Player), "OnDeath")]
-        private static void Player__OnDeath(Player __instance)
+        [HarmonyPatch(typeof(Player), "OnRespawn")]
+        private static void Player__OnRespawn(Player __instance)
         {
             if (ZNet.instance.IsServer())
             {
                 return;
             }
+            ZoneHandler.CurrentZoneID = -2;
+        }
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(Player), "OnDeath")]
+        private static void Player__OnDeath(Player __instance)
+        {
+            if (ZNet.instance.IsServer())
+                return;
             if (__instance == Player.m_localPlayer)
-            {
                 ZoneHandler.CurrentZoneID = -2;
-            }
         }
 
         // Patch ZNet::OnNewConnection
