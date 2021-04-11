@@ -21,18 +21,26 @@ Client Side Console Commands (F5 Screen)
 WARNING: adding a zone the wrong way CAN and WILL break your zones file.  Make sure you know which "ZoneTypes" that you actually have!
 NOTE: We will be adding more checks into this in the future. For now it will write whatever you type there. SO.. if you type the wrong thing it WILL NOT load that zone and will have a dead line in your zones.txt!
 
+!getcoords
+    This will show your current coords to you
+
+
 All of the following commands requires the user to be an approved admin (adminlists.txt)  They cannot use these commands otherwise!
-!addzone [Name] [ZoneType] [Priority] [Shape(circle/square)] [x] [y] [r]
-?Adds a zone into the current server and reloads the servers zones file.  Also sends the new zones list to all connected users!
 
 !reload-zones
 ?Reload the servers zones file.  Also sends all the new zones list to all connected users!
 
+!addzone [Name] [ZoneType] [Priority] [Shape(circle/square)] [x] [y] [Radius]
+?Adds a zone into the current server and reloads the servers zones file.  Also sends the new zones list to all connected users! **Please note: X, Y, and Radius need to be formatted in 0.0 (note the one decimal place)**
+
+!addzone [Name] [ZoneType [Priority] [Shape(circle/square)] [Radius]
+    Adds a zone using our current coords into the current server and reloads the servers zones file.  Also sends the new zones list to all connected users! **Please note: Radius needs to be formatted in 0.0 (note the one decimal place) The X and Y will be automatically generated according to where you are currently located in the game.**
+
+
+
 
 
 You must install this plugin on both the server & client in order to login to the server.
-
-
 
 Installation
 

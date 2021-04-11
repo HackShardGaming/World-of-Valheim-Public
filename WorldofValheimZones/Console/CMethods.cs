@@ -15,7 +15,7 @@ namespace WorldofValheimZones
         {
             Traverse.Create(__instance).Method("AddString", new object[] { $"{ModInfo.Title}: !getcoords (Show your current X and Y coords!)" }).GetValue();
             Traverse.Create(__instance).Method("AddString", new object[] { $"{ModInfo.Title}: !addzone [Name] [ZoneType] [Priority] [Shape(circle/square)] [x] [y] [r] (Add a zone to server **ADMIN COMMAND**)" }).GetValue();
-            Traverse.Create(__instance).Method("AddString", new object[] { $"{ModInfo.Title}: !addzone [Name] [ZoneType] [Priority] [Shape(circle/square)] [r] (Add a zone to the server using YOUR current location! **ADMIN COMMAND**)" })
+            Traverse.Create(__instance).Method("AddString", new object[] { $"{ModInfo.Title}: !addzone [Name] [ZoneType] [Priority] [Shape(circle/square)] [r] (Add a zone to the server using YOUR current location! **ADMIN COMMAND**)" }).GetValue();;
             Traverse.Create(__instance).Method("AddString", new object[] { $"{ModInfo.Title}: !reload-zones (Reload all zones and update all users that are connected **ADMIN COMMAND**)" }).GetValue();
         }
 
