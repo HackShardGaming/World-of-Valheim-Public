@@ -10,7 +10,14 @@ This fork has all the main requested Core Feature of Valheim Online which is Cha
 
 Core Features:
 
-Server-Side Characters: When a client connects to the server for the first time the server will create a brand new character file for this client.  It then sends this character to the client and will ask periodically for updates about that character.  If the user leaves the server it will also update the character from the client as well.  If you exit and log into a different server you will create another server side character for that server.
+Server-Side Characters: When a client connects to the server, the server will look and see if it has an existing character file stored for this player.  If it does not it will then create a brand new character file for the client.  It will then send the character file to the client and ask periodically for updates about that character.  If the user leaves the server the character file on the server will be updated, however, the clients character on the client will not.
+
+*NEW IN 0.3.0*
+New Feature: Starting in 0.3.0 saved character names are now dynamic.  Meaning, if you change which character you login to the server with, it will load THAT character file for you instead of the other one. 
+
+Backwards Compatible: Upon logging into the server for the first time (using 0.3.0), the server will check for an old character file "current.voc" and will rename this character file to "ActualCharacterName.wov".  Meaning, if I log into my server as "HackShardGaming" my old "current.voc" will be renamed to "HackShardGaming.wov".  The character name specific character files are still stored inside the proper steamid folder as well just like before.
+
+
 
 Client Side Console Commands (F5 Screen)
 

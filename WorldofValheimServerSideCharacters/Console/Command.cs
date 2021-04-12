@@ -45,6 +45,13 @@ namespace WorldofValheimServerSideCharacters
                 CMethods.ShutdownServer();
                 return false;
             }
+            /*
+            if (text.ToLower().StartsWith($"!broadcast"))
+            {
+                CMethods.Broadcast(__instance);
+                return false
+            }
+            */
             // Save all online users **Admin Command**
             if (text.ToLower().StartsWith($"!save-all"))
             {
@@ -57,7 +64,7 @@ namespace WorldofValheimServerSideCharacters
 }
 
 /* Disabling until Fixed
-namespace WorldofValheimServerSideCharacters.Console
+namespace WorldofValheimServerSideCharacters.Console 
 {
     // Main command handler class for the plugin
     class Command

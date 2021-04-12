@@ -202,7 +202,6 @@ namespace WorldofValheimServerSideCharacters
             rpc.Invoke("CharacterData", new object[] {
                 Util.Compress(Util.LoadOrMakeCharacter(rpc.GetSocket().GetHostName()))
             });
-
             ServerState.Connections.Add(new ServerState.ConnectionData
             {
                 rpc = rpc
@@ -241,7 +240,7 @@ namespace WorldofValheimServerSideCharacters
 
             if (ZNet.instance.IsServer())
             {
-                Util.ShutdownServer();
+                Game.instance.StartCoroutine(Util.ShutdownServer());
                 return false;
             }
             else

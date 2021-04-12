@@ -63,7 +63,9 @@ namespace WorldofValheimServerSideCharacters
 			{
 				Debug.Log("Client->Server CharacterUpdate");
 				string hostName = rpc.GetSocket().GetHostName();
-				string CharacterLocation = Util.GetCharacterPath(hostName);
+				ZNetPeer peer = ZNet.instance.GetPeerByHostName(hostName);
+				string PlayerName = peer.m_playerName;
+				string CharacterLocation = Util.GetCharacterPath(hostName, PlayerName);
 				Debug.Log($"Saving character from SteamID {hostName}.");
 				Util.WriteCharacter(CharacterLocation, Util.Decompress(data).GetArray());
 				return;

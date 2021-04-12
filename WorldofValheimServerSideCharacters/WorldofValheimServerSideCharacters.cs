@@ -52,8 +52,10 @@ namespace WorldofValheimServerSideCharacters
 			{
 				Debug.Log("[Server Mode]");
                 // Load Paths
-                WorldofValheimServerSideCharacters.CharacterSavePath = base.Config.Bind<string>("WorldofValheimServerSideCharacters", "CharacterSavePath", Path.Combine(Utils.GetSaveDataPath(), "characters"), "SERVER ONLY: The root directory for the server vault.");
-                WorldofValheimServerSideCharacters.DefaultCharacterPath = base.Config.Bind<string>("WorldofValheimServerSideCharacters", "DefaultCharacterPath", Path.Combine(Utils.GetSaveDataPath(), "default_character.fch"), "SERVER ONLY: The file path to the default character file. If it does not exist, it will be created with a default character file.");
+                string testpath = Config.ConfigFilePath;
+                testpath = testpath.Replace("HackShardGaming.WorldofValheimServerSideCharacters.cfg", "WoV");
+                WorldofValheimServerSideCharacters.CharacterSavePath = base.Config.Bind<string>("WorldofValheimServerSideCharacters", "CharacterSavePath", Path.Combine(testpath, "characters"), "SERVER ONLY: The root directory for the server vault.");
+                WorldofValheimServerSideCharacters.DefaultCharacterPath = base.Config.Bind<string>("WorldofValheimServerSideCharacters", "DefaultCharacterPath", Path.Combine(testpath, "default_character.fch"), "SERVER ONLY: The file path to the default character file. If it does not exist, it will be created with a default character file.");
                 WorldofValheimServerSideCharacters.SaveInterval = base.Config.Bind<int>("WorldofValheimServerSideCharacters", "SaveInterval", 120, "SERVER ONLY: How often, in seconds, to save a copy of each character. Too low may result in performance issues. Too high may result in lost data in the event of a server crash.");
                 WorldofValheimServerSideCharacters.ShutdownDelay = base.Config.Bind<int>("WorldofValheimServerSideCharacters", "ShutdownDelay", 15, "SERVER ONLY: How long should we delay after !shutdown has been typed before actually shutting down.");
             }
@@ -79,6 +81,8 @@ namespace WorldofValheimServerSideCharacters
                 if (!File.Exists(WorldofValheimServerSideCharacters.DefaultCharacterPath.Value))
                 {
                     Debug.Log($"Creating default character file at {WorldofValheimServerSideCharacters.DefaultCharacterPath.Value}");
+                    Debug.Log("That character does not exist! Loading them up a fresh default!");
+                    Directory.CreateDirectory(Path.GetDirectoryName(WorldofValheimServerSideCharacters.DefaultCharacterPath.Value));
                     File.WriteAllBytes(WorldofValheimServerSideCharacters.DefaultCharacterPath.Value,
                         global::WorldofValheimServerSideCharacters.Properties.Resources._default_character);
                 }

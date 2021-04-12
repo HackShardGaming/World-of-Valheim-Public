@@ -51,8 +51,11 @@ namespace WorldofValheimZones
 
 			if (ServerMode)
 			{
+
 				Debug.Log("[Server Mode]");
-                WorldofValheimZones.ZonePath = base.Config.Bind<string>("WorldofValheimZones", "ZonePath", Path.Combine(Utils.GetSaveDataPath(), "zones.txt"), "SERVER ONLY: The file path to the zone file. If it does not exist, it will be created with a default zone.");
+                string testpath = Config.ConfigFilePath;
+                testpath = testpath.Replace("HackShardGaming.WorldofValheimZones.cfg", "WoV");
+                WorldofValheimZones.ZonePath = base.Config.Bind<string>("WorldofValheimZones", "ZonePath", Path.Combine(testpath, "zones.txt"), "SERVER ONLY: The file path to the zone file. If it does not exist, it will be created with a default zone.");
 
                 WorldofValheimZones.EnforceZones = base.Config.Bind<bool>("WorldofValheimZones", "EnforceZones", false, "SERVER ONLY: Are we going to enforce zone settings.");
                 

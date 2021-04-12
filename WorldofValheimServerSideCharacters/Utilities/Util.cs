@@ -45,10 +45,14 @@ namespace WorldofValheimServerSideCharacters
             }
         }
 
-        public static string GetCharacterPath(string id)
+        public static string GetCharacterPath(string id, string playerName)
         {
             // This is where we would put an update to change character files depending on what character name they are using client side. Need to send it through the RPC though...
-            return Path.Combine(WorldofValheimServerSideCharacters.CharacterSavePath.Value, id, "current.voc");
+            if (playerName == "current")
+            {
+                return Path.Combine(WorldofValheimServerSideCharacters.CharacterSavePath.Value, id, playerName + ".voc");
+            }
+            return Path.Combine(WorldofValheimServerSideCharacters.CharacterSavePath.Value, id, playerName + ".wov");
         }
 
         // Compress (zip) the data
@@ -171,8 +175,17 @@ namespace WorldofValheimServerSideCharacters
 
         public static ZPackage LoadOrMakeCharacter(string steamid)
         {
-            string CharacterLocation = Util.GetCharacterPath(steamid);
-            Debug.Log($"Attempting to load the character for SteamID: {CharacterLocation}.");
+            ZNetPeer peer = ZNet.instance.GetPeerByHostName(steamid);
+            string PlayerName = peer.m_playerName;
+            string CharacterLocation = Util.GetCharacterPath(steamid, PlayerName);
+            // For backwards compatability lets see if a current.voc currently exists! if so lets rename it!
+            string OldCharacter = Util.GetCharacterPath(steamid, "current");
+            if (File.Exists(OldCharacter))
+            {
+                Debug.Log($"An older SSC Character save named current.voc has been located for the SteamID: {steamid} and has been renamed to {PlayerName}.wov");
+                File.Move(OldCharacter, CharacterLocation);
+            }
+            Debug.Log($"Attempting to load the character for SteamID.CharacterName: {steamid}.{PlayerName}");
             if (!File.Exists(CharacterLocation))
             {
                 Debug.Log("That character does not exist! Loading them up a fresh default!");
@@ -223,15 +236,20 @@ namespace WorldofValheimServerSideCharacters
                 }
             }
         }
-
+        public static ZNet.PlayerInfo getBasicPlayerInfoFromPlayer(Player player) => new ZNet.PlayerInfo
+        {
+            m_characterID = player.GetZDOID(),
+            m_name = player.GetPlayerName(),
+            m_position = player.transform.position
+        };
         public static IEnumerator ShutdownServer()
         {
             if (WorldofValheimServerSideCharacters.ServerMode)
             {
-                Broadcast("Server is being shutdown by Remote Command! Please disconnect your client now.!!");
-                SaveAll();
-                int i = WorldofValheimServerSideCharacters.ShutdownDelay.Value-5;
+                int i = WorldofValheimServerSideCharacters.ShutdownDelay.Value - 5;
                 int i2 = 5;
+                Broadcast($"Server is being shutdown in {i} seconds by Remote Command! Please disconnect your client now.!!");
+                SaveAll();
                 yield return new WaitForSeconds(i);
                 Broadcast("Server is shutting down 5 Seconds! Goodbye!");
                 StandalonePatches.m_quitting = true;
