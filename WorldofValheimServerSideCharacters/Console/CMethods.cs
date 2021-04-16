@@ -1,12 +1,8 @@
-﻿using System;
+﻿using HarmonyLib;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Security.Permissions;
-using System.Text;
-using System.Threading.Tasks;
-using BepInEx;
 using UnityEngine;
-using HarmonyLib;
+using UnityEngine.UI;
 
 namespace WorldofValheimServerSideCharacters
 {
@@ -48,10 +44,18 @@ namespace WorldofValheimServerSideCharacters
             pkg.Write(msg);
             ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "SaveAll", new object[] { pkg });
         }
+        public static void ReloadDefault()
+        {
+            ZPackage pkg = new ZPackage();
+            pkg.Write("ReloadDefault");
+            ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "ReloadDefault", new object[] { pkg });
+        }
     }
 }
+
 /* Disabling Until fixed
 using static WorldofValheimServerSideCharacters.Console.CUtils;
+
 
 namespace WorldofValheimServerSideCharacters.Console
 {

@@ -64,6 +64,7 @@ namespace WorldofValheimZones
         [HarmonyPatch(typeof(Version), "GetVersionString")]
         public static class Version_GetVersionString_Patch
         {
+            [HarmonyBefore(new string[] { "mod.valheim_plus" })]
             private static void Postfix(ref string __result)
             {
 #if DEBUG
@@ -71,7 +72,7 @@ namespace WorldofValheimZones
 #else
                 
                 __result = $"{__result} ({ModInfo.Name} v{ModInfo.Version})";
-                Debug.Log($"Version Generated: {__result}");
+                //Debug.Log($"Version Generated: {__result}");
 #endif
             }
         }
@@ -113,14 +114,27 @@ namespace WorldofValheimZones
                 {
                     if (zonedDetected)
                     {
-                        Player.m_localPlayer.Message(MessageHud.MessageType.Center, $"You have now entered {zone.Name}",
-                            0, null);
-
+                        var color = (ztype.PVPEnforce ? (ztype.PVP ? "red" : "white") : "yellow");
+                        string Name = zone.Name.Replace("_", " ");
+                        string Message = $"<color={color}>Now entering <b>{Name}</b>.</color>";
+                        string BiomeMessage = (ztype.PVPEnforce ? ztype.PVP ? "PVP Enabled" : "PVP Disabled" : String.Empty);
+                        // The message at the end is in the format of (PVP) (NOPVP) (NON-ENFORCED)
+                        Player.m_localPlayer.Message(MessageHud.MessageType.Center, Message,
+                                0, null);
+                        if (Client.EnforceZones && ztype.PVPEnforce && (ztype.PVP != Player.m_localPlayer.m_pvp))
+                            MessageHud.instance.ShowBiomeFoundMsg(BiomeMessage, true);
                     }
                     else
                     {
-                        Player.m_localPlayer.Message(MessageHud.MessageType.Center, $"You have now entered the wilderness",
-                            0, null);
+                        var color = (ztype.PVPEnforce ? (ztype.PVP ? "red" : "white") : "yellow");
+                        string Name = "The Wilderness";
+                        string Message = $"<color={color}>Now entering <b>{Name}</b>.</color>";
+                        string BiomeMessage = (ztype.PVPEnforce ? ztype.PVP ? "PVP Enabled" : "PVP Disabled" : String.Empty);
+                        // The message at the end is in the format of (PVP) (NOPVP) (NON-ENFORCED)
+                        Player.m_localPlayer.Message(MessageHud.MessageType.Center, Message,
+                                0, null);
+                        if (Client.EnforceZones && ztype.PVPEnforce && (ztype.PVP != Player.m_localPlayer.m_pvp))
+                            MessageHud.instance.ShowBiomeFoundMsg(BiomeMessage, true);
 
                     }
 

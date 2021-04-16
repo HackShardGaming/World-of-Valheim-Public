@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -172,11 +173,77 @@ namespace WorldofValheimServerSideCharacters
                 profile.m_playerData = data.ReadByteArray();
             }
         }
+        public static void LoadOrMakeDefaultCharacter()
+        {
+            if (!File.Exists(WorldofValheimServerSideCharacters.DefaultCharacterPath.Value))
+            {
+                Debug.Log($"Creating default character file at {WorldofValheimServerSideCharacters.DefaultCharacterPath.Value}");
+                Debug.Log("That character does not exist! Loading them up a fresh default!");
+                Directory.CreateDirectory(Path.GetDirectoryName(WorldofValheimServerSideCharacters.DefaultCharacterPath.Value));
+                File.WriteAllBytes(WorldofValheimServerSideCharacters.DefaultCharacterPath.Value,
+                    global::WorldofValheimServerSideCharacters.Properties.Resources._default_character);
+            }
+            else
+            {
+                Debug.Log($"Loading default character file from {WorldofValheimServerSideCharacters.DefaultCharacterPath.Value}");
+                ServerState.default_character = File.ReadAllBytes(WorldofValheimServerSideCharacters.DefaultCharacterPath.Value);
+            }
 
+            Debug.Log($"Loaded default character file (Size: {ServerState.default_character.Length})");
+        }
+        public static bool isAdmin(long sender)
+        {
+            ZNetPeer peer = ZNet.instance.GetPeer(sender);
+            string SteamID = sender.ToString();
+            if (
+                ZNet.instance.m_adminList != null &&
+                ZNet.instance.m_adminList.Contains(SteamID)
+            )
+                return true;
+            else
+            {
+                return false;
+            }
+        }
         public static ZPackage LoadOrMakeCharacter(string steamid)
         {
             ZNetPeer peer = ZNet.instance.GetPeerByHostName(steamid);
-            string PlayerName = peer.m_playerName;
+            string PlayerNameRaw = peer.m_playerName;
+            string PlayerName = "";
+            bool PlayerPermission = ValheimPermissions.ValheimDB.UserPermissionScan(long.Parse(steamid), "hackshardgaming.cancreate");
+            if (PlayerPermission)
+            {
+                Debug.Log("Player can create a file");
+            }
+            else
+            {
+                Debug.Log("Player does not have the correct permission to do this!");
+            }
+            if (WorldofValheimServerSideCharacters.AllowMultipleCharacters.Value)
+                PlayerName = Regex.Replace(PlayerNameRaw, @"<[^>]*>", String.Empty);
+            else 
+                PlayerName = "Single_Character_Mode";
+            /*
+            if (results.Length > 1)
+            {
+                for (int i = 0; i < results.Length; i++)
+                {
+                    if (i == 1)
+                    {
+                        PlayerName = Regex.Replace(results[i], "[^a-zA-Z0-9]", String.Empty);
+                    }
+                    else
+                    {
+                        PlayerName = PlayerName + " " + Regex.Replace(results[i], "[^a-zA-Z0-9]", String.Empty);
+                    }
+                }
+            }
+            else
+            {
+            PlayerName = Regex.Replace(PlayerNameRaw, "[^a-zA-Z0-9]", String.Empty);
+            }
+            */
+
             string CharacterLocation = Util.GetCharacterPath(steamid, PlayerName);
             // For backwards compatability lets see if a current.voc currently exists! if so lets rename it!
             string OldCharacter = Util.GetCharacterPath(steamid, "current");

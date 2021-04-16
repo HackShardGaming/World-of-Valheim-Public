@@ -42,6 +42,8 @@ Client Side Config Variables:
 
 Server Side Config Variables:
 
+>> AllowMultipleCharacters:  Should we allow clients to save multiple different character files on the server (TRUE) or use one consistent file (FALSE)
+
 ?>> CharacterSavePath:  This is where  we are going to store the character files. NOTE: Please make this a location you have access to on your server machine
 
 

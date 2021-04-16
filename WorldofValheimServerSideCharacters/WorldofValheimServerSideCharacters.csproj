@@ -61,12 +61,19 @@
     <Reference Include="BepInEx.Harmony">
       <HintPath>..\libs\BepInEx.Harmony.dll</HintPath>
     </Reference>
+    <Reference Include="HackShard-Permissions">
+      <HintPath>..\HackShard-Permissions\bin\Release\HackShard-Permissions.dll</HintPath>
+    </Reference>
+    <Reference Include="LiteDB, Version=5.0.10.0, Culture=neutral, PublicKeyToken=4ee40123013c9f27, processorArchitecture=MSIL">
+      <HintPath>..\packages\LiteDB.5.0.10\lib\net45\LiteDB.dll</HintPath>
+    </Reference>
     <Reference Include="System">
       <HintPath>..\libs\System.dll</HintPath>
     </Reference>
     <Reference Include="System.Core">
       <HintPath>..\libs\System.Core.dll</HintPath>
     </Reference>
+    <Reference Include="System.Runtime" />
     <Reference Include="UnityEngine">
       <HintPath>..\libs\UnityEngine.dll</HintPath>
     </Reference>
@@ -109,6 +116,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <None Include="Properties\default_character.fch" />
   </ItemGroup>
   <ItemGroup>

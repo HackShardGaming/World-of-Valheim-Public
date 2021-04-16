@@ -1,16 +1,14 @@
-using System;
 using System.IO;
-using System.Net.NetworkInformation;
-using System.Threading;
 using BepInEx;
 using BepInEx.Configuration;
 using HarmonyLib;
+using ValheimPermissions;
 //using WorldofValheimServerSideCharacters.Console;
 
 
 namespace WorldofValheimServerSideCharacters
 {
-
+    
     [BepInPlugin(ModInfo.Guid, ModInfo.Name, ModInfo.Version)]
     public class WorldofValheimServerSideCharacters : BaseUnityPlugin
     {
@@ -20,8 +18,10 @@ namespace WorldofValheimServerSideCharacters
 
         public static ConfigEntry<string> CharacterSavePath;
         public static ConfigEntry<string> DefaultCharacterPath;
+
         public static ConfigEntry<int> SaveInterval;
-		public static ConfigEntry<int> NexusID;
+        public static ConfigEntry<int> NexusID;
+        public static ConfigEntry<bool> AllowMultipleCharacters;
         public static ConfigEntry<bool> ExportCharacter;
         public static ConfigEntry<bool> AllowSinglePlayer;
         public static ConfigEntry<int> ShutdownDelay;
@@ -32,7 +32,7 @@ namespace WorldofValheimServerSideCharacters
 
         public void Awake()
         {
-			Debug.Log("Haz awoke!!?!");
+            Debug.Log("Haz awoke!!?!");
 
 #if DEBUG
             Debug.Log("Development Version Activated!!!");
@@ -44,22 +44,23 @@ namespace WorldofValheimServerSideCharacters
             // Process through the configurations
 
             // Nexus ID For Nexus Update
-            WorldofValheimServerSideCharacters.NexusID = base.Config.Bind<int>("WorldofValheimServerSideCharacters", "NexusID", 892, "Nexus ID to make Nexus Update Happy!");
+            WorldofValheimServerSideCharacters.NexusID = base.Config.Bind<int>("WorldofValheimServerSideCharacters", "NexusID", ModInfo.NexusID, "Nexus ID to make Nexus Update Happy!");
 
 
 
-			if (ServerMode)
-			{
-				Debug.Log("[Server Mode]");
+            if (ServerMode)
+            {
+                Debug.Log("[Server Mode]");
                 // Load Paths
                 string testpath = Config.ConfigFilePath;
                 testpath = testpath.Replace("HackShardGaming.WorldofValheimServerSideCharacters.cfg", "WoV");
+                WorldofValheimServerSideCharacters.AllowMultipleCharacters = base.Config.Bind<bool>("WorldofValheimServerSideCharacters", "AllowMultipleCharacters", true, "SERVER ONLY: Should we create a new character file if the client logs in using a different character name (TRUE) or should we use only ONE character file per steamid (FALSE)");
                 WorldofValheimServerSideCharacters.CharacterSavePath = base.Config.Bind<string>("WorldofValheimServerSideCharacters", "CharacterSavePath", Path.Combine(testpath, "characters"), "SERVER ONLY: The root directory for the server vault.");
                 WorldofValheimServerSideCharacters.DefaultCharacterPath = base.Config.Bind<string>("WorldofValheimServerSideCharacters", "DefaultCharacterPath", Path.Combine(testpath, "default_character.fch"), "SERVER ONLY: The file path to the default character file. If it does not exist, it will be created with a default character file.");
                 WorldofValheimServerSideCharacters.SaveInterval = base.Config.Bind<int>("WorldofValheimServerSideCharacters", "SaveInterval", 120, "SERVER ONLY: How often, in seconds, to save a copy of each character. Too low may result in performance issues. Too high may result in lost data in the event of a server crash.");
                 WorldofValheimServerSideCharacters.ShutdownDelay = base.Config.Bind<int>("WorldofValheimServerSideCharacters", "ShutdownDelay", 15, "SERVER ONLY: How long should we delay after !shutdown has been typed before actually shutting down.");
             }
-			else
+            else
             {
                 Debug.Log("[Client Mode]");
                 WorldofValheimServerSideCharacters.ExportCharacter = base.Config.Bind<bool>("WorldofValheimServerSideCharacters", "ExportCharacter", false, "CLIENT ONLY: Export character from server for single player use and/or retain character. Previously AllowCharacterSave (WARNING: THIS WILL OVERWRITE YOUR LOCAL CHARACTER FILE!! PLEASE USE A BLANK CHARACTER FILE!)");
@@ -78,46 +79,34 @@ namespace WorldofValheimServerSideCharacters
                 /*
                  * Setup default character file for server to use.
                  */
-                if (!File.Exists(WorldofValheimServerSideCharacters.DefaultCharacterPath.Value))
-                {
-                    Debug.Log($"Creating default character file at {WorldofValheimServerSideCharacters.DefaultCharacterPath.Value}");
-                    Debug.Log("That character does not exist! Loading them up a fresh default!");
-                    Directory.CreateDirectory(Path.GetDirectoryName(WorldofValheimServerSideCharacters.DefaultCharacterPath.Value));
-                    File.WriteAllBytes(WorldofValheimServerSideCharacters.DefaultCharacterPath.Value,
-                        global::WorldofValheimServerSideCharacters.Properties.Resources._default_character);
-                }
-                else
-                {
-                    Debug.Log($"Loading default character file from {WorldofValheimServerSideCharacters.DefaultCharacterPath.Value}");
-                    ServerState.default_character = File.ReadAllBytes(WorldofValheimServerSideCharacters.DefaultCharacterPath.Value);
-                }
-
-                Debug.Log($"Loaded default character file (Size: {ServerState.default_character.Length})");
+                Util.LoadOrMakeDefaultCharacter();
 
 
             }
         }
-        /* Disabled until Fixed
+        /* still broke...
         public async void Start()
         {
             await System.Threading.Tasks.Task.Run(() =>
             {
-                console = new Console.Console();
-                while (runConsole)
+                bool RunCommand = true;
+
+                if (ServerMode)
                 {
-                    string input = "";
-                    try
+                    while (RunCommand)
                     {
-                        input = System.Console.ReadLine();
-                        console.RunCommand(input, false);
-                        input = "";
-                    }
-                    catch
-                    {
-                        if (!input.Trim().IsNullOrWhiteSpace())
+                        string input = "";
+                        try
                         {
-                            Debug.Log($"Please don't use {input} as its causing error," +
-                                                $" please report with the dev team, please include input command used");
+                            input = System.Console.ReadLine();
+                            Dedicated_Server.RunCommand(input);
+                            input = "";
+                        }
+                        catch
+                        {
+                            if (!input.Trim().IsNullOrWhiteSpace())
+                            {
+                            }
                         }
                     }
                 }

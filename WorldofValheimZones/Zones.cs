@@ -4,6 +4,7 @@ using BepInEx.Configuration;
 using HarmonyLib;
 using UnityEngine;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 #if client_cli
 using WorldofValheimZones.Console;
@@ -79,49 +80,5 @@ namespace WorldofValheimZones
 
             }
         }
-
-#if client_cli
-
-        private static Runner console;
-        public bool runConsole = true;
-
-        public async void Start()
-        {
-            await System.Threading.Tasks.Task.Run(() =>
-            {
-                /*
-                while ((ZNet.instance == null))
-                {
-                    Thread.Sleep(1000);// waiting for zNet to initialize
-                }*/
-
-                //
-                // Setup and start the console
-                //
-
-                console = new Runner();
-
-                while (runConsole)
-                {
-                    string input = "";
-                    try
-                    {
-                        input = System.Console.ReadLine();
-                        console.RunCommand(input, false);
-                        input = "";
-                    }
-                    catch
-                    {
-                        if (!input.Trim().IsNullOrWhiteSpace())
-                        {
-                            Console.CUtils.Print($"Please don't use {input} as its causing error," +
-                                                $" please report with the dev team, please include input command used");
-                        }
-                    }
-                }
-            });
-        }
-#endif //client_cli
-
     }
 }

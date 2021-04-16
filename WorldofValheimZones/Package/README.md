@@ -41,7 +41,6 @@ All of the following commands requires the user to be an approved admin (adminli
 
 
 You must install this plugin on both the server & client in order to login to the server.
-
 Installation
 
 
@@ -150,5 +149,10 @@ This mod will not work with the original version of Valheim Online as it uses th
 
 ToDo List:
 - [X] Initial Release
-- [X] Add commands for /addzone /removezone
-- [X] Add additional features to zone. Example: Healing, No Damage to Structures, Act like a ward and do not allow editing.
+- [X] Add command for /reload-zones
+- [X] Add commands for /addzone 
+- [X] Add command for /getcoords
+- [  ] Add command for /removezone
+- [  ] Add command for /addtype
+- [  ] Add command for /removetype
+- [  ] Add additional features to zone. Example: Healing, No Damage to Structures, Act like a ward and do not allow editing.

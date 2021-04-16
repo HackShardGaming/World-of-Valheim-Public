@@ -77,9 +77,9 @@ namespace WorldofValheimZones
                     return;
                 }
             }
-            Traverse.Create(__instance).Method("AddString", new object[] { $"WoV-Zones: Error in formating. Please look below for proper formating" }).GetValue();
-            Traverse.Create(__instance).Method("AddString", new object[] { $"WoV-Zones: !addzone [Name] [ZoneType] [Priority] [Shape(circle/square)] [x] [y] [r]" }).GetValue();
-            Traverse.Create(__instance).Method("AddString", new object[] { $"WoV-Zones: !addzone [Name] [ZoneType] [Priority] [Shape(circle/square)] [r] (This will make a zone using your CURRENT location!)" }).GetValue();
+            Traverse.Create(__instance).Method("AddString", new object[] { $"{ModInfo.Title}: Error in formating. Please look below for proper formating" }).GetValue();
+            Traverse.Create(__instance).Method("AddString", new object[] { $"{ModInfo.Title}: !addzone [Name] [ZoneType] [Priority] [Shape(circle/square)] [x] [y] [r]" }).GetValue();
+            Traverse.Create(__instance).Method("AddString", new object[] { $"{ModInfo.Title}: !addzone [Name] [ZoneType] [Priority] [Shape(circle/square)] [r] (This will make a zone using your CURRENT location!)" }).GetValue();
             }
     }
 }

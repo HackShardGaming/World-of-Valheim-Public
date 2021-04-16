@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Reflection;
 using System.Globalization;
+using System.Reflection;
 
 namespace WorldofValheimServerSideCharacters
 {
@@ -11,8 +11,11 @@ namespace WorldofValheimServerSideCharacters
         public const string Group = "HackShardGaming";
         public const string Guid = "HackShardGaming.WorldofValheimServerSideCharacters";
         // Version follow Semantic Versioning Scheme (https://semver.org/)
-        public const string Version = "0.3.0";
-        public const string buildDate = "2021-04-12";
+        public const string Version = "0.3.3";
+        public const string buildDate = "2021-04-13";
+
+        // Nexus Plugin ID (Use to maintain updates with Nexus)
+        public const int NexusID = 892;
 
         // Use GetBuildDate(Assembly.GetExecutingAssembly()); to get build date
         private static DateTime m_GetBuildDate(Assembly assembly)

@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 
 
-namespace WorldofValheimServerSideCharacters
+namespace ValheimPermissions
 {
     // Debug Patch Class
     [HarmonyPatch]
