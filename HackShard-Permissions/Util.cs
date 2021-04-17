@@ -18,6 +18,18 @@ namespace ValheimPermissions
     {
         public static class Dedicated_Commands
         {
+            public static void ShowUserPermissions(long SteamID)
+            {
+                string[] results = ValheimDB.ShowUserPermissions(SteamID.ToString());
+                int count = results.Length;
+                int i = 0;
+                Debug.Log($"The user {SteamID} has access to the following permission nodes:");
+                while (i > count) 
+                {
+                    Debug.Log(results[i]);
+                    i = i + 1;
+                }
+            }
             public static void AddGroup(string parse)
             {
                 bool results = ValheimDB.AddGroup(parse);

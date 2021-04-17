@@ -31,8 +31,17 @@ namespace ValheimPermissions
                     }
                     if (results[2].ToLower().Equals($"permission"))
                     {
-                        Debug.Log($"Attempting to lookup permission: {results[4]} for the user {results[3]}!");
-                        Util.Dedicated_Commands.CheckUserPermission(long.Parse(results[3]), results[4]);
+                        Debug.Log($" {results.Count()}");
+                        if (results.Count() == 4)
+                        {
+                            Debug.Log($"Attempting to lookup all permissions for the user {results[3]}!");
+                            Util.Dedicated_Commands.ShowUserPermissions(long.Parse(results[3]));
+                        }
+                        else
+                        {
+                            Debug.Log($"Attempting to lookup permission: {results[4]} for the user {results[3]}!");
+                            Util.Dedicated_Commands.CheckUserPermission(long.Parse(results[3]), results[4]);
+                        }
                     }
                 }
             }

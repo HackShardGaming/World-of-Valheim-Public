@@ -16,20 +16,18 @@ namespace ValheimPermissions
         {
             public string Group_Name { get; set; }
         }
-        public class Permission
+        public class Group_Permission
         {
-            public class Group
-            {
-                public string Group_Name { get; set; }
-                public string permission { get; set; }
-            }
-            public class User
-            {
-                public string SteamID { get; set; }
-                public string permission { get; set; }
-            }
-        
+
+            public string Group_Name { get; set; }
+            public string permission { get; set; }
         }
+        public class User_Permission
+        {
+            public string SteamID { get; set; }
+            public string permission { get; set; }
+        }
+        
         // Execution: ValheimPermissions.ValheimDB.AddGroup(GROUP_NAME)
         // Result: Will return TRUE or FALSE if the group was created or not.
         // NOTE: Results will be returned to you in BOOL format (true/false)
@@ -64,8 +62,8 @@ namespace ValheimPermissions
             using (var db = new LiteDatabase(@"HsG-Database.db"))
             {
                 var groups = db.GetCollection<Group>("Group");
-                var permissions = db.GetCollection<Permission.Group>("Permission");
-                var _permission = new Permission.Group
+                var permissions = db.GetCollection<Group_Permission>("Group_Permission");
+                var _permission = new Group_Permission
                 {
                     Group_Name = group,
                     permission = permission
@@ -94,8 +92,8 @@ namespace ValheimPermissions
             permission = permission.ToLower();
             using (var db = new LiteDatabase(@"HsG-Database.db"))
             {
-                var permissions = db.GetCollection<Permission.User>("Permission");
-                var _permission = new Permission.User
+                var permissions = db.GetCollection<User_Permission>("User_Permission");
+                var _permission = new User_Permission
                 {
                     SteamID = SteamID.ToString(),
                     permission = permission.ToLower()
@@ -119,7 +117,7 @@ namespace ValheimPermissions
             string[] permissionsplit = permission.Split('.');
             using (var db = new LiteDatabase(@"HsG-Database.db"))
             {
-                var Permissions = db.GetCollection<Permission.Group>("Permission");
+                var Permissions = db.GetCollection<Group_Permission>("Group_Permission");
                 int i = 0;
                 string lookuppermission = "";
                 var pexists = Permissions.FindOne(Query.And(Query.EQ("Group_Name", group), Query.EQ("permission", lookuppermission + "*")));
@@ -159,6 +157,24 @@ namespace ValheimPermissions
             }
             return false;
         }
+        // Execution ValheimPermission.ValheimDB.ShowUserPermissions(SteamID)
+        // Important Note: You need to send the SteamID in STRING format instead of the default LONG format. use SteamID.ToString() before sending.
+        // Results: Will return a string[] of all the permission nodes the user has access to.
+        // Or: will return one array result (false) if there is no permissions.
+        // NOTE: Results will be returned to you in an string[] format! Code accordingly!
+        public static string[] ShowUserPermissions(string SteamID)
+        {
+            string[] nullresult = { "No.Permissions.Found" };
+            using (var db = new LiteDatabase(@"HsG-Database.db"))
+            {
+                var Permissions = db.GetCollection<User_Permission>("User_Permission");
+                var results = db.Execute($"SELECT permission FROM User_Permission WHERE SteamID='{SteamID}'");
+                var data = results.ToList();
+                Debug.Log($"There are {data.Count} results");
+                // Need the code here to tear it apart. sleepie time!
+                return nullresult;
+            }
+        }
         // Execution ValheimPermissions.ValheimDB.PermissionScanUser(SteamID, PERMISSION_NODE)
         // Important Note: You need to send the SteamID in STRING format instead of the default LONG format. use SteamID.ToString() before sending.
         // Results: Will return true if the user has permission to that node or higher.
@@ -172,7 +188,7 @@ namespace ValheimPermissions
             {
                 if (Util.isAdmin(long.Parse(SteamID)))
                     return true;
-                var Permissions = db.GetCollection<Permission.User>("Permission");
+                var Permissions = db.GetCollection<User_Permission>("User_Permission");
                 int i = 0;
                 string lookuppermission = "";
                 var pexists = Permissions.FindOne(Query.And(Query.EQ("SteamID", SteamID.ToString()), Query.EQ("permission", lookuppermission + "*")));
@@ -192,6 +208,7 @@ namespace ValheimPermissions
                     }
                     if (i + 1 != permissionsplit.Length)
                     {
+                        
                         pexists = Permissions.FindOne(Query.And(Query.EQ("SteamID", SteamID.ToString()), Query.EQ("permission", lookuppermission + ".*")));
                     }
                     else
