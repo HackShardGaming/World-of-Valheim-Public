@@ -24,7 +24,25 @@ namespace ValheimPermissions
                 int count = results.Length;
                 int i = 0;
                 Debug.Log($"The user {SteamID} has access to the following permission nodes:");
-                while (i > count) 
+                while (i < count) 
+                {
+                    Debug.Log(results[i]);
+                    i = i + 1;
+                }
+                string Group_Name = ValheimDB.GetGroup(SteamID.ToString());
+                if (Group_Name != null)
+                {
+                    Debug.Log($"The user {SteamID} is also in the following group: {Group_Name}");
+                    ShowGroupPermissions(Group_Name);
+                }
+            }
+            public static void ShowGroupPermissions(string Group_Name)
+            {
+                string[] results = ValheimDB.ShowGroupPermissions(Group_Name);
+                int count = results.Length;
+                int i = 0;
+                Debug.Log($"The group {Group_Name} has access to the following permission nodes:");
+                while (i < count)
                 {
                     Debug.Log(results[i]);
                     i = i + 1;
