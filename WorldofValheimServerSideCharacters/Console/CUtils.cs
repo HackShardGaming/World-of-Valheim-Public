@@ -1,11 +1,13 @@
-﻿
-#if client_cli
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using UnityEngine;
 
-namespace WorldofValheimZones.Console
+/* Disabled until Fixed
+namespace WorldofValheimServerSideCharacters.Console
 {
     class CUtils
     {
@@ -49,5 +51,4 @@ namespace WorldofValheimZones.Console
         }
     }
 }
-
-#endif
+*/

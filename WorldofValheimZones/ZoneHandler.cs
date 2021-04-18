@@ -94,7 +94,7 @@ namespace WorldofValheimZones
             public Vector2 Position;
             public float Radius;
         }
-
+        
         // Zone Details
 
         // Which zone are we currently in.
@@ -155,7 +155,6 @@ namespace WorldofValheimZones
             _debug(Zones);
         }
 #endif
-
         //List all the zones were are currently occupy
         public static List<Zone> ListOccupiedZones(Vector3 point)
         {
@@ -245,7 +244,6 @@ namespace WorldofValheimZones
                 {
                     changed = false;
                 }
-
                 return false;
 
             }
@@ -265,7 +263,6 @@ namespace WorldofValheimZones
                 {
                     changed = false;
                 }
-
                 return true;
 
             }
@@ -356,8 +353,49 @@ namespace WorldofValheimZones
             Debug.Log("After");
             _debug();
 #endif
-        }
 
+        }
+        public static void RPC2(long rpc, ZPackage data)
+        {
+            Debug.Log("S2C Zone (RPC Call)");
+            Debug.Assert(!ZNet.instance.IsServer());
+#if DEBUG
+            Debug.Log("Before");
+            _debug();
+#endif
+            Deserialize(data);
+#if DEBUG
+            Debug.Log("After");
+            _debug();
+#endif
+        }
+        /*
+        public static void AddZone(long sender, ZPackage pkg)
+        {
+            Debug.Log("C->S AddZone (RPC Call)");
+            string msg = pkg.ReadString(); // Read Message from client.
+            Debug.Assert(!ZNet.instance.IsServer());
+            if (pkg != null && pkg.Size() > 0)
+            { // Check that our Package is not null, and if it isn't check that it isn't empty.
+                ZNetPeer peer = ZNet.instance.GetPeer(sender); // Get the Peer from the sender, to later check the SteamID against our Adminlist.
+                if (peer != null)
+                { // Confirm the peer exists
+                    string peerSteamID = ((ZSteamSocket)peer.m_socket).GetPeerID().m_SteamID.ToString(); // Get the SteamID from peer.
+                    if (
+                        ZNet.instance.m_adminList != null &&
+                        ZNet.instance.m_adminList.Contains(peerSteamID)
+                    )
+                    { // Check that the SteamID is in our Admin List.
+                        Debug.Log($"User is an admin and sent: {msg}");
+                    }
+                }
+                else
+                {
+                    Debug.Log($"User is NOT an admin and sent: {msg}");
+                }
+            }
+        }
+        */
 
         // WorldofValheimZones.ServerSafeZonePath.Value
         public static void LoadZoneData(string ZonePath)

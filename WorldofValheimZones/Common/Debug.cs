@@ -13,7 +13,7 @@ namespace WorldofValheimZones
 
 		public static void Log(string str)
 		{
-			System.Console.WriteLine($@"{ModInfo.Name}: " + str);
+			System.Console.WriteLine($@"{ModInfo.Title}: " + str);
 		}
 
     }

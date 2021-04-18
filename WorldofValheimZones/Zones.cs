@@ -2,6 +2,8 @@ using System.IO;
 using BepInEx;
 using BepInEx.Configuration;
 using HarmonyLib;
+using UnityEngine;
+using System.Collections.Generic;
 
 #if client_cli
 using WorldofValheimZones.Console;
@@ -9,15 +11,16 @@ using WorldofValheimZones.Console;
 
 namespace WorldofValheimZones
 {
-
     [BepInPlugin(ModInfo.Guid, ModInfo.Name, ModInfo.Version)]
     public class WorldofValheimZones : BaseUnityPlugin
     {
+        private static WorldofValheimZones context;
+
         public const string Name = ModInfo.Name;
         public const string Guid = ModInfo.Guid;
         public const string Version = ModInfo.Version;
         
-        public static ConfigEntry<string> ServerZonePath;
+        public static ConfigEntry<string> ZonePath;
         public static ConfigEntry<bool> EnforceZones;
 
         public static ConfigEntry<int> NexusID;
@@ -29,7 +32,8 @@ namespace WorldofValheimZones
 
         public void Awake()
         {
-			Debug.Log("Haz awoke!!?!");
+            context = this;
+            Debug.Log("Haz awoke!!?!");
 
 #if DEBUG
             Debug.Log("Development Version Activated!!!");
@@ -47,8 +51,11 @@ namespace WorldofValheimZones
 
 			if (ServerMode)
 			{
+
 				Debug.Log("[Server Mode]");
-                WorldofValheimZones.ServerZonePath = base.Config.Bind<string>("WorldofValheimZones", "ServerZonePath", Path.Combine(Utils.GetSaveDataPath(), "zones.txt"), "SERVER ONLY: The file path to the zone file. If it does not exist, it will be created with a default zone.");
+                string testpath = Config.ConfigFilePath;
+                testpath = testpath.Replace("HackShardGaming.WorldofValheimZones.cfg", "WoV");
+                WorldofValheimZones.ZonePath = base.Config.Bind<string>("WorldofValheimZones", "ZonePath", Path.Combine(testpath, "zones.txt"), "SERVER ONLY: The file path to the zone file. If it does not exist, it will be created with a default zone.");
 
                 WorldofValheimZones.EnforceZones = base.Config.Bind<bool>("WorldofValheimZones", "EnforceZones", false, "SERVER ONLY: Are we going to enforce zone settings.");
                 
@@ -68,7 +75,7 @@ namespace WorldofValheimZones
                 /*
                  * Setup safe zones.
                  */
-                ZoneHandler.LoadZoneData(WorldofValheimZones.ServerZonePath.Value);
+                ZoneHandler.LoadZoneData(WorldofValheimZones.ZonePath.Value);
 
             }
         }

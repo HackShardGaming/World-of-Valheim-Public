@@ -19,7 +19,7 @@ set PLUGIN_DIR=BepInEx\plugins
 set OUTPUT_DIR=%MOD_DIR%\Output
 
 REM Development specific variables
-set SERVER_DIR=C:\Games\Valheim_servers\server1
+set SERVER_DIR=C:\WindowsGSM\servers\1\serverfiles
 set PLAYER_DIR=C:\Program Files (x86)\Steam\steamapps\common\Valheim
 
 set "MOD_VER="

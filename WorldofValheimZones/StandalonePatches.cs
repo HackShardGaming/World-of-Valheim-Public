@@ -1,5 +1,9 @@
 using System;
 using HarmonyLib;
+using System.Linq;
+using System.Reflection;
+using System.Collections.Generic;
+
 
 #if client_cli
 using WorldofValheimZones.Console;
@@ -23,18 +27,53 @@ namespace WorldofValheimZones
             ___m_changeLog = new TextAsset(str + ___m_changeLog.text);
         }
 #endif
+        [HarmonyPatch(typeof(Game), "Start")]
+        public static class GameStartPatch
+        {
+            private static void Prefix()
+            {
+                Debug.Log("AddZone RPC Created");
+                ZRoutedRpc.instance.Register("AddZone", new Action<long, ZPackage>(Util.AddZone)); // Adding Zone
+                ZRoutedRpc.instance.Register("ReloadZones", new Action<long, ZPackage>(Util.ReloadZones)); // Adding Zone
+                ZRoutedRpc.instance.Register("ZoneHandler", new Action<long, ZPackage>(ZoneHandler.RPC2)); // Adding Zone
+            }
+        }
+        //Remove that bird!
+        [HarmonyPatch(typeof(Game), "UpdateRespawn")]
+        public static class NoArrival
+        {
 
+            [HarmonyTranspiler]
+            public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+            {
+                List<CodeInstruction> list = instructions.ToList<CodeInstruction>();
+                for (int i = 0; i < list.Count; i++)
+                {
+                    if (list[i].Calls(NoArrival.func_sendText))
+                    {
+                        list.RemoveRange(i - 3, 4);
+                        break;
+                    }
+                }
+                return list.AsEnumerable<CodeInstruction>();
+            }
+            private static MethodInfo func_sendText = AccessTools.Method(typeof(Chat), "SendText", null, null);
+        }
         // Patches assembly_valheim::Version::GetVersionString
         // Links in our version detail to override games original one to maintain compatibility
-        [HarmonyPostfix]
         [HarmonyPatch(typeof(Version), "GetVersionString")]
-        private static void Version__GetVersionString(ref string __result)
+        public static class Version_GetVersionString_Patch
         {
+            private static void Postfix(ref string __result)
+            {
 #if DEBUG
-            __result = $"{__result} ({ModInfo.Name} v{ModInfo.Version}-Dev)";
+                __result = $"{__result} ({ModInfo.Name} v{ModInfo.Version}-Dev)";
 #else
-            __result = $"{__result} ({ModInfo.Name} v{ModInfo.Version})";
+                
+                __result = $"{__result} ({ModInfo.Name} v{ModInfo.Version})";
+                Debug.Log($"Version Generated: {__result}");
 #endif
+            }
         }
 
 #if client_cli
@@ -50,7 +89,7 @@ namespace WorldofValheimZones
             console.RunCommand(text, false);
         }
 #endif
-        
+
         //
         // This is the bread and butter of maintaining the user PVP state
         //
@@ -82,7 +121,7 @@ namespace WorldofValheimZones
                     {
                         Player.m_localPlayer.Message(MessageHud.MessageType.Center, $"You have now entered the wilderness",
                             0, null);
-                        
+
                     }
 
                     // Zones are now being enforced?
@@ -91,6 +130,7 @@ namespace WorldofValheimZones
                         // Update the client settings based on zone type
 
                         // PVP settings:
+
                         Client.PVPEnforced = ztype.PVPEnforce;
                         if (ztype.PVPEnforce)
                             Client.PVPMode = ztype.PVP;
@@ -99,7 +139,6 @@ namespace WorldofValheimZones
                         Client.PositionEnforce = ztype.PositionEnforce;
                         if (ztype.PositionEnforce)
                             Client.ShowPosition = ztype.ShowPosition;
-
                         // Run the updated settings for the Clients
                         Player.m_localPlayer.SetPVP(Client.PVPMode);
                         ZNet.instance.SetPublicReferencePosition(Client.ShowPosition);
@@ -112,7 +151,41 @@ namespace WorldofValheimZones
                     Client._debug();
 #endif
                 }
+                else
+                {
+                    if (Client.PVPEnforced && (Player.m_localPlayer.m_pvp != Client.PVPMode))
+                    {
+                        Debug.Log($"{ModInfo.Title}: ERROR: Your PVP Mode was changed by another plugin.  Resetting client PVP!");
+                        Player.m_localPlayer.SetPVP(Client.PVPMode);
+                    }
+                    if (Client.PositionEnforce && (ZNet.instance.m_publicReferencePosition != Client.ShowPosition))
+                    {
+                        Debug.Log($"{ModInfo.Title}: ERROR: Your Position Sharing was changed by another plugin.  Resetting client Position Sharing!");
+                        ZNet.instance.SetPublicReferencePosition(Client.ShowPosition);
+                    }
+                }
             }
+        }
+        // Patch Znet::OnDeath
+        // We died! We need to reset variables to default
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(Player), "OnRespawn")]
+        private static void Player__OnRespawn(Player __instance)
+        {
+            if (ZNet.instance.IsServer())
+            {
+                return;
+            }
+            ZoneHandler.CurrentZoneID = -2;
+        }
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(Player), "OnDeath")]
+        private static void Player__OnDeath(Player __instance)
+        {
+            if (ZNet.instance.IsServer())
+                return;
+            if (__instance == Player.m_localPlayer)
+                ZoneHandler.CurrentZoneID = -2;
         }
 
         // Patch ZNet::OnNewConnection
@@ -127,9 +200,9 @@ namespace WorldofValheimZones
             if (!__instance.IsServer())
             {
                 // Client special RPC calls
+                ZoneHandler.CurrentZoneID = -2;
                 peer.m_rpc.Register<ZPackage>("ZoneHandler", new Action<ZRpc, ZPackage>(ZoneHandler.RPC));
                 peer.m_rpc.Register<ZPackage>("Client", new Action<ZRpc, ZPackage>(Client.RPC));
-
                 // Reset zone ID
                 ZoneHandler.CurrentZoneID = -2;
             }
@@ -167,7 +240,7 @@ namespace WorldofValheimZones
             rpc.Invoke("Client", new object[] {
                 Client.Serialize()
             });
-            
+
 
             Util.Connections.Add(new Util.ConnectionData
             {
