@@ -5,6 +5,7 @@ using System.IO.Compression;
 using System.Reflection;
 using HarmonyLib;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.Rendering;
 using ValheimPermissions;
 
@@ -20,7 +21,21 @@ namespace WorldofValheimZones
 
             public ZRpc rpc;
         }
-        
+
+        public static void DoAreaEffect(Vector3 pos)
+        {
+            GameObject znet = ZNetScene.instance.GetPrefab("vfx_lootspawn");
+            GameObject obj = UnityEngine.Object.Instantiate(znet, pos, Quaternion.identity);
+            DamageText.WorldTextInstance worldTextInstance = new DamageText.WorldTextInstance();
+            worldTextInstance.m_worldPos = pos;
+            worldTextInstance.m_gui = UnityEngine.Object.Instantiate<GameObject>(DamageText.instance.m_worldTextBase, DamageText.instance.transform);
+            worldTextInstance.m_textField = worldTextInstance.m_gui.GetComponent<Text>();
+            DamageText.instance.m_worldTexts.Add(worldTextInstance);
+            worldTextInstance.m_textField.color = Color.cyan;
+            worldTextInstance.m_textField.fontSize = 24;
+            worldTextInstance.m_textField.text = "PRIVATE AREA";
+            worldTextInstance.m_timer = -2f;
+        }
         public static bool isServer()
         {
             return SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
@@ -73,8 +88,8 @@ namespace WorldofValheimZones
                     Util.Broadcast("Reloading Zone");
                     Debug.Log("S2C ZoneHandler (SendPeerInfo)");
                     ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.Everybody, "ZoneHandler", new object[] {
-                        ZoneHandler.Serialize()
-                    });
+                        ZoneHandler.Serialize(peerSteamID)
+                    }) ;
                 }
                 else
                 {

@@ -11,11 +11,11 @@ namespace ValheimPermissions
         public const string Group = "HackShardGaming";
         public const string Guid = "HackShardGaming.ValheimPermissions";
         // Version follow Semantic Versioning Scheme (https://semver.org/)
-        public const string Version = "1.0.0";
+        public const string Version = "1.0.2";
         public const string buildDate = "2021-04-17";
 
         // Nexus Plugin ID (Use to maintain updates with Nexus)
-        public const int NexusID = 000;
+        public const int NexusID = 1050;
 
         // Use GetBuildDate(Assembly.GetExecutingAssembly()); to get build date
         private static DateTime m_GetBuildDate(Assembly assembly)

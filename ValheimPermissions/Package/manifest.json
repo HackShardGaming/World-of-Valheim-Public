@@ -1,6 +1,6 @@
 {
     "name": "ValheimPermissions",
-    "version_number": "1.0.0",
+    "version_number": "1.0.2",
     "website_url": "http://nexusmods.com/valheim/mods/1050",
     "description": "Valheim Permissions adds Permission nodes the game. Thus giving Mod Developers a chance to add Permission based commands, etc!",
     "dependencies": [

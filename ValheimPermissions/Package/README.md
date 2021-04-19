@@ -1,5 +1,10 @@
 Server Owners?
 
+Path Notes
+V1.0.1:
+If the user is in the AdminList of the server they will now have access to all permissions, when checking the users permissions you will also now see that thye have permission to * (All)
+Patched a bug involving checking if a player is actually online before doing anything with them.
+
 
 IMPORTANT NOTE: Anywhere it says (STEAMID) You can either enter the players SteamID or the players Character Name. You will need to replace any Spaces in the players name with a / (This plugin will convert it back to spaces for you)
 

@@ -43,25 +43,50 @@ namespace ValheimPermissions
         public static string GetPeerSteamID(string ID)
         {
             string Updated = ID.Replace("/", " ");
-            Debug.Log($"Requested username is {Updated}");
-            if ((ID.ToString().Length == 17) && IsAllDigits(ID.ToString()))
+            List<ZNet.PlayerInfo> OnlinePlayers = ZNet.instance.GetPlayerList();
+            bool PlayerExists = false;
+            string CurrentPlayer = "";
+            for (int i = 0; i < OnlinePlayers.Count; i++)
             {
-                ZNetPeer peer = ZNet.instance.GetPeer(long.Parse(ID));
-                string peerSteamID = ((ZSteamSocket)peer.m_socket).GetPeerID().m_SteamID.ToString();
-                return peerSteamID;
+                CurrentPlayer = OnlinePlayers[i].m_name;
+                if (CurrentPlayer == Updated)
+                {
+                    PlayerExists = true;
+                }
             }
-            if (!IsAllDigits(ID.ToString()))
+            if (PlayerExists)
             {
                 ZNetPeer peer = ZNet.instance.GetPeerByPlayerName(Updated);
                 string peerSteamID = ((ZSteamSocket)peer.m_socket).GetPeerID().m_SteamID.ToString();
                 return peerSteamID;
             }
-            return "0000000000000000";
+            else
+            {
+                if ((ID.ToString().Length == 17) && IsAllDigits(ID.ToString()))
+                {
+                    ZNetPeer peer = ZNet.instance.GetPeer(long.Parse(ID));
+                    string peerSteamID = ((ZSteamSocket)peer.m_socket).GetPeerID().m_SteamID.ToString();
+                    return peerSteamID;
+                }
+            }
+            return "00000000000000000";
         }
         public static bool isAdmin(long sender)
         {
             ZNetPeer peer = ZNet.instance.GetPeer(sender);
             string SteamID = sender.ToString();
+            if (
+                ZNet.instance.m_adminList != null &&
+                ZNet.instance.m_adminList.Contains(SteamID)
+            )
+                return true;
+            else
+            {
+                return false;
+            }
+        }
+        public static bool isSteamIDAdmin(string SteamID)
+        {
             if (
                 ZNet.instance.m_adminList != null &&
                 ZNet.instance.m_adminList.Contains(SteamID)

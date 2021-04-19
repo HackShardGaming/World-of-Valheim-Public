@@ -78,13 +78,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="RPC.cs" />
+    <Compile Include="RPC\RPC.cs" />
     <Compile Include="Console\Command.cs" />
-    <Compile Include="StandAlonePatches.cs" />
-    <Compile Include="ValheimDB.cs" />
-    <Compile Include="Util.cs" />
-    <Compile Include="ModInfo.cs" />
-    <Compile Include="Debug.cs" />
+    <Compile Include="Patches\StandAlonePatches.cs" />
+    <Compile Include="Database\ValheimDB.cs" />
+    <Compile Include="Database\Util.cs" />
+    <Compile Include="Common\ModInfo.cs" />
+    <Compile Include="Common\Debug.cs" />
     <Compile Include="ValheimPermissions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

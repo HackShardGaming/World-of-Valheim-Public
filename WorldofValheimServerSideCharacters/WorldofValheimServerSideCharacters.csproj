@@ -80,8 +80,9 @@
     <Reference Include="UnityEngine.UI">
       <HintPath>..\libs\UnityEngine.UI.dll</HintPath>
     </Reference>
-    <Reference Include="ValheimPermissions">
-      <HintPath>..\HackShard-Permissions\bin\Release\ValheimPermissions.dll</HintPath>
+    <Reference Include="ValheimPermissions, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\ValheimPermissions\bin\Release\ValheimPermissions.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

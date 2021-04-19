@@ -240,8 +240,19 @@ namespace ValheimPermissions
             {
                 var Permissions = db.GetCollection<User_Permission>("User_Permission");
                 var count = Permissions.Count(Query.EQ("SteamID", SteamID));
-                string[] returnme = new string[count];
+                string[] returnme = new string[0];
                 int i = 0;
+                if (Util.isSteamIDAdmin(SteamID))
+                {
+                    returnme = new string[count+1];
+                    returnme[0] = "*";
+                    i = 1;
+                }
+                else
+                {
+                    returnme = new string[count];
+                    i = 0;
+                }
                 foreach (var item in Permissions.Find(Query.EQ("SteamID", SteamID)).OrderBy(x => x.permission))
                 {
                     returnme[i++] = item.permission;
@@ -293,6 +304,10 @@ namespace ValheimPermissions
                 var Permissions = db.GetCollection<User_Permission>("User_Permission");
                 int i = 0;
                 string lookuppermission = "";
+                if (Util.isSteamIDAdmin(SteamID))
+                {
+                    return true;
+                }
                 var pexists = Permissions.FindOne(Query.And(Query.EQ("SteamID", SteamID.ToString()), Query.EQ("permission", lookuppermission + "*")));
                 if (pexists != null)
                 {

@@ -3,6 +3,7 @@ using HarmonyLib;
 using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
+using UnityEngine;
 
 
 #if client_cli
@@ -27,6 +28,29 @@ namespace WorldofValheimZones
             ___m_changeLog = new TextAsset(str + ___m_changeLog.text);
         }
 #endif
+        /// <summary>
+        /// Patch Building Damage.
+        /// If a user is in a zone that has "NoBuildDamage" then return that they can't damage that area.
+        /// </summary>
+        [HarmonyPatch(typeof(WearNTear), "RPC_Damage")]
+        public static class NoBuildDamage_Damage_Patch
+        {
+            private static bool Prefix(WearNTear __instance)
+            {
+                bool isInArea = false;
+                Debug.Log(__instance.m_damages.ToString());
+                Debug.Log("Attempting...");
+                if (ZoneHandler.ZoneVariable("NoBuildDamage"))
+                {
+                    isInArea = true;
+                    Debug.Log($"ERROR: Private Area!");
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is Private Area", 0, null);
+                    Util.DoAreaEffect(Player.m_localPlayer.transform.position + Vector3.up * 0.5f);
+                }
+                return !isInArea;
+            }
+        }
+
         [HarmonyPatch(typeof(Game), "Start")]
         public static class GameStartPatch
         {
@@ -248,7 +272,7 @@ namespace WorldofValheimZones
         [HarmonyPatch(typeof(ZNet), "SendPeerInfo")]
         private static void ZNet__SendPeerInfo(ZNet __instance, ZRpc rpc)
         {
-            // Run away clients, we don't want you here!?!?
+            // Run away clients, we don't want you here!?!?ZoneHandler.Serialize
             if (!__instance.IsServer())
             {
                 return;
@@ -259,9 +283,9 @@ namespace WorldofValheimZones
             Debug.Log("S2C ZoneHandler (SendPeerInfo)");
             ZoneHandler._debug();
 #endif
-            rpc.Invoke("ZoneHandler", new object[] {
-                ZoneHandler.Serialize()
-            });
+            rpc.Invoke("ZoneHandler", new object[] { 
+                ZoneHandler.Serialize(rpc.GetSocket().GetHostName())
+            }) ;
 
 
             // Syncing the Client State with the server defaults.
