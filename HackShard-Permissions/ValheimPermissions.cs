@@ -2,13 +2,14 @@
 using BepInEx.Configuration;
 using HarmonyLib;
 using LiteDB;
+using System.IO;
 
 //using WorldofValheimServerSideCharacters.Console;
 
 
 namespace ValheimPermissions
 {
-    
+
     [BepInPlugin(ModInfo.Guid, ModInfo.Name, ModInfo.Version)]
     public class ValheimPermissions : BaseUnityPlugin
     {
@@ -37,46 +38,53 @@ namespace ValheimPermissions
             // Process through the configurations
 
             // Nexus ID For Nexus Update
-            ValheimPermissions.NexusID = base.Config.Bind<int>("Valheim_Permissions", "NexusID", ModInfo.NexusID, "Nexus ID to make Nexus Update Happy!");
+            ValheimPermissions.NexusID = base.Config.Bind<int>("ValheimPermissions", "NexusID", ModInfo.NexusID, "Nexus ID to make Nexus Update Happy!");
             if (ServerMode)
             {
                 Debug.Log("[Server Mode]");
-                ValheimPermissions.LiteDB_Location = base.Config.Bind<string>("Valheim_Permissions", "LiteDB_Location", "Valheim_Permissions.db", "Where do we want to store the Valheim_Permissions.db file at. NOTE: This is relative to the server root path location so if you want it in bepinex config folder do like BepInEx/Config/FILE.DB. Defaults to server root");
+                string testpath = Config.ConfigFilePath;
+                testpath = testpath.Replace("HackShardGaming.ValheimPermissions.cfg", "WoV");
+                ValheimPermissions.LiteDB_Location = base.Config.Bind<string>("ValheimPermissions", "LiteDB_Location", Path.Combine(testpath, "ValheimPermissions.db"), "Where do we want to store the ValheimPermissions.db file at. NOTE: This is relative to the server root path location so if you want it in bepinex config folder do like BepInEx/Config/FILE.DB. Defaults to server root");
                 // Load Paths
+                ValheimDB.DatabaseLocation = ValheimPermissions.LiteDB_Location.Value;
+                // Run the grand patch all and hope everything works (This is fine...)
             }
             else
             {
                 Debug.Log("[Client Mode]");
+
                 // Leave the client state configuration default (Will grab from the server)
             }
-            ValheimDB.DatabaseLocation = ValheimPermissions.LiteDB_Location.Value;
-            // Run the grand patch all and hope everything works (This is fine...)
             new Harmony(ModInfo.Guid).PatchAll();
-
-
         }
         public async void Start()
         {
+
             await System.Threading.Tasks.Task.Run(() =>
             {
-                bool RunCommand = true;
-                while (RunCommand)
+                if (ServerMode)
                 {
-                    string input = "";
-                    try
+                    bool RunCommand = true;
+                    while (RunCommand)
                     {
-                        input = System.Console.ReadLine();
-                        Dedicated_Server.RunCommand(input);
-                        input = "";
-                    }
-                    catch
-                    {
-                        if (!input.Trim().IsNullOrWhiteSpace())
+                        string input = "";
+                        try
                         {
+                            input = System.Console.ReadLine();
+                            Dedicated_Server.ProcessServerSideCommand(input);
+                            input = "";
+                        }
+                        catch
+                        {
+                            if (!input.Trim().IsNullOrWhiteSpace())
+                            {
+                            }
                         }
                     }
                 }
+
             });
         }
     }
 }
+

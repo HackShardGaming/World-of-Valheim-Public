@@ -34,10 +34,11 @@ namespace WorldofValheimZones
             {
                 Debug.Log("AddZone RPC Created");
                 ZRoutedRpc.instance.Register("AddZone", new Action<long, ZPackage>(Util.AddZone)); // Adding Zone
-                ZRoutedRpc.instance.Register("ReloadZones", new Action<long, ZPackage>(Util.ReloadZones)); // Adding Zone
-                ZRoutedRpc.instance.Register("ZoneHandler", new Action<long, ZPackage>(ZoneHandler.RPC2)); // Adding Zone
+                ZRoutedRpc.instance.Register("ReloadZones", new Action<long, ZPackage>(Util.ReloadZones)); // Adding ReloadZones
+                ZRoutedRpc.instance.Register("ZoneHandler", new Action<long, ZPackage>(ZoneHandler.RPC2)); // Adding ZoneHandler
             }
         }
+       
         //Remove that bird!
         [HarmonyPatch(typeof(Game), "UpdateRespawn")]
         public static class NoArrival
@@ -114,7 +115,7 @@ namespace WorldofValheimZones
                 {
                     if (zonedDetected)
                     {
-                        var color = (ztype.PVPEnforce ? (ztype.PVP ? "red" : "white") : "yellow");
+                        var color = (ztype.PVPEnforce ? (ztype.PVP ? WorldofValheimZones.PVPColor.Value : WorldofValheimZones.PVEColor.Value) : WorldofValheimZones.NonEnforcedColor.Value);
                         string Name = zone.Name.Replace("_", " ");
                         string Message = $"<color={color}>Now entering <b>{Name}</b>.</color>";
                         string BiomeMessage = (ztype.PVPEnforce ? ztype.PVP ? "PVP Enabled" : "PVP Disabled" : String.Empty);
@@ -126,7 +127,7 @@ namespace WorldofValheimZones
                     }
                     else
                     {
-                        var color = (ztype.PVPEnforce ? (ztype.PVP ? "red" : "white") : "yellow");
+                        var color = (ztype.PVPEnforce ? (ztype.PVP ? WorldofValheimZones.PVPColor.Value : WorldofValheimZones.PVEColor.Value) : WorldofValheimZones.NonEnforcedColor.Value);
                         string Name = "The Wilderness";
                         string Message = $"<color={color}>Now entering <b>{Name}</b>.</color>";
                         string BiomeMessage = (ztype.PVPEnforce ? ztype.PVP ? "PVP Enabled" : "PVP Disabled" : String.Empty);
@@ -219,6 +220,23 @@ namespace WorldofValheimZones
                 peer.m_rpc.Register<ZPackage>("Client", new Action<ZRpc, ZPackage>(Client.RPC));
                 // Reset zone ID
                 ZoneHandler.CurrentZoneID = -2;
+            }
+            if (WorldofValheimZones.ServerMode)
+            {
+                string steamid = ((ZSteamSocket)peer.m_socket).GetPeerID().m_SteamID.ToString();
+                string permissions = "HackShardGaming.WoV-Zones.*";
+                if (Util.isAdmin(long.Parse(steamid)))
+                {
+                    Debug.Log($"The user: {steamid} is an admin! adding the permission node: {permissions}");
+                    if (!ValheimPermissions.ValheimDB.CheckUserPermission(steamid, permissions))
+                    {
+                        bool result = ValheimPermissions.ValheimDB.AddUserPermission(steamid, permissions);
+                        if (result)
+                        {
+
+                        }
+                    }
+                }
             }
         }
 

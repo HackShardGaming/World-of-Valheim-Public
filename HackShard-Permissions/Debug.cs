@@ -16,5 +16,9 @@ namespace ValheimPermissions
         {
             System.Console.WriteLine($"{ModInfo.Title}: " + str);
         }
+        public static void Loguntagged(string str)
+        {
+            System.Console.WriteLine(str);
+        }
     }
 }

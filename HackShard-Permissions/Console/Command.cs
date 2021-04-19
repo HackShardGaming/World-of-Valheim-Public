@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using HarmonyLib;
 
 namespace ValheimPermissions
 {
     public static class Dedicated_Server
     {
-        public static void RunCommand(string text)
+        // Server side Console command processing.
+        public static void ProcessServerSideCommand(string text)
         {
-
             string[] results = text.Split(' ');
             // User Command
             if (results[0].ToLower().Equals($"!user"))
@@ -21,13 +22,20 @@ namespace ValheimPermissions
                     // if the next word is permission lets add the permission
                     if (results[2].ToLower().Equals($"permission"))
                     {
-                        Util.Dedicated_Commands.AddUserPermission(long.Parse(results[3]), results[4]);
+                        Debug.Log("Running permission add command");
+                        Util.Dedicated_Commands.ServerSideConsole.AddUserPermission(long.Parse(results[3]), results[4]);
                     }
                     // if the next word is a group then lets add the group
                     else
-                        Util.Dedicated_Commands.AddUserToGroup(long.Parse(results[2]), results[3]);
+                        Util.Dedicated_Commands.ServerSideConsole.AddUserToGroup(long.Parse(results[2]), results[3]);
                     return;
                 }
+                // Delete Sub-Command
+                if (results[1].ToLower().Equals($"del"))
+                    if (results[2].ToLower().Equals($"permission"))
+                    {
+                        Util.Dedicated_Commands.ServerSideConsole.DeleteUserPermission(long.Parse(results[3]), results[4]);
+                    }
                 // Check Sub-Command
                 if (results[1].ToLower().Equals($"check"))
                 {
@@ -35,7 +43,7 @@ namespace ValheimPermissions
                     if (results[2].ToLower().Equals($"group"))
                     {
                         Debug.Log($"Requesting group name for the user: {results[3]}!");
-                        Util.Dedicated_Commands.CheckGroup(long.Parse(results[3]));
+                        Util.Dedicated_Commands.ServerSideConsole.CheckGroup(long.Parse(results[3]));
                     }
                     // check A permission or list all permissions
                     if (results[2].ToLower().Equals($"permission"))
@@ -44,13 +52,13 @@ namespace ValheimPermissions
                         if (results.Count() == 4)
                         {
                             Debug.Log($"Attempting to lookup all permissions for the user {results[3]}!");
-                            Util.Dedicated_Commands.ShowUserPermissions(long.Parse(results[3]));
+                            Util.Dedicated_Commands.ServerSideConsole.ShowUserPermissions(long.Parse(results[3]));
                         }
                         // Show the requested permission
                         else
                         {
                             Debug.Log($"Attempting to lookup permission: {results[4]} for the user {results[3]}!");
-                            Util.Dedicated_Commands.CheckUserPermission(long.Parse(results[3]), results[4]);
+                            Util.Dedicated_Commands.ServerSideConsole.CheckUserPermission(long.Parse(results[3]), results[4]);
                         }
                     }
                 }
@@ -62,7 +70,20 @@ namespace ValheimPermissions
                 if (results[1].ToLower().Equals($"create"))
                 {
                     Debug.Log($"Attempting to create the group {results[2]}!");
-                    Util.Dedicated_Commands.AddGroup(results[2]);
+                    Util.Dedicated_Commands.ServerSideConsole.AddGroup(results[2]);
+                }
+                // Delete a group
+                if (results[1].ToLower().Equals($"del"))
+                {
+                    if (results[2].ToLower().Equals($"permission"))
+                    {
+                        Util.Dedicated_Commands.ServerSideConsole.DelGroupPermission(results[3], results[4]);
+                    }
+                    else
+                    {
+                        Debug.Log($"Attempting to delete the group {results[2]}!");
+                        Util.Dedicated_Commands.ServerSideConsole.DelGroup(results[2]);
+                    }
                 }
                 // Add Sub-Command
                 if (results[1].ToLower().Equals($"add"))
@@ -71,7 +92,7 @@ namespace ValheimPermissions
                     if (results[2].ToLower().Equals($"permission"))
                     {
                         Debug.Log($"Attempting to add permission: {results[4]} to the group {results[3]}!");
-                        Util.Dedicated_Commands.AddGroupPermission(results[3], results[4]);
+                        Util.Dedicated_Commands.ServerSideConsole.AddGroupPermission(results[3], results[4]);
                     }
                 }
                 // Check Sub-Command
@@ -84,13 +105,13 @@ namespace ValheimPermissions
                         if (results.Count() == 4)
                         {
                             Debug.Log($"Attempting to lookup all permissions for the group {results[3]}!");
-                            Util.Dedicated_Commands.ShowGroupPermissions(results[3]);
+                            Util.Dedicated_Commands.ServerSideConsole.ShowGroupPermissions(results[3]);
                         }
                         // Check the requested permission against the group
                         else
                         {
                             Debug.Log($"Attempting to lookup permission: {results[4]} for the group {results[3]}!");
-                            Util.Dedicated_Commands.CheckGroupPermission(results[3], results[4]);
+                            Util.Dedicated_Commands.ServerSideConsole.CheckGroupPermission(results[3], results[4]);
                         }
                     }
                 }

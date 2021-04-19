@@ -24,8 +24,6 @@ namespace WorldofValheimServerSideCharacters
     [HarmonyPatch(typeof(Console), "InputText")]
     static class InputText_Patch
     {
-
-
         static bool Prefix(Console __instance)
         {
 

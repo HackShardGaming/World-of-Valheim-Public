@@ -11,8 +11,8 @@ namespace WorldofValheimServerSideCharacters
         public const string Group = "HackShardGaming";
         public const string Guid = "HackShardGaming.WorldofValheimServerSideCharacters";
         // Version follow Semantic Versioning Scheme (https://semver.org/)
-        public const string Version = "0.3.3";
-        public const string buildDate = "2021-04-13";
+        public const string Version = "0.4.0";
+        public const string buildDate = "2021-04-17";
 
         // Nexus Plugin ID (Use to maintain updates with Nexus)
         public const int NexusID = 892;

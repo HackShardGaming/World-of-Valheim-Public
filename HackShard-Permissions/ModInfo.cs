@@ -9,10 +9,10 @@ namespace ValheimPermissions
         public const string Name = "ValheimPermissions";
         public const string Title = "Valheim - Permissions";
         public const string Group = "HackShardGaming";
-        public const string Guid = "HackShardGaming.Valheim.Permissions";
+        public const string Guid = "HackShardGaming.ValheimPermissions";
         // Version follow Semantic Versioning Scheme (https://semver.org/)
-        public const string Version = "0.0.1";
-        public const string buildDate = "2021-04-13";
+        public const string Version = "1.0.0";
+        public const string buildDate = "2021-04-17";
 
         // Nexus Plugin ID (Use to maintain updates with Nexus)
         public const int NexusID = 000;

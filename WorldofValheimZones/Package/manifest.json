@@ -1,9 +1,10 @@
 {
     "name": "World_of_Valheim_Zones",
-    "version_number": "0.3.2",
+    "version_number": "0.4.0",
     "website_url": "http://nexusmods.com/valheim/mods/891",
     "description": "World of Valheim - Zones is a plugin that adds enforced PVP and position sharing to zones.",
     "dependencies": [
+    "HackShardGaming-ValheimPermissions-1.0.0",
     "denikson-BepInExPack_Valheim-5.4.800"
   ]
 }

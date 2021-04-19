@@ -210,15 +210,6 @@ namespace WorldofValheimServerSideCharacters
             ZNetPeer peer = ZNet.instance.GetPeerByHostName(steamid);
             string PlayerNameRaw = peer.m_playerName;
             string PlayerName = "";
-            bool PlayerPermission = ValheimPermissions.ValheimDB.UserPermissionScan(long.Parse(steamid), "hackshardgaming.cancreate");
-            if (PlayerPermission)
-            {
-                Debug.Log("Player can create a file");
-            }
-            else
-            {
-                Debug.Log("Player does not have the correct permission to do this!");
-            }
             if (WorldofValheimServerSideCharacters.AllowMultipleCharacters.Value)
                 PlayerName = Regex.Replace(PlayerNameRaw, @"<[^>]*>", String.Empty);
             else 
@@ -291,7 +282,16 @@ namespace WorldofValheimServerSideCharacters
                 }
             }
         }
-
+        public static void RoutedBroadcast(long peer, string text, string username = ModInfo.Title)
+        {
+            ZRoutedRpc.instance.InvokeRoutedRPC(peer, "ChatMessage", new object[]
+            {
+                new Vector3(0,100,0),
+                2,
+                username,
+                text
+            });
+        }
         public static void DisconnectAll()
         {
             using (List<ServerState.ConnectionData>.Enumerator enumerator = ServerState.Connections.GetEnumerator())

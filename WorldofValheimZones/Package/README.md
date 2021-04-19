@@ -15,6 +15,12 @@ Server-Side Zones configuration file: When a client connects to the server it is
 
 The arrival notification upon logging into a server has been removed.  This has no business in a PVP server as it will give away your location.
 
+Required Mods:
+We now require my ValheimPermissions in order to run.  Our plugin now uses a permission system rather then straight isAdmin in order to execute the client side commands listed below.
+?
+Compatibility Issue
+Better Ward?
+
 
 Client Side Console Commands (F5 Screen)
 
@@ -27,9 +33,11 @@ NOTE: We will be adding more checks into this in the future. For now it will wri
 
 All of the following commands requires the user to be an approved admin (adminlists.txt)  They cannot use these commands otherwise!
 
+(Permission Required: HackShardGaming.WoV-Zones.Reload)
 !reload-zones
 ?Reload the servers zones file.  Also sends all the new zones list to all connected users!
 
+(Permission Required: HackShardGaming.WoV-Zones.Add)
 !addzone [Name] [ZoneType] [Priority] [Shape(circle/square)] [x] [y] [Radius]
 ?Adds a zone into the current server and reloads the servers zones file.  Also sends the new zones list to all connected users! **Please note: X, Y, and Radius need to be formatted in 0.0 (note the one decimal place)**
 
@@ -57,6 +65,7 @@ Server Side:
 >>Go to your BepInEx/config folder
 >>open WorldofValheimZones.cfg and turn EnforceZone to true to enable this plugin
 >>Change the ZonePath to a place that you have access to. (Yes this works with GPortal etc)
+>>The default ZonePath is BepInEx/config/WoV/zones.txt
 >>Restart the server once again
 >>Shutdown the server
 >>Configure the Zones.txt file the way you like.
@@ -72,61 +81,61 @@ Client Side:
 
 Example of a working Zones.txt
 
-?# Zone Configuration File
-# Here you will specify the zone types and zones they occupy.
+? Zone Configuration File
+ Here you will specify the zone types and zones they occupy.
 
-# [ZoneType]
-# ZoneTypeName: Unique name for the zone type (zones will use)
-# PVP_Mode: PVP state for the Zone.
-# PVP_Enforce: Force PVP mode on the users.
-# Position_Show: Should we show our position in the zone?
-# Position_Enforce: Force position on the users.
-#
-# Type: [ZoneTypeName] [PVP_Mode] [PVP_Enforce] [Position_Show] [Position_Enforce]
+ [ZoneType]
+ ZoneTypeName: Unique name for the zone type (zones will use)
+ PVP_Mode: PVP state for the Zone.
+ PVP_Enforce: Force PVP mode on the users.
+ Position_Show: Should we show our position in the zone?
+ Position_Enforce: Force position on the users.
 
-
-# wilderness is the default zone for everywhere
+ Type: [ZoneTypeName] [PVP_Mode] [PVP_Enforce] [Position_Show] [Position_Enforce]
 
 
-# wilderness will enforce PVP and disable sharing of your position
+ wilderness is the default zone for everywhere
+
+
+ wilderness will enforce PVP and disable sharing of your position
 Type: wilderness true true false true
 
 
-# safe will enforce PVP to off and will enable sharing your position
+ safe will enforce PVP to off and will enable sharing your position
 Type: safe false true true true
 
 
-# battle will enforce PVP to on and will disable sharing of your position
+ battle will enforce PVP to on and will disable sharing of your position
 Type: battle true true false true
 
 
-# noenforce will not enforce PVP or position sharing. This gives the client 100% control
+ noenforce will not enforce PVP or position sharing. This gives the client 100% control
 Type: noenforce false false false false
 
 
-# [Zones]
-# Name: Name for the area.
-# ZoneType : Name the zonetype for the zone
-# Priority : Lower the number, higher the precedence
-# Shape: What type of zone shape you desire
-#   - Circle: A circle zone that is centered on x,y and goes out radius.
-#   - Square: A box zone that is centered on x,y and goes out radius.
+ [Zones]
+ Name: Name for the area.
+ ZoneType : Name the zonetype for the zone
+ Priority : Lower the number, higher the precedence
+ Shape: What type of zone shape you desire
+   - Circle: A circle zone that is centered on x,y and goes out radius.
+   - Square: A box zone that is centered on x,y and goes out radius.
 
 
 
 
-# [Name] [ZoneType] [Priority] [Shape(circle/square)] [x] [y] [r]
+ [Name] [ZoneType] [Priority] [Shape(circle/square)] [x] [y] [r]
 
 
-#DefaultSafeZone is a circular zone located at 0,0. It extends 50 vectors in all directions  It also has a priority levelof 5
+DefaultSafeZone is a circular zone located at 0,0. It extends 50 vectors in all directions  It also has a priority levelof 5
 DefaultSafeZone safe 5 circle 0.0 0.0 50.0
 
 
-#DefaultBattle is a square zone located at 50,50. Since this zone is square it will extend 20 Vectors. So if you are within 30,30 and 70,70 you will be within the zone.  It also has a priority level of 4
+DefaultBattle is a square zone located at 50,50. Since this zone is square it will extend 20 Vectors. So if you are within 30,30 and 70,70 you will be within the zone.  It also has a priority level of 4
 DefaultBattle battle 4 square 50.0 50.0 20.0
 
 
-#Poni!? is a circular zone extending out 2 vectors in all directions.  It also has a priority level of 1 (THE HIGHEST)!
+Poni!? is a circular zone extending out 2 vectors in all directions.  It also has a priority level of 1 (THE HIGHEST)!
 Poni!? safe 1 circle 0.0 0.0 2.0
 
 

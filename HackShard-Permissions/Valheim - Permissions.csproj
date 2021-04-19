@@ -7,8 +7,8 @@
     <ProjectGuid>{55C508B8-F48F-49CE-BFF3-62CCFAE52C73}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Valheim_Permissions</RootNamespace>
-    <AssemblyName>Valheim-Permissions</AssemblyName>
+    <RootNamespace>ValheimPermissions</RootNamespace>
+    <AssemblyName>ValheimPermissions</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -29,6 +29,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
@@ -77,13 +78,19 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Dediicated_Server.cs" />
-    <Compile Include="Database.cs" />
+    <Compile Include="RPC.cs" />
+    <Compile Include="Console\Command.cs" />
+    <Compile Include="StandAlonePatches.cs" />
+    <Compile Include="ValheimDB.cs" />
     <Compile Include="Util.cs" />
     <Compile Include="ModInfo.cs" />
     <Compile Include="Debug.cs" />
-    <Compile Include="HackShard_Permissions.cs" />
+    <Compile Include="ValheimPermissions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
 </Project>

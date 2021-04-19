@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using ValheimPermissions;
 
 namespace WorldofValheimServerSideCharacters
 {
@@ -30,13 +31,16 @@ namespace WorldofValheimServerSideCharacters
             ZNetPeer peer = ZNet.instance.GetPeer(sender);
             if (peer != null)
             {
+                string permissionnode = "HackShardGaming.WoV-SSC.SaveAll";
                 string peerSteamID = ((ZSteamSocket)peer.m_socket).GetPeerID().m_SteamID.ToString(); // Get the SteamID from peer.
-                if (
-                    ZNet.instance.m_adminList != null &&
-                    ZNet.instance.m_adminList.Contains(peerSteamID)
-                )
+                bool PlayerPermission = ValheimPermissions.ValheimDB.CheckUserPermission(peerSteamID, permissionnode);
+                if (PlayerPermission)
                 {
                     Util.SaveAll();
+                }
+                else
+                {
+                    Util.RoutedBroadcast(sender, $"Sorry! You do not have the permission to use !SaveAll (Required Permission: {permissionnode})");
                 }
             }
         }
@@ -45,27 +49,35 @@ namespace WorldofValheimServerSideCharacters
             ZNetPeer peer = ZNet.instance.GetPeer(sender);
             if (peer != null)
             {
+                string permissionnode = "HackShardGaming.WoV-SSC.ShutdownServer";
                 string peerSteamID = ((ZSteamSocket)peer.m_socket).GetPeerID().m_SteamID.ToString(); // Get the SteamID from peer.
-                if (
-                    ZNet.instance.m_adminList != null &&
-                    ZNet.instance.m_adminList.Contains(peerSteamID)
-                )
+                bool PlayerPermission = ValheimPermissions.ValheimDB.CheckUserPermission(peerSteamID, permissionnode);
+                if (PlayerPermission)
                 {
-                    Debug.Log($"Shutting down the server");
                     Game.instance.StartCoroutine(Util.ShutdownServer());
+                }
+                else
+                {
+                    Util.RoutedBroadcast(sender, $"Sorry! You do not have the permission to use !ShutdownServer (Required Permission: {permissionnode})");
                 }
             }
         }
         public static void ReloadDefault(long sender, ZPackage pkg)
         {
-            if (Util.isAdmin(sender))
-                {
-                    Debug.Log($"Shutting down the server");
-                Util.LoadOrMakeDefaultCharacter();
-                }
-            else
+            ZNetPeer peer = ZNet.instance.GetPeer(sender);
+            if (peer != null)
             {
-                Util.Broadcast("An unauthorized user attempted to use the ReloadDefault command");
+                string permissionnode = "HackShardGaming.WoV-SSC.ReloadDefault";
+                string peerSteamID = ((ZSteamSocket)peer.m_socket).GetPeerID().m_SteamID.ToString(); // Get the SteamID from peer.
+                bool PlayerPermission = ValheimPermissions.ValheimDB.CheckUserPermission(peerSteamID, permissionnode);
+                if (PlayerPermission)
+                {
+                    Util.LoadOrMakeDefaultCharacter();
+                }
+                else
+                {
+                    Util.RoutedBroadcast(sender, $"Sorry! You do not have the permission to use !ReloadDefault (Required Permission: {permissionnode})");
+                }
             }
         }
 

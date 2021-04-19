@@ -6,6 +6,7 @@ using System.Reflection;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.Rendering;
+using ValheimPermissions;
 
 namespace WorldofValheimZones
 {
@@ -24,7 +25,20 @@ namespace WorldofValheimZones
         {
             return SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
         }
-
+        public static bool isAdmin(long sender)
+        {
+            ZNetPeer peer = ZNet.instance.GetPeer(sender);
+            string SteamID = sender.ToString();
+            if (
+                ZNet.instance.m_adminList != null &&
+                ZNet.instance.m_adminList.Contains(SteamID)
+            )
+                return true;
+            else
+            {
+                return false;
+            }
+        }
         public static void Broadcast(string text, string username = ModInfo.Title)
         {
             ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.Everybody, "ChatMessage", new object[]
@@ -50,11 +64,10 @@ namespace WorldofValheimZones
             ZNetPeer peer = ZNet.instance.GetPeer(sender);
             if (peer != null)
             {
+                string permissionnode = "HackShardGaming.WoV-Zones.Reload";
                 string peerSteamID = ((ZSteamSocket)peer.m_socket).GetPeerID().m_SteamID.ToString(); // Get the SteamID from peer.
-                if (
-                    ZNet.instance.m_adminList != null &&
-                    ZNet.instance.m_adminList.Contains(peerSteamID)
-                )
+                bool PlayerPermission = ValheimPermissions.ValheimDB.CheckUserPermission(peerSteamID, permissionnode);
+                if (PlayerPermission)
                 {
                     ZoneHandler.LoadZoneData(WorldofValheimZones.ZonePath.Value);
                     Util.Broadcast("Reloading Zone");
@@ -65,7 +78,7 @@ namespace WorldofValheimZones
                 }
                 else
                 {
-                    Debug.Log($"An unauthorized user {peerSteamID} attempted to use the Reload-Zones RPC!");
+                    RoutedBroadcast(sender, $"Sorry! You do not have the permission to use !ReloadZones (Required Permission: {permissionnode})");
                 }
             }
         }
@@ -76,12 +89,11 @@ namespace WorldofValheimZones
                 ZNetPeer peer = ZNet.instance.GetPeer(sender); // Get the Peer from the sender, to later check the SteamID against our Adminlist.
                 if (peer != null)
                 { // Confirm the peer exists
+                    string permissionnode = "HackShardGaming.WoV-Zones.Add";
                     string peerSteamID = ((ZSteamSocket)peer.m_socket).GetPeerID().m_SteamID.ToString(); // Get the SteamID from peer.
-                    if (
-                        ZNet.instance.m_adminList != null &&
-                        ZNet.instance.m_adminList.Contains(peerSteamID)
-                    )
-                    { // Check that the SteamID is in our Admin List.
+                    bool PlayerPermission = ValheimPermissions.ValheimDB.CheckUserPermission(peerSteamID, permissionnode);
+                    if (PlayerPermission)
+                        {
                         string msg = pkg.ReadString();
                         string[] results = msg.Split(' ');
                         string Name = results[0];
@@ -90,7 +102,6 @@ namespace WorldofValheimZones
                         ZoneHandler.ZoneTypes zt = ZoneHandler.FindZoneType(results[1]);
                         if (zt.Name != Type)
                         {
-                            Debug.Log($"ERROR: The requested Zone Type does not exist!");
                             msg = $"ERROR: The requested Zone Type {Type} does not exist!";
                             Util.RoutedBroadcast(sender, msg);
                             return;
@@ -136,6 +147,7 @@ namespace WorldofValheimZones
                     }
                     else
                     {
+                        Util.RoutedBroadcast(sender, $"Sorry! You do not have the permission to use !AddZone (Required Permission: {permissionnode})");
                         Debug.Log($"An unauthorized user {peerSteamID} attempted to use the AddZone RPC!");
                         string msg = pkg.ReadString();
                         Debug.Log($"Here is a log of the attempted AddZone {msg}");

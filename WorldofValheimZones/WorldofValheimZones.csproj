@@ -73,6 +73,9 @@
     <Reference Include="UnityEngine.UI">
       <HintPath>..\libs\UnityEngine.UI.dll</HintPath>
     </Reference>
+    <Reference Include="ValheimPermissions">
+      <HintPath>..\HackShard-Permissions\bin\Release\ValheimPermissions.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <AppDesigner Include="Properties\" />
