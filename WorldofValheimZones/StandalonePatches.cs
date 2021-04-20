@@ -28,28 +28,6 @@ namespace WorldofValheimZones
             ___m_changeLog = new TextAsset(str + ___m_changeLog.text);
         }
 #endif
-        /// <summary>
-        /// Patch Building Damage.
-        /// If a user is in a zone that has "NoBuildDamage" then return that they can't damage that area.
-        /// </summary>
-        [HarmonyPatch(typeof(WearNTear), "RPC_Damage")]
-        public static class NoBuildDamage_Damage_Patch
-        {
-            private static bool Prefix(WearNTear __instance)
-            {
-                bool isInArea = false;
-                Debug.Log(__instance.m_damages.ToString());
-                Debug.Log("Attempting...");
-                if (ZoneHandler.ZoneVariable("NoBuildDamage"))
-                {
-                    isInArea = true;
-                    Debug.Log($"ERROR: Private Area!");
-                    MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is Private Area", 0, null);
-                    Util.DoAreaEffect(Player.m_localPlayer.transform.position + Vector3.up * 0.5f);
-                }
-                return !isInArea;
-            }
-        }
 
         [HarmonyPatch(typeof(Game), "Start")]
         public static class GameStartPatch

@@ -8,7 +8,7 @@ namespace WorldofValheimZonePermissions
     {
         public const string Name = "WorldofValheimZonePermissions";
         public const string Title = "WoV - Zone Permissions";
-        public const string Group = "HackShardGaming";
+        public const string Group = "HackShardGaming.KG";
         public const string Guid = "HackShardGaming.WorldofValheimZonePermissions";
 
         // Version follow Semantic Versioning Scheme (https://semver.org/)

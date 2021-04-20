@@ -65,36 +65,8 @@ namespace WorldofValheimZones
             // Show position settings
             public bool ShowPosition = true;
             public bool PositionEnforce = false;
-
-            // Other features in the future.
-            public bool NoBuildDamage = false;
-            public bool AutoHeal = false;
         }
 
-        public static bool ZoneVariable(string Variable)
-        {
-            ZoneHandler.Zone z;
-            ZoneHandler.ZoneTypes zt;
-            List<Zone> zlist = ListOccupiedZones(Player.m_localPlayer.transform.position);
-            // We are in a zone
-            zt = new ZoneTypes();
-            if (zlist.Count != 0)
-            {
-                z = TopZone(zlist);
-                zt = FindZoneType(z.Type);//.ToLower());
-            }
-            else
-            {
-                zt = FindZoneType("wilderness");
-            }
-            Debug.Log(zt.Name);
-            if (Variable == "NoBuildDamage")
-            {
-                Debug.Log($"{zt.NoBuildDamage}");
-                return zt.NoBuildDamage;
-            }
-            return false;
-        }
         // ./addzone Neutral SquareZone Square 50 100
         // ./addzone Neutral CircleZone Circle 50 100
         // ./addzone Neutral CoordsZone Coords 100,100 -100,-100 100
@@ -304,8 +276,6 @@ namespace WorldofValheimZones
                 zip.Write(zt.PVPEnforce);
                 zip.Write(zt.ShowPosition);
                 zip.Write(zt.PositionEnforce);
-                zip.Write(zt.NoBuildDamage);
-                zip.Write(zt.AutoHeal);
             }
             zip.Write(Zones.Count);
             foreach (Zone z in Zones)
@@ -336,9 +306,7 @@ namespace WorldofValheimZones
                     PVP = package.ReadBool(),
                     PVPEnforce = package.ReadBool(),
                     ShowPosition = package.ReadBool(),
-                    PositionEnforce = package.ReadBool(),
-                    NoBuildDamage = package.ReadBool(),
-                    AutoHeal = package.ReadBool()
+                    PositionEnforce = package.ReadBool()
                     }
                     );
             }
@@ -467,12 +435,6 @@ namespace WorldofValheimZones
 
                         if (array2.Length >= 6)
                             zt.PositionEnforce = bool.Parse(array2[5]);
-
-                        if (array2.Length >= 7)
-                            zt.NoBuildDamage = bool.Parse(array2[6]);
-                        
-                        if (array2.Length >= 8)
-                            zt.AutoHeal = bool.Parse(array2[7]);
 
                         ZoneT.Add(zt);
 

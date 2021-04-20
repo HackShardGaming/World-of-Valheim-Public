@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using BepInEx;
 using HarmonyLib;
+using BepInEx.Configuration;
 using UnityEngine;
 using System.Collections;
 using System.Diagnostics;
@@ -13,82 +14,31 @@ using System.Net.Configuration;
 using System.Security.Cryptography;
 using System.Text;
 using UnityEngine.UI;
+using WorldofValheimZones;
 
 namespace WorldofValheimZonePermissions
 {
     [BepInPlugin(ModInfo.Guid, ModInfo.Name, ModInfo.Version)]
-    public class PArea : BaseUnityPlugin
+    public class WorldofValheimZonePermissions : BaseUnityPlugin
     {
         private const int AreaRange = 100;
         private static int HealTick = 0;
         private static int DamageTick = 0;
         private static int EffectTick = 0;
         private string hashCheck = "";
-        private static Harmony harm = new Harmony("PrivateAreaKG");
-        private static Dictionary<Vector3, AreaInfo> PrivateAreaKG = new Dictionary<Vector3, AreaInfo>();
-        private static PArea plugin;
+        public static Harmony harm = new Harmony("PrivateAreaKG");
+        public static Dictionary<string, AreaInfo> PrivateAreaKG = new Dictionary<string, AreaInfo>();
+        private static WorldofValheimZonePermissions plugin;
+        public static ConfigEntry<string> ZonePermissionPath;
+        public static ConfigEntry<int> NexusID;
         public class AreaInfo
         {
-            public float range;
             public string configs;
         }
-
-
-        //IEnumerator DetectHashChange(string path)
-        //{
-        //    for (;;)
-        //    {
-        //        yield return new WaitForSecondsRealtime(5f);
-        //        string newHash = BitConverter.ToString(MD5.Create().ComputeHash(File.ReadAllBytes(path))).Replace("-", "").ToLower();
-        //        if (newHash != hashCheck)
-        //        {
-        //            hashCheck = newHash;
-
-        //            List<string> allText = File.ReadAllLines(path).ToList();
-        //            foreach (var p in ZNet.instance.m_peers)
-        //            {
-        //                ZPackage newPkg = new ZPackage();
-        //                string steam = ((ZSteamSocket)p.m_socket).GetPeerID().m_SteamID.ToString();
-        //                newPkg.Write(allText.Count);
-        //                for (int i = 0; i < allText.Count; i++)
-        //                {
-        //                    if (allText[i] != "" && allText[i] != null && !allText[i].StartsWith("/") && allText[i] != string.Empty)
-        //                    {
-        //                        string[] array = allText[i].Replace(" ", "").Split('|');
-        //                        Vector3 Vec = new Vector3(float.Parse(array[0]), float.Parse(array[1]), float.Parse(array[2]));
-        //                        float range = float.Parse(array[3]);
-        //                        string data = array[4];
-        //                        string configs = array[5];
-        //                        if (!data.Contains(steam))
-        //                        {
-        //                            newPkg.Write(true);
-        //                            newPkg.Write(Vec);
-        //                            newPkg.Write(range);
-        //                            newPkg.Write(configs);
-        //                        }
-        //                        else
-        //                        {
-        //                            newPkg.Write(false);
-        //                        }
-        //                    }
-        //                    else
-        //                    {
-        //                        newPkg.Write(false);
-        //                    }
-        //                }
-        //                ZRoutedRpc.instance.InvokeRoutedRPC(p.m_uid, "DownloadAreasServerKGMOD",
-        //                    new object[] { newPkg });
-        //            }
-
-        //        }
-        //    }
-        //}
         static void OnDestroy()
         {
             harm.UnpatchSelf();
         }
-
-
 
         private static FileSystemWatcher watcher;
         void Awake()
@@ -96,9 +46,13 @@ namespace WorldofValheimZonePermissions
             plugin = this;
             harm.PatchAll();
             bool SERVER = Paths.ProcessName.Equals("valheim_server", StringComparison.OrdinalIgnoreCase) ? true : false;
-            string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "PrivateAreas.cfg");
+            string testpath = BepInEx.Paths.ConfigPath;
+            testpath = Path.Combine(testpath, "WoV");
+            string path = Path.Combine(testpath, "ZonePermissions.txt");
+            WorldofValheimZonePermissions.NexusID = base.Config.Bind<int>("WorldofValheimZonePermissions", "NexusID", ModInfo.NexusID, "Nexus ID to make Nexus Update Happy!");
             if (SERVER)
             {
+                WorldofValheimZonePermissions.ZonePermissionPath = base.Config.Bind<string>("WorldofValheimZonePermissions", "ZonePermissionPath", path, "SERVER ONLY: Location of the ZonesPermissions file.");
                 if (!File.Exists(path))
                 {
                     File.Create(path);
@@ -107,16 +61,14 @@ namespace WorldofValheimZonePermissions
                 {
                     hashCheck = BitConverter.ToString(MD5.Create().ComputeHash(File.ReadAllBytes(path))).Replace("-","").ToLower();
                 }
-                watcher = new FileSystemWatcher(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
-                ZLog.Log("STARTED WATCHER AT " + Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
+                watcher = new FileSystemWatcher(Path.GetDirectoryName(WorldofValheimZonePermissions.ZonePermissionPath.Value));
+                watcher.IncludeSubdirectories = true;
+                ZLog.Log("STARTED WATCHER AT " + Path.GetDirectoryName(WorldofValheimZonePermissions.ZonePermissionPath.Value));
                 watcher.Changed += OnChangedAREA;
-                watcher.Filter = "PrivateAreas.cfg";
+                watcher.Filter = "ZonePermissions.txt";
                 watcher.EnableRaisingEvents = true;
             }
         }
-
-
-
         private static void OnChangedAREA(object sender, FileSystemEventArgs e)
         {
             if (e.ChangeType != WatcherChangeTypes.Changed)
@@ -126,8 +78,7 @@ namespace WorldofValheimZonePermissions
             ZLog.Log("AREA FILE CHANGED");
             if (ZNet.instance.IsServer() && ZNet.instance.IsDedicated())
             {
-                string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                    "PrivateAreas.cfg");
+                string path = WorldofValheimZonePermissions.ZonePermissionPath.Value;
                 List<string> allText = File.ReadAllLines(path).ToList();
                 foreach (var p in ZNet.instance.m_peers)
                 {
@@ -139,15 +90,13 @@ namespace WorldofValheimZonePermissions
                         if (allText[i] != "" && allText[i] != null && !allText[i].StartsWith("/") && allText[i] != string.Empty)
                         {
                             string[] array = allText[i].Replace(" ", "").Split('|');
-                            Vector3 Vec = new Vector3(float.Parse(array[0]), float.Parse(array[1]), float.Parse(array[2]));
-                            float range = float.Parse(array[3]);
-                            string data = array[4];
-                            string configs = array[5];
+                            string ZoneType = array[0];
+                            string data = array[1];
+                            string configs = array[2];
                             if (!data.Contains(steam))
                             {
                                 newPkg.Write(true);
-                                newPkg.Write(Vec);
-                                newPkg.Write(range);
+                                newPkg.Write(ZoneType);
                                 newPkg.Write(configs);
                             }
                             else
@@ -166,19 +115,35 @@ namespace WorldofValheimZonePermissions
             }
 
         }
-
-        static bool IsNearOtherAreas(Vector3 v)
+        public static bool RestrictionCheck(string restriction)
         {
-            foreach (var area in PrivateAreaKG)
-            {
-                if (Vector3.Distance(area.Key, v) <= area.Value.range * 2)
+            Player p = Player.m_localPlayer;
+                // Are we in a zone? if so select that zone.
+                WorldofValheimZones.ZoneHandler.Zone z = new WorldofValheimZones.ZoneHandler.Zone();
+                WorldofValheimZones.ZoneHandler.ZoneTypes zt = new WorldofValheimZones.ZoneHandler.ZoneTypes();
+                List<WorldofValheimZones.ZoneHandler.Zone> zlist = WorldofValheimZones.ZoneHandler.ListOccupiedZones(p.transform.position);
+                string ZoneType = "wilderness";
+                if (zlist.Count == 0)
                 {
-                    MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "<color=red>Other private area near!</color>", 0, null);
-                    return true;
+                    zt = WorldofValheimZones.ZoneHandler.FindZoneType("wilderness");
+                    
                 }
-            }
-
-            return false;
+                else
+                {
+                    z = WorldofValheimZones.ZoneHandler.TopZone(zlist);
+                    zt = WorldofValheimZones.ZoneHandler.FindZoneType(z.Type);
+                    ZoneType = z.Type;
+                }
+                
+                string key = "";
+                if (PrivateAreaKG.ContainsKey(ZoneType))
+                {
+                    key = PrivateAreaKG[ZoneType].configs;
+                }
+            if (key.ToLower().Contains(restriction))
+                return true;
+            else
+                return false;
         }
         //chat
         void FixedUpdate()
@@ -189,65 +154,67 @@ namespace WorldofValheimZonePermissions
             Player p = Player.m_localPlayer;
             if (p != null)
             {
-                foreach (KeyValuePair<Vector3, AreaInfo> key in PrivateAreaKG)
+                // Are we in a zone? if so select that zone.
+                WorldofValheimZones.ZoneHandler.Zone z = new WorldofValheimZones.ZoneHandler.Zone();
+                WorldofValheimZones.ZoneHandler.ZoneTypes zt = new WorldofValheimZones.ZoneHandler.ZoneTypes();
+                List<WorldofValheimZones.ZoneHandler.Zone> zlist = WorldofValheimZones.ZoneHandler.ListOccupiedZones(p.transform.position);
+                string ZoneType = "wilderness";
+                if (zlist.Count == 0)
                 {
-                    if (Vector3.Distance(key.Key, p.transform.position) <= key.Value.range)
+                    zt = WorldofValheimZones.ZoneHandler.FindZoneType("wilderness");
+                    
+                }
+                else
+                {
+                    z = WorldofValheimZones.ZoneHandler.TopZone(zlist);
+                    zt = WorldofValheimZones.ZoneHandler.FindZoneType(z.Type);
+                    ZoneType = z.Type;
+                }
+                
+                string key = "";
+                if (PrivateAreaKG.ContainsKey(ZoneType))
+                {
+                    key = PrivateAreaKG[ZoneType].configs;
+                }
+
+                if (key.ToLower().Contains("pushaway"))
+                {
+                    Vector3 zposition = new Vector3(z.Position.x, p.transform.position.y, z.Position.y);
+                    Vector3 newVector3 = p.transform.position +
+                                         (p.transform.position - zposition).normalized * 0.15f;
+                    p.transform.position = new Vector3(newVector3.x, p.transform.position.y, newVector3.z);
+                }
+                if (key.ToLower().Contains("periodicdamage") && DamageTick <= 0)
+                {
+                    DamageTick = 100;
+                    string s = key.ToLower();
+                    int indexStart = s.IndexOf("periodicdamage(") + "periodicdamage(".Length;
+                    string test = "";
+                    for (int i = indexStart; i < indexStart + 20; i++)
                     {
-                        if (key.Value.configs.ToLower().Contains("pushaway"))
-                        {
-                            Vector3 newVector3 = p.transform.position +
-                                                 (p.transform.position - key.Key).normalized * 0.15f;
-                            p.transform.position = new Vector3(newVector3.x, p.transform.position.y, newVector3.z);
-                        }
-                        if (key.Value.configs.ToLower().Contains("pveonly"))
-                        {
-                            p.SetPVP(false);
-                            p.m_lastCombatTimer = 0;
-                            InventoryGui.instance.m_pvp.isOn = false;
-                            break;
-                        }
-                        if (key.Value.configs.ToLower().Contains("pvponly"))
-                        {
-                            p.SetPVP(true);
-                            p.m_lastCombatTimer = 0;
-                            InventoryGui.instance.m_pvp.isOn = true;
-                            break;
-                        }
-
-                        if (key.Value.configs.ToLower().Contains("periodicdamage") && DamageTick <= 0)
-                        {
-                            DamageTick = 100;
-                            string s = key.Value.configs.ToLower();
-                            int indexStart = s.IndexOf("periodicdamage(") + "periodicdamage(".Length;
-                            string test = "";
-                            for (int i = indexStart; i < indexStart + 20; i++)
-                            {
-                                if (s[i] == ')') break;
-                                test += s[i];
-                            }
-                            int damage = 0;
-                            int.TryParse(test, out damage);
-                            HitData hit = new HitData();
-                            hit.m_damage.m_fire = (float)damage;
-                            p.Damage(hit);
-                        }
-                        if (key.Value.configs.ToLower().Contains("periodicheal") && HealTick <= 0)
-                        {
-                            HealTick = 50;
-                            string s = key.Value.configs.ToLower();
-                            int indexStart = s.IndexOf("periodicheal(") + "periodicheal(".Length;
-                            string test = "";
-                            for (int i = indexStart; i < indexStart + 20; i++)
-                            {
-                                if (s[i] == ')') break;
-                                test += s[i];
-                            }
-                            int damage = 0;
-                            int.TryParse(test, out damage);
-                            p.Heal(damage, true);
-                        }
+                        if (s[i] == ')') break;
+                        test += s[i];
                     }
-
+                    int damage = 0;
+                    int.TryParse(test, out damage);
+                    HitData hit = new HitData();
+                    hit.m_damage.m_fire = (float)damage;
+                    p.Damage(hit);
+                }
+                if (key.ToLower().Contains("periodicheal") && HealTick <= 0)
+                {
+                    HealTick = 50;
+                    string s = key.ToLower();
+                    int indexStart = s.IndexOf("periodicheal(") + "periodicheal(".Length;
+                    string test = "";
+                    for (int i = indexStart; i < indexStart + 20; i++)
+                    {
+                        if (s[i] == ')') break;
+                        test += s[i];
+                    }
+                    int damage = 0;
+                    int.TryParse(test, out damage);
+                    p.Heal(damage, true);
                 }
             }
         }
@@ -289,60 +256,8 @@ namespace WorldofValheimZonePermissions
                 return true;
             }
         }
-
-        static void SendAreaToServer(long sender, ZPackage pkg)
-        {
-            if (pkg != null && pkg.Size() > 0 && ZNet.instance.IsServer() && ZNet.instance.IsDedicated())
-            {
-                string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "PrivateAreas.cfg");
-                List<string> allText = File.ReadAllLines(path).ToList();
-                ZNetPeer peer = ZRoutedRpc.instance.GetPeer(sender);
-                string peerSteamID = ((ZSteamSocket)peer.m_socket).GetPeerID().m_SteamID.ToString();
-                Vector3 vec = pkg.ReadVector3();
-                float rad = pkg.ReadSingle();
-                string ALLOWEDMAIN = pkg.ReadString();
-                string configs = pkg.ReadString();
-                string ALLOWED = peerSteamID;
-
-                foreach (var s in ALLOWEDMAIN.Split(',').ToArray())
-                {
-                    ZNetPeer pee = ZNet.instance.GetPeerByPlayerName(s);
-                    if (pee != null)
-                    {
-                        string STEAM = ((ZSteamSocket)pee.m_socket).GetPeerID().m_SteamID.ToString();
-                        ALLOWED += " " + STEAM;
-                    }
-                }
-                string newS = $"{vec.x} | {vec.y} | {vec.z} | {rad} | {ALLOWED} | {configs}";
-                bool add = true;
-                foreach (var s in allText.ToArray())
-                {
-                    if (!s.StartsWith("/") && !s.StartsWith(" ") && s != string.Empty)
-                    {
-                        string[] newsplit = s.Replace(" ", "").Split('|');
-                        if (newsplit[4] == peerSteamID)
-                        {
-                            add = false;
-                            int index = allText.IndexOf(s);
-                            allText[index] = newS;
-                            break;
-                        }
-                    }
-                }
-                if (!add)
-                {
-                    File.WriteAllLines(path, allText);
-                }
-                else
-                {
-                    allText.Add(newS);
-                    File.WriteAllLines(path, allText);
-                }
-            }
-        }
-
-
-        static void DownloadPAreasStart(long sender, ZPackage pkg)
+  
+        public static void DownloadPAreasStart(long sender, ZPackage pkg)
         {
             if (pkg != null && pkg.Size() > 0 && !ZNet.instance.IsServer() && !ZNet.instance.IsDedicated())
             {
@@ -352,13 +267,11 @@ namespace WorldofValheimZonePermissions
                 {
                     if (pkg.ReadBool())
                     {
-                        Vector3 area = pkg.ReadVector3();
-                        float range = pkg.ReadSingle();
+                        string ZoneType = pkg.ReadString();
                         string configs = pkg.ReadString();
                         AreaInfo info = new AreaInfo();
-                        info.range = range;
                         info.configs = configs;
-                        PrivateAreaKG.Add(area, info);
+                        PrivateAreaKG.Add(ZoneType, info);
                         //print($"ADDED AREA {area},{info.range},{info.configs}");
                     }
                 }
@@ -371,8 +284,7 @@ namespace WorldofValheimZonePermissions
         {
             private static void Prefix()
             {
-                ZRoutedRpc.instance.Register("DownloadAreasServerKGMOD", new Action<long, ZPackage>(PArea.DownloadPAreasStart));
-                ZRoutedRpc.instance.Register("SendAreaToServerKGMOD", new Action<long, ZPackage>(PArea.SendAreaToServer));
+                ZRoutedRpc.instance.Register("DownloadAreasServerKGMOD", new Action<long, ZPackage>(WorldofValheimZonePermissions.DownloadPAreasStart));
             }
         }
 
@@ -388,7 +300,7 @@ namespace WorldofValheimZonePermissions
 
                 ZNetPeer peer = __instance.GetPeer(rpc);
                 string peerSteamID = ((ZSteamSocket)peer.m_socket).GetPeerID().m_SteamID.ToString();
-                string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "PrivateAreas.cfg");
+                string path = WorldofValheimZonePermissions.ZonePermissionPath.Value;
                 List<string> allText = File.ReadAllLines(path).ToList();
                 ZPackage newPkg = new ZPackage();
                 newPkg.Write(allText.Count);
@@ -397,15 +309,13 @@ namespace WorldofValheimZonePermissions
                     if (allText[i] != "" && allText[i] != null && !allText[i].StartsWith("/") && allText[i] != string.Empty)
                     {
                         string[] array = allText[i].Replace(" ", "").Split('|');
-                        Vector3 Vec = new Vector3(float.Parse(array[0]), float.Parse(array[1]), float.Parse(array[2]));
-                        float range = float.Parse(array[3]);
-                        string data = array[4];
-                        string configs = array[5];
+                        string ZoneType = array[0];
+                        string data = array[1];
+                        string configs = array[2];
                         if (!data.Contains(peerSteamID))
                         {
                             newPkg.Write(true);
-                            newPkg.Write(Vec);
-                            newPkg.Write(range);
+                            newPkg.Write(ZoneType);
                             newPkg.Write(configs);
                         }
                         else
@@ -443,6 +353,23 @@ namespace WorldofValheimZonePermissions
             }
         }
 
+        // Patches assembly_valheim::Version::GetVersionString
+        // Links in our version detail to override games original one to maintain compatibility
+        [HarmonyPatch(typeof(Version), "GetVersionString")]
+        public static class Version_GetVersionString_Patch
+        {
+            [HarmonyBefore(new string[] { "mod.valheim_plus" })]
+            private static void Postfix(ref string __result)
+            {
+#if DEBUG
+                __result = $"{__result} ({ModInfo.Name} v{ModInfo.Version}-Dev)";
+#else
+
+                __result = $"{__result} ({ModInfo.Name} v{ModInfo.Version})";
+                //Debug.Log($"Version Generated: {__result}");
+#endif
+            }
+        }
 
         /////////////////PArea patches
         [HarmonyPatch(typeof(Attack), "SpawnOnHitTerrain")]
@@ -451,15 +378,11 @@ namespace WorldofValheimZonePermissions
             private static bool Prefix(Vector3 hitPoint)
             {
                 bool isInArea = false;
-                foreach (KeyValuePair<Vector3, AreaInfo> key in PrivateAreaKG)
+                if (RestrictionCheck("nopickaxe"))
                 {
-                    if (Vector3.Distance(key.Key, hitPoint) <= key.Value.range && key.Value.configs.ToLower().Contains("nopickaxe"))
-                    {
-                        isInArea = true;
-                        DoAreaEffect(hitPoint + Player.m_localPlayer.transform.forward * 1f);
-                        MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is Private Area", 0, null);
-                        break;
-                    }
+                    isInArea = true;
+                    DoAreaEffect(hitPoint + Player.m_localPlayer.transform.forward * 1f);
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is Private Area", 0, null);
                 }
                 return !isInArea;
             }
@@ -472,15 +395,11 @@ namespace WorldofValheimZonePermissions
             {
                 bool isInArea = false;
 
-                foreach (KeyValuePair<Vector3, AreaInfo> key in PrivateAreaKG)
+                if (RestrictionCheck("nochest"))
                 {
-                    if (Vector3.Distance(key.Key, __instance.transform.position) <= key.Value.range && key.Value.configs.ToLower().Contains("nochest"))
-                    {
-                        isInArea = true;
-                        DoAreaEffect(__instance.transform.position);
-                        MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is Private Area", 0, null);
-                        break;
-                    }
+                    isInArea = true;
+                    DoAreaEffect(__instance.transform.position);
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is Private Area", 0, null);
                 }
                 return !isInArea;
             }
@@ -492,16 +411,11 @@ namespace WorldofValheimZonePermissions
             private static bool Prefix(Door __instance)
             {
                 bool isInArea = false;
-
-                foreach (KeyValuePair<Vector3, AreaInfo> key in PrivateAreaKG)
+                if (RestrictionCheck("nodoors"))
                 {
-                    if (Vector3.Distance(key.Key, __instance.transform.position) <= key.Value.range && key.Value.configs.ToLower().Contains("nodoors"))
-                    {
-                        isInArea = true;
-                        DoAreaEffect(__instance.transform.position);
-                        MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is Private Area", 0, null);
-                        break;
-                    }
+                    isInArea = true;
+                    DoAreaEffect(__instance.transform.position);
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is Private Area", 0, null);
                 }
                 return !isInArea;
             }
@@ -513,16 +427,11 @@ namespace WorldofValheimZonePermissions
             private static bool Prefix(Player __instance)
             {
                 bool isInArea = false;
-
-                foreach (KeyValuePair<Vector3, AreaInfo> key in PrivateAreaKG)
+                if (RestrictionCheck("nobuilding"))
                 {
-                    if (Vector3.Distance(key.Key, __instance.m_placementGhost.transform.position) <= key.Value.range && key.Value.configs.ToLower().Contains("nobuilding"))
-                    {
-                        isInArea = true;
-                        DoAreaEffect(__instance.m_placementGhost.transform.position);
-                        MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is Private Area", 0, null);
-                        break;
-                    }
+                    isInArea = true;
+                    DoAreaEffect(__instance.m_placementGhost.transform.position);
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is Private Area", 0, null);
                 }
                 return !isInArea;
             }
@@ -534,20 +443,15 @@ namespace WorldofValheimZonePermissions
             private static bool Prefix(Player __instance)
             {
                 bool isInArea = false;
-
-                foreach (KeyValuePair<Vector3, AreaInfo> key in PrivateAreaKG)
+                if (RestrictionCheck("nobuilding"))
                 {
-                    if (Vector3.Distance(key.Key, __instance.transform.position) <= key.Value.range && key.Value.configs.ToLower().Contains("nobuilding"))
-                    {
-                        isInArea = true;
-                        MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is Private Area", 0, null);
-                        break;
-                    }
+                    isInArea = true;
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is Private Area", 0, null);
+
                 }
                 return !isInArea;
             }
         }
-
 
         [HarmonyPatch(typeof(WearNTear), "RPC_Damage")]
         public static class NoBuild_Damage_Patch
@@ -555,16 +459,11 @@ namespace WorldofValheimZonePermissions
             private static bool Prefix(WearNTear __instance)
             {
                 bool isInArea = false;
-
-                foreach (KeyValuePair<Vector3, AreaInfo> key in PrivateAreaKG)
+                if (RestrictionCheck("nobuilddamage"))
                 {
-                    if (Vector3.Distance(key.Key, __instance.transform.position) <= key.Value.range && key.Value.configs.ToLower().Contains("nobuilddamage"))
-                    {
-                        isInArea = true;
-                        DoAreaEffect(__instance.transform.position + Vector3.up * 0.5f);
-                        MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is Private Area", 0, null);
-                        break;
-                    }
+                    isInArea = true;
+                    DoAreaEffect(__instance.transform.position + Vector3.up * 0.5f);
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is Private Area", 0, null);
                 }
                 return !isInArea;
             }
@@ -576,16 +475,11 @@ namespace WorldofValheimZonePermissions
             private static bool Prefix(InventoryGui __instance)
             {
                 bool isInArea = false;
-
-                foreach (KeyValuePair<Vector3, AreaInfo> key in PrivateAreaKG)
+                if (RestrictionCheck("noitemdrop"))
                 {
-                    if (Vector3.Distance(key.Key, Player.m_localPlayer.transform.position) <= key.Value.range && key.Value.configs.ToLower().Contains("noitemdrop"))
-                    {
-                        isInArea = true;
-                        DoAreaEffect(Player.m_localPlayer.transform.position + Vector3.up * 0.5f);
-                        MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is Private Area", 0, null);
-                        break;
-                    }
+                    isInArea = true;
+                    DoAreaEffect(Player.m_localPlayer.transform.position + Vector3.up * 0.5f);
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is Private Area", 0, null);
                 }
                 return !isInArea;
             }
@@ -597,19 +491,13 @@ namespace WorldofValheimZonePermissions
             private static bool Prefix(InventoryGrid __instance)
             {
                 bool isInArea = false;
-
-                foreach (KeyValuePair<Vector3, AreaInfo> key in PrivateAreaKG)
+                if (RestrictionCheck("noitemdrop"))
                 {
-                    if (Vector3.Distance(key.Key, Player.m_localPlayer.transform.position) <= key.Value.range && key.Value.configs.ToLower().Contains("noitemdrop"))
+                    if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
                     {
-                        if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
-                        {
-                            isInArea = true;
-                            DoAreaEffect(Player.m_localPlayer.transform.position + Vector3.up * 0.5f);
-                            MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is Private Area", 0, null);
-                            break;
-                        }
-                        
+                        isInArea = true;
+                        DoAreaEffect(Player.m_localPlayer.transform.position + Vector3.up * 0.5f);
+                        MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is Private Area", 0, null);
                     }
                 }
                 return !isInArea;

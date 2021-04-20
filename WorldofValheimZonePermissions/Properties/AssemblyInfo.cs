@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Permissions;
-using ValheimPermissions;
+using WorldofValheimZonePermissions;
 
 [assembly: AssemblyVersion(ModInfo.Version)]
 [assembly: AssemblyTitle(ModInfo.Title)]
