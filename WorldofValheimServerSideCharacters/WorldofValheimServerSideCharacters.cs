@@ -52,13 +52,17 @@ namespace WorldofValheimServerSideCharacters
             {
                 Debug.Log("[Server Mode]");
                 // Load Paths
-                string testpath = Config.ConfigFilePath;
-                testpath = testpath.Replace("HackShardGaming.WorldofValheimServerSideCharacters.cfg", "WoV");
+                string testpath = BepInEx.Paths.ConfigPath;
+                testpath = Path.Combine(testpath, "WoV");
                 WorldofValheimServerSideCharacters.AllowMultipleCharacters = base.Config.Bind<bool>("WorldofValheimServerSideCharacters", "AllowMultipleCharacters", true, "SERVER ONLY: Should we create a new character file if the client logs in using a different character name (TRUE) or should we use only ONE character file per steamid (FALSE)");
                 WorldofValheimServerSideCharacters.CharacterSavePath = base.Config.Bind<string>("WorldofValheimServerSideCharacters", "CharacterSavePath", Path.Combine(testpath, "characters"), "SERVER ONLY: The root directory for the server vault.");
                 WorldofValheimServerSideCharacters.DefaultCharacterPath = base.Config.Bind<string>("WorldofValheimServerSideCharacters", "DefaultCharacterPath", Path.Combine(testpath, "default_character.fch"), "SERVER ONLY: The file path to the default character file. If it does not exist, it will be created with a default character file.");
                 WorldofValheimServerSideCharacters.SaveInterval = base.Config.Bind<int>("WorldofValheimServerSideCharacters", "SaveInterval", 120, "SERVER ONLY: How often, in seconds, to save a copy of each character. Too low may result in performance issues. Too high may result in lost data in the event of a server crash.");
                 WorldofValheimServerSideCharacters.ShutdownDelay = base.Config.Bind<int>("WorldofValheimServerSideCharacters", "ShutdownDelay", 15, "SERVER ONLY: How long should we delay after !shutdown has been typed before actually shutting down.");
+                if (!Directory.Exists(Path.GetDirectoryName(WorldofValheimServerSideCharacters.CharacterSavePath.Value)))
+                    Directory.CreateDirectory(Path.GetDirectoryName(WorldofValheimServerSideCharacters.CharacterSavePath.Value));
+                if (!Directory.Exists(Path.GetDirectoryName(WorldofValheimServerSideCharacters.DefaultCharacterPath.Value)))
+                    Directory.CreateDirectory(Path.GetDirectoryName(WorldofValheimServerSideCharacters.DefaultCharacterPath.Value));
             }
             else
             {

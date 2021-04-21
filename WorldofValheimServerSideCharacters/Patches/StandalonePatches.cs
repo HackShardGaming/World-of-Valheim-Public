@@ -159,23 +159,6 @@ namespace WorldofValheimServerSideCharacters
                 StandalonePatches.m_quitting = false;
                 StandalonePatches.m_logging = false;
             }
-            if (WorldofValheimServerSideCharacters.ServerMode)
-            {
-                string steamid = ((ZSteamSocket)peer.m_socket).GetPeerID().m_SteamID.ToString();
-                string permissions = "HackShardGaming.WoV-SSC.*";
-                if (Util.isAdmin(long.Parse(steamid))) 
-                {
-                    Debug.Log($"The user: {steamid} is an admin! adding the permission node: {permissions}");
-                    if (!ValheimPermissions.ValheimDB.CheckUserPermission(steamid,permissions))
-                    {
-                        bool result = ValheimPermissions.ValheimDB.AddUserPermission(steamid,permissions);
-                        if (result)
-                        {
-
-                        }
-                    }
-                }
-            }
             // Ok now for the rest. Including if we are the server.
             peer.m_rpc.Register<ZPackage>("CharacterUpdate", new Action<ZRpc, ZPackage>(RPC.CharacterUpdate));
             peer.m_rpc.Register<ZPackage>("ExitServer", new Action<ZRpc, ZPackage>(RPC.ExitServer));

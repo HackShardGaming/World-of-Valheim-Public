@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 using UnityEngine;
+using Steamworks;
 
 
 #if client_cli
@@ -35,9 +36,9 @@ namespace WorldofValheimZones
             private static void Prefix()
             {
                 Debug.Log("AddZone RPC Created");
-                ZRoutedRpc.instance.Register("AddZone", new Action<long, ZPackage>(Util.AddZone)); // Adding Zone
-                ZRoutedRpc.instance.Register("ReloadZones", new Action<long, ZPackage>(Util.ReloadZones)); // Adding ReloadZones
-                ZRoutedRpc.instance.Register("ZoneHandler", new Action<long, ZPackage>(ZoneHandler.RPC2)); // Adding ZoneHandler
+                ZRoutedRpc.instance.Register("WoV-Z-AddZone", new Action<long, ZPackage>(Util.AddZone)); // Adding Zone
+                ZRoutedRpc.instance.Register("WoV-Z-ReloadZones", new Action<long, ZPackage>(Util.ReloadZones)); // Adding ReloadZones
+                ZRoutedRpc.instance.Register("WoV-Z-ZoneHandler", new Action<long, ZPackage>(ZoneHandler.RPC2)); // Adding ZoneHandler
             }
         }
        
@@ -214,31 +215,16 @@ namespace WorldofValheimZones
         private static void ZNet__OnNewConnection(ZNet __instance, ZNetPeer peer)
         {
             Debug.Log($"Server Zone Enforced: {Client.EnforceZones}");
+            WorldofValheimZones.MySteamID = SteamUser.GetSteamID().ToString();
+            Debug.Log($"Caching our SteamID as {WorldofValheimZones.MySteamID}");
             if (!__instance.IsServer())
             {
                 // Client special RPC calls
                 ZoneHandler.CurrentZoneID = -2;
                 peer.m_rpc.Register<ZPackage>("ZoneHandler", new Action<ZRpc, ZPackage>(ZoneHandler.RPC));
-                peer.m_rpc.Register<ZPackage>("Client", new Action<ZRpc, ZPackage>(Client.RPC));
+                peer.m_rpc.Register<ZPackage>("WoV-Z-Client", new Action<ZRpc, ZPackage>(Client.RPC));
                 // Reset zone ID
                 ZoneHandler.CurrentZoneID = -2;
-            }
-            if (WorldofValheimZones.ServerMode)
-            {
-                string steamid = ((ZSteamSocket)peer.m_socket).GetPeerID().m_SteamID.ToString();
-                string permissions = "HackShardGaming.WoV-Zones.*";
-                if (Util.isAdmin(long.Parse(steamid)))
-                {
-                    Debug.Log($"The user: {steamid} is an admin! adding the permission node: {permissions}");
-                    if (!ValheimPermissions.ValheimDB.CheckUserPermission(steamid, permissions))
-                    {
-                        bool result = ValheimPermissions.ValheimDB.AddUserPermission(steamid, permissions);
-                        if (result)
-                        {
-
-                        }
-                    }
-                }
             }
         }
 
@@ -261,6 +247,7 @@ namespace WorldofValheimZones
             Debug.Log("S2C ZoneHandler (SendPeerInfo)");
             ZoneHandler._debug();
 #endif
+
             rpc.Invoke("ZoneHandler", new object[] { 
                 ZoneHandler.Serialize(rpc.GetSocket().GetHostName())
             }) ;

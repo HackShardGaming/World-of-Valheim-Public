@@ -90,6 +90,14 @@ namespace WorldofValheimZones
             public Vector2 Position;
             public float Radius;
         }
+
+        public class ZoneConfig
+        {
+            public string Name;
+            public string Admins;
+            public string Configurations;
+        }
+
         
         // Zone Details
 
@@ -102,6 +110,8 @@ namespace WorldofValheimZones
         public static List<Zone> Zones = new List<Zone>();
 
         public static List<ZoneTypes> ZoneT = new List<ZoneTypes>();
+
+        public static List<ZoneConfig> ZoneC = new List<ZoneConfig>();
 
 
 
@@ -128,7 +138,24 @@ namespace WorldofValheimZones
         }
         public static void _debug(ZoneTypes zt)
         {
-            Debug.Log($"  Type: {zt.Name} -> [ {zt.PVP}, {zt.PVPEnforce}, {zt.ShowPosition}, {zt.PositionEnforce}, {zt.ViewDistance}, {zt.AutoHeal} ]");
+            Debug.Log($"  Type: {zt.Name} -> [ {zt.PVP}, {zt.PVPEnforce}, {zt.ShowPosition}, {zt.PositionEnforce} ]");
+        }
+
+        public static void _debug(ZoneConfig zc)
+        {
+            Debug.Log($"  Zone Type: {zc.Name} -> [ Admins: {zc.Admins} | Configuration: {zc.Configurations} ]");
+        }
+        public static void _debug(List<ZoneConfig> zc)
+        {
+            Debug.Log("Loading Zone Type Custom Configurations: ");
+            Debug.Log("   Custom Configuration Cnt: " + zc.Count);
+            using (List<ZoneConfig>.Enumerator enumerator = zc.GetEnumerator())
+            {
+                while (enumerator.MoveNext())
+                {
+                    _debug(enumerator.Current);
+                }
+            }
         }
 
         public static void _debug(List<ZoneTypes> zt)
@@ -148,6 +175,7 @@ namespace WorldofValheimZones
         public static void _debug()
         {
             _debug(ZoneT);
+            _debug(ZoneC);
             _debug(Zones);
         }
 #endif
@@ -197,7 +225,10 @@ namespace WorldofValheimZones
             z.Sort((Zone a, Zone b) => a.Priority.CompareTo(b.Priority));
             return z[0];
         }
-
+        public static ZoneConfig FindZoneConfig(string ztType)
+        {
+            return ZoneC.Find(a => a.Name == ztType) ?? new ZoneConfig();
+        }
         public static ZoneTypes FindZoneType(string ztType)
         {
             //Debug.Log($"Searching for: {ztName}");
@@ -291,6 +322,13 @@ namespace WorldofValheimZones
                 zip.Write(z.Radius);
                 //zip.Write(z.pvp);
             }
+            zip.Write(ZoneC.Count);
+            foreach (ZoneConfig zc in ZoneC)
+            {
+                zip.Write(zc.Name);
+                zip.Write(zc.Admins);
+                zip.Write(zc.Configurations);
+            }
             return zip;
         }
 
@@ -325,6 +363,17 @@ namespace WorldofValheimZones
                     Position = new Vector2(package.ReadSingle(), package.ReadSingle()),
                     Radius = package.ReadSingle(),
                     //pvp = package.ReadBool()
+                });
+            }
+            ZoneC.Clear();
+            int cnum = package.ReadInt();
+            for (int i = 0; i < cnum; i++)
+            {
+                ZoneC.Add(new ZoneConfig
+                {
+                    Name = package.ReadString(),
+                    Admins = package.ReadString(),
+                    Configurations = package.ReadString()
                 });
             }
         }
@@ -388,6 +437,49 @@ namespace WorldofValheimZones
         }
         */
 
+        public static void LoadZoneConfigurationData(string path)
+        {
+            if (!File.Exists(path))
+            {
+                Debug.Log("Creating Zone Custom Configuration File at {path}");
+                string text = global::WorldofValheimZones.Properties.Resources.Default_Zone_Configurations;
+                //string text = "# format: name type x z radius\nDefaultSafeZone safe 1 0.0 0.0 5.0 true";
+                if (!Directory.Exists(Path.GetDirectoryName(WorldofValheimZones.ZoneConfigurationPath.Value)))
+                    Directory.CreateDirectory(Path.GetDirectoryName(WorldofValheimZones.ZoneConfigurationPath.Value));
+                File.WriteAllText(path, text);
+            }
+            else
+            {
+                Debug.Log($"Loading Zone Custom Configuration File: {path}");
+            }
+            ZoneC.Clear();
+            int pos = 0;
+            foreach (string text2 in File.ReadAllLines(path))
+            {
+                if (!string.IsNullOrWhiteSpace(text2) && text2 != null && !text2.StartsWith("/") && !text2.StartsWith("#") && text2 != string.Empty)
+                {
+                    string[] array = text2.Replace(" ", "").Split('|');
+                    ZoneHandler.ZoneTypes zt = ZoneHandler.FindZoneType(array[0]);
+
+                    if (zt.Name != array[0] || array[0].ToLower() != "wilderness")
+                    {
+                        Debug.Log($"ERROR: While applying custom configuration for the Zone Type: {array[0]},");
+                        Debug.Log($"Zone Type: {array[0]} Does not exist in the {WorldofValheimZones.ZonePath.Value} file!");
+                    }
+                    else
+                    {
+                        Debug.Log($"Loading Custom Configuration for the Zone Type {array[0]}");
+                        ZoneHandler.ZoneConfig zc = new ZoneHandler.ZoneConfig { Name = array[0] };
+                        zc.Admins = array[1];
+                        zc.Configurations = array[2];
+                        ZoneC.Add(zc);
+                    }
+                }
+            }
+#if DEBUG
+            _debug();
+#endif
+        }
         // WorldofValheimZones.ServerSafeZonePath.Value
         public static void LoadZoneData(string ZonePath)
         {
@@ -398,6 +490,8 @@ namespace WorldofValheimZones
                 Debug.Log($"Creating zone file at {ZonePath}");
                 string text = global::WorldofValheimZones.Properties.Resources.Default_zones;
                 //string text = "# format: name type x z radius\nDefaultSafeZone safe 1 0.0 0.0 5.0 true";
+                if (!Directory.Exists(Path.GetDirectoryName(WorldofValheimZones.ZonePath.Value)))
+                    Directory.CreateDirectory(Path.GetDirectoryName(WorldofValheimZones.ZonePath.Value));
                 File.WriteAllText(ZonePath, text);
             }
             else
@@ -419,7 +513,7 @@ namespace WorldofValheimZones
                     // Check if it is a type
                     if (array2[0].ToLower() == "type:")
                     {
-                        Debug.Log("Loading Type ...");
+                        Debug.Log($"Loading Type: {array2[1]}");
                         ZoneTypes zt = new ZoneTypes {Name = array2[1]};
                         
                         // Go through each argument to override defaults.
@@ -448,7 +542,7 @@ namespace WorldofValheimZones
                         else
                         {
 
-                            Debug.Log("Loading Zone ...");
+                            Debug.Log($"Loading Zone: {array2[0]}");
                             Zone z = new Zone();
                             z.Name = array2[0];
                             z.Type = array2[1];
@@ -468,9 +562,6 @@ namespace WorldofValheimZones
                     }
                 }
             }
-#if DEBUG
-            _debug();
-#endif
         }
 
     }

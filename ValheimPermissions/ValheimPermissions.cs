@@ -42,11 +42,13 @@ namespace ValheimPermissions
             if (ServerMode)
             {
                 Debug.Log("[Server Mode]");
-                string testpath = Config.ConfigFilePath;
-                testpath = testpath.Replace("HackShardGaming.ValheimPermissions.cfg", "WoV");
+                string testpath = BepInEx.Paths.ConfigPath;
+                testpath = Path.Combine(testpath, "WoV");
                 ValheimPermissions.LiteDB_Location = base.Config.Bind<string>("ValheimPermissions", "LiteDB_Location", Path.Combine(testpath, "ValheimPermissions.db"), "Where do we want to store the ValheimPermissions.db file at. NOTE: This is relative to the server root path location so if you want it in bepinex config folder do like BepInEx/Config/FILE.DB. Defaults to server root");
                 // Load Paths
                 ValheimDB.DatabaseLocation = ValheimPermissions.LiteDB_Location.Value;
+                if (!Directory.Exists(Path.GetDirectoryName(ValheimDB.DatabaseLocation)))
+                    Directory.CreateDirectory(Path.GetDirectoryName(ValheimDB.DatabaseLocation));
                 // Run the grand patch all and hope everything works (This is fine...)
             }
             else

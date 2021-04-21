@@ -243,23 +243,7 @@ namespace WorldofValheimZonePermissions
                 return !isInArea;
             }
         }
-        /*
-        [HarmonyPatch(typeof(ItemDrop), "CanPickup")]
-        public static class NoPickup_Patch
-        {
-            private static bool Prefix(ItemDrop __instance)
-            {
-                bool isInArea = false;
-                if (Util.RestrictionCheck("noitemdrop"))
-                {
-                    isInArea = true;
-                    Util.DoAreaEffect(Player.m_localPlayer.transform.position + Vector3.up * 0.5f);
-                    MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is Private Area", 0, null);
-                }
-                return !isInArea;
-            }
-        }
-        */
+
         [HarmonyPatch(typeof(InventoryGrid), "OnLeftClick")]
         public static class NoDrop_Patch2
         {
