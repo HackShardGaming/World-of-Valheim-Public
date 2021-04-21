@@ -12,6 +12,9 @@ Core Features:
 
 Server-Side Characters: When a client connects to the server, the server will look and see if it has an existing character file stored for this player.  If it does not it will then create a brand new character file for the client.  It will then send the character file to the client and ask periodically for updates about that character.  If the user leaves the server the character file on the server will be updated, however, the clients character on the client will not.
 
+*NEW IN 0.4.0*
+New Feature: Plugin now has a Permissions system.  And thus requires another mod in order to run now! Please download: Valheim Permissions
+
 *NEW IN 0.3.0*
 New Feature: Starting in 0.3.0 saved character names are now dynamic.  Meaning, if you change which character you login to the server with, it will load THAT character file for you instead of the other one. 
 
@@ -25,11 +28,18 @@ Client Side Console Commands (F5 Screen)
 ?Ask the server to save your progress!
 
 All of the following commands requires the user to be an approved admin (adminlists.txt)  They cannot use these commands otherwise!
+
+(REQUIRED PERMISSION: HackShardGaming.WoV-SSC.SaveAll)
 !save-all
 ?Ask the server to request a progress update from ALL connected users
+
+(REQUIRED PERMISSION: HackShardGaming.WoV-SSC.ShutdownServer)
 !shutdown-server
 ?Shuts the server down gracefully. Also asks for a progress update from ALL connected users before shutting down.
 
+(REQUIRED PERMISSION: HackShardGaming.WoV-SSC.ReloadDefault)
+!ReloadDefault
+    Asks the server to reload the Default character file.
 
 
 Client Side Config Variables:
@@ -41,6 +51,8 @@ Client Side Config Variables:
 
 
 Server Side Config Variables:
+
+>> AllowMultipleCharacters:  Should we allow clients to save multiple different character files on the server (TRUE) or use one consistent file (FALSE)
 
 ?>> CharacterSavePath:  This is where  we are going to store the character files. NOTE: Please make this a location you have access to on your server machine
 

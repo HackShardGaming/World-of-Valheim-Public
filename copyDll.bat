@@ -15,6 +15,7 @@ set CUR_DIR=%~dp0
 set MOD_NAME=%APP_NAME%
 set MOD_DIR=%CUR_DIR%\%MOD_NAME%
 set MOD_DLL=%MOD_DIR%\bin\%CONFIG%\%MOD_NAME%.dll
+set PACKAGE_DLL=%MOD_DIR%\Package\%MOD_NAME%.dll
 set PLUGIN_DIR=BepInEx\plugins
 set OUTPUT_DIR=%MOD_DIR%\Output
 
@@ -33,6 +34,8 @@ echo.
 REM Commence with the copying
 
 REM Send the mod to a server for testing.
+echo "%MOD_DLL% -> %PACKAGE_DLL%"
+copy "%MOD_DLL%" "%PACKAGE_DLL%"
 if exist "%SERVER_DIR%\%PLUGIN_DIR%" (
 	echo "%MOD_DLL% -> %SERVER_DIR%\%PLUGIN_DIR%\%MOD_NAME%.dll"
 	copy "%MOD_DLL%" "%SERVER_DIR%\%PLUGIN_DIR%\%MOD_NAME%.dll"
@@ -48,13 +51,4 @@ if exist "%PLAYER_DIR%\%PLUGIN_DIR%" (
 	echo "WARNING: Output Directory Does not exist."
 )
 
-if "%CONFIG%" == "Release" (
-    echo "Release Mode: Creating release packages (version: %MOD_VER%)"
 
-	if not exist "%OUTPUT_DIR%" (
-		echo "Creating output directory"
-		mkdir "%OUTPUT_DIR%"
-	)
-
-	"C:\Program Files\7-Zip\7z.exe" a %OUTPUT_DIR%\%MOD_NAME%-v%MOD_VER%.zip "%MOD_DLL%"
-)

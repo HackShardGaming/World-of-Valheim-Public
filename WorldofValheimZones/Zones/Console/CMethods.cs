@@ -34,7 +34,7 @@ namespace WorldofValheimZones
             ZPackage pkg = new ZPackage(); // Create ZPackage
             string msg = "reloadzones";
             pkg.Write(msg);
-            ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "ReloadZones", new object[] { pkg });
+            ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "WoV-Z-ReloadZones", new object[] { pkg });
             return;
         }
         // Ask the server to add a new zone to the server **ADMIN ONLY**
@@ -57,7 +57,7 @@ namespace WorldofValheimZones
                     string msg = $"{Name} {Type} {Priority} {Shape} {X} {Y} {Radius}";
                     ZPackage pkg = new ZPackage();
                     pkg.Write(msg);
-                    ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "AddZone", new object[] { pkg });
+                    ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "WoV-Z-AddZone", new object[] { pkg });
                     return;
                 }
             }
@@ -73,13 +73,13 @@ namespace WorldofValheimZones
                         msg += results[i] + " ";
                     }
                     pkg.Write(msg); // Writes the msg to ZPackage
-                    ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "AddZone", new object[] { pkg });
+                    ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "WoV-Z-AddZone", new object[] { pkg });
                     return;
                 }
             }
-            Traverse.Create(__instance).Method("AddString", new object[] { $"WoV-Zones: Error in formating. Please look below for proper formating" }).GetValue();
-            Traverse.Create(__instance).Method("AddString", new object[] { $"WoV-Zones: !addzone [Name] [ZoneType] [Priority] [Shape(circle/square)] [x] [y] [r]" }).GetValue();
-            Traverse.Create(__instance).Method("AddString", new object[] { $"WoV-Zones: !addzone [Name] [ZoneType] [Priority] [Shape(circle/square)] [r] (This will make a zone using your CURRENT location!)" }).GetValue();
+            Traverse.Create(__instance).Method("AddString", new object[] { $"{ModInfo.Title}: Error in formating. Please look below for proper formating" }).GetValue();
+            Traverse.Create(__instance).Method("AddString", new object[] { $"{ModInfo.Title}: !addzone [Name] [ZoneType] [Priority] [Shape(circle/square)] [x] [y] [r]" }).GetValue();
+            Traverse.Create(__instance).Method("AddString", new object[] { $"{ModInfo.Title}: !addzone [Name] [ZoneType] [Priority] [Shape(circle/square)] [r] (This will make a zone using your CURRENT location!)" }).GetValue();
             }
     }
 }

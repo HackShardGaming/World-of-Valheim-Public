@@ -2,23 +2,21 @@
 using System.Reflection;
 using System.Globalization;
 
-namespace WorldofValheimZones
+namespace WorldofValheimZonePermissions
 {
     public static class ModInfo
     {
-        public const string Name = "WorldofValheimZones";
-        public const string Title = "WoV - Zones";
-        public const string Group = "HackShardGaming";
-        public const string Guid = "HackShardGaming.WorldofValheimZones";
+        public const string Name = "WorldofValheimZonePermissions";
+        public const string Title = "WoV - Zone Permissions";
+        public const string Group = "HackShardGaming.KG";
+        public const string Guid = "HackShardGaming.WorldofValheimZonePermissions";
 
         // Version follow Semantic Versioning Scheme (https://semver.org/)
-        public const string Version = "0.2.3";
+        public const string Version = "0.0.1";
+        public const string buildDate = "2021-04-19";
 
         // Nexus Plugin ID (Use to maintain updates with Nexus)
-        public const int NexusID = 891;
-
-        
-        public const string buildDate = "2021-04-11";
+        public const int NexusID = 000;
 
         // Use GetBuildDate(Assembly.GetExecutingAssembly()); to get build date
         private static DateTime m_GetBuildDate(Assembly assembly)

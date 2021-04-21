@@ -1,16 +1,29 @@
-﻿using BepInEx;
-using BepInEx.Configuration;
-using HarmonyLib;
-using UnityEngine;
+﻿using HarmonyLib;
 
 namespace WorldofValheimServerSideCharacters
 {
+    public static class Dedicated_Server
+    {
+        public static void RunCommand(string text)
+        {
+            if (text.ToLower().Equals($"!shutdown-server"))
+                {
+                Debug.Log($"{ModInfo.Title}: Initiating server shutdown now!");
+                Game.instance.StartCoroutine(Util.ShutdownServer());
+                return;
+            }
+            if (text.ToLower().Equals($"!save-all"))
+            {
+                Debug.Log($"{ModInfo.Title}: Requesting a save from all connected users!");
+                Util.SaveAll();
+            }
+        }
+    }
+
     //Note this is client side only console commands.
     [HarmonyPatch(typeof(Console), "InputText")]
     static class InputText_Patch
     {
-
-
         static bool Prefix(Console __instance)
         {
 
@@ -44,6 +57,11 @@ namespace WorldofValheimServerSideCharacters
             {
                 CMethods.ShutdownServer();
                 return false;
+            }
+            if (text.ToLower().Equals($"!reloaddefault"))
+            {
+                Debug.Log($"{ModInfo.Title}: Reload default character file!");
+                CMethods.ReloadDefault();
             }
             /*
             if (text.ToLower().StartsWith($"!broadcast"))

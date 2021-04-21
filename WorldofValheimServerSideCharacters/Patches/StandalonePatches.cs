@@ -17,6 +17,7 @@ namespace WorldofValheimServerSideCharacters
         [HarmonyPatch(typeof(Version), "GetVersionString")]
         public static class Version_GetVersionString_Patch
         {
+            [HarmonyBefore(new string[] { "mod.valheim_plus" })]
             private static void Postfix(ref string __result)
             {
 #if DEBUG
@@ -24,7 +25,7 @@ namespace WorldofValheimServerSideCharacters
 #else
 
                 __result = $"{__result} ({ModInfo.Name} v{ModInfo.Version})";
-                Debug.Log($"Version Generated: {__result}");
+                //Debug.Log($"Version Generated: {__result}");
 #endif
             }
         }
@@ -49,6 +50,7 @@ namespace WorldofValheimServerSideCharacters
             {
                 ZRoutedRpc.instance.Register("ShutdownServer", new Action<long, ZPackage>(RPC.ShutdownServer)); // Server Shutdown Registering
                 ZRoutedRpc.instance.Register("SaveAll", new Action<long, ZPackage>(RPC.SaveAll)); // Save all online users
+                ZRoutedRpc.instance.Register("ReloadDefault", new Action<long, ZPackage>(RPC.ReloadDefault)); // Save all online users
             }
         }
 

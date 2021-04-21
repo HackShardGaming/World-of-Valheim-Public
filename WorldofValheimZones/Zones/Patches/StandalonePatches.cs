@@ -3,6 +3,8 @@ using HarmonyLib;
 using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
+using UnityEngine;
+using Steamworks;
 
 
 #if client_cli
@@ -27,17 +29,19 @@ namespace WorldofValheimZones
             ___m_changeLog = new TextAsset(str + ___m_changeLog.text);
         }
 #endif
+
         [HarmonyPatch(typeof(Game), "Start")]
         public static class GameStartPatch
         {
             private static void Prefix()
             {
                 Debug.Log("AddZone RPC Created");
-                ZRoutedRpc.instance.Register("AddZone", new Action<long, ZPackage>(Util.AddZone)); // Adding Zone
-                ZRoutedRpc.instance.Register("ReloadZones", new Action<long, ZPackage>(Util.ReloadZones)); // Adding Zone
-                ZRoutedRpc.instance.Register("ZoneHandler", new Action<long, ZPackage>(ZoneHandler.RPC2)); // Adding Zone
+                ZRoutedRpc.instance.Register("WoV-Z-AddZone", new Action<long, ZPackage>(Util.AddZone)); // Adding Zone
+                ZRoutedRpc.instance.Register("WoV-Z-ReloadZones", new Action<long, ZPackage>(Util.ReloadZones)); // Adding ReloadZones
+                ZRoutedRpc.instance.Register("WoV-Z-ZoneHandler", new Action<long, ZPackage>(ZoneHandler.RPC2)); // Adding ZoneHandler
             }
         }
+       
         //Remove that bird!
         [HarmonyPatch(typeof(Game), "UpdateRespawn")]
         public static class NoArrival
@@ -64,6 +68,7 @@ namespace WorldofValheimZones
         [HarmonyPatch(typeof(Version), "GetVersionString")]
         public static class Version_GetVersionString_Patch
         {
+            [HarmonyBefore(new string[] { "mod.valheim_plus" })]
             private static void Postfix(ref string __result)
             {
 #if DEBUG
@@ -71,7 +76,7 @@ namespace WorldofValheimZones
 #else
                 
                 __result = $"{__result} ({ModInfo.Name} v{ModInfo.Version})";
-                Debug.Log($"Version Generated: {__result}");
+                //Debug.Log($"Version Generated: {__result}");
 #endif
             }
         }
@@ -113,14 +118,27 @@ namespace WorldofValheimZones
                 {
                     if (zonedDetected)
                     {
-                        Player.m_localPlayer.Message(MessageHud.MessageType.Center, $"You have now entered {zone.Name}",
-                            0, null);
-
+                        var color = (ztype.PVPEnforce ? (ztype.PVP ? WorldofValheimZones.PVPColor.Value : WorldofValheimZones.PVEColor.Value) : WorldofValheimZones.NonEnforcedColor.Value);
+                        string Name = zone.Name.Replace("_", " ");
+                        string Message = $"<color={color}>Now entering <b>{Name}</b>.</color>";
+                        string BiomeMessage = (ztype.PVPEnforce ? ztype.PVP ? "PVP Enabled" : "PVP Disabled" : String.Empty);
+                        // The message at the end is in the format of (PVP) (NOPVP) (NON-ENFORCED)
+                        Player.m_localPlayer.Message(MessageHud.MessageType.Center, Message,
+                                0, null);
+                        if (Client.EnforceZones && ztype.PVPEnforce && (ztype.PVP != Player.m_localPlayer.m_pvp))
+                            MessageHud.instance.ShowBiomeFoundMsg(BiomeMessage, true);
                     }
                     else
                     {
-                        Player.m_localPlayer.Message(MessageHud.MessageType.Center, $"You have now entered the wilderness",
-                            0, null);
+                        var color = (ztype.PVPEnforce ? (ztype.PVP ? WorldofValheimZones.PVPColor.Value : WorldofValheimZones.PVEColor.Value) : WorldofValheimZones.NonEnforcedColor.Value);
+                        string Name = "The Wilderness";
+                        string Message = $"<color={color}>Now entering <b>{Name}</b>.</color>";
+                        string BiomeMessage = (ztype.PVPEnforce ? ztype.PVP ? "PVP Enabled" : "PVP Disabled" : String.Empty);
+                        // The message at the end is in the format of (PVP) (NOPVP) (NON-ENFORCED)
+                        Player.m_localPlayer.Message(MessageHud.MessageType.Center, Message,
+                                0, null);
+                        if (Client.EnforceZones && ztype.PVPEnforce && (ztype.PVP != Player.m_localPlayer.m_pvp))
+                            MessageHud.instance.ShowBiomeFoundMsg(BiomeMessage, true);
 
                     }
 
@@ -197,12 +215,14 @@ namespace WorldofValheimZones
         private static void ZNet__OnNewConnection(ZNet __instance, ZNetPeer peer)
         {
             Debug.Log($"Server Zone Enforced: {Client.EnforceZones}");
+            WorldofValheimZones.MySteamID = SteamUser.GetSteamID().ToString();
+            Debug.Log($"Caching our SteamID as {WorldofValheimZones.MySteamID}");
             if (!__instance.IsServer())
             {
                 // Client special RPC calls
                 ZoneHandler.CurrentZoneID = -2;
                 peer.m_rpc.Register<ZPackage>("ZoneHandler", new Action<ZRpc, ZPackage>(ZoneHandler.RPC));
-                peer.m_rpc.Register<ZPackage>("Client", new Action<ZRpc, ZPackage>(Client.RPC));
+                peer.m_rpc.Register<ZPackage>("WoV-Z-Client", new Action<ZRpc, ZPackage>(Client.RPC));
                 // Reset zone ID
                 ZoneHandler.CurrentZoneID = -2;
             }
@@ -216,7 +236,7 @@ namespace WorldofValheimZones
         [HarmonyPatch(typeof(ZNet), "SendPeerInfo")]
         private static void ZNet__SendPeerInfo(ZNet __instance, ZRpc rpc)
         {
-            // Run away clients, we don't want you here!?!?
+            // Run away clients, we don't want you here!?!?ZoneHandler.Serialize
             if (!__instance.IsServer())
             {
                 return;
@@ -227,9 +247,10 @@ namespace WorldofValheimZones
             Debug.Log("S2C ZoneHandler (SendPeerInfo)");
             ZoneHandler._debug();
 #endif
-            rpc.Invoke("ZoneHandler", new object[] {
-                ZoneHandler.Serialize()
-            });
+
+            rpc.Invoke("ZoneHandler", new object[] { 
+                ZoneHandler.Serialize(rpc.GetSocket().GetHostName())
+            }) ;
 
 
             // Syncing the Client State with the server defaults.

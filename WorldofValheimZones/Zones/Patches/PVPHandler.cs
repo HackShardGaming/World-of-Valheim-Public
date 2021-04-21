@@ -13,7 +13,6 @@ namespace WorldofValheimZones
     [HarmonyPatch]
     public static class PVPHandler
     {
-
         [HarmonyPostfix]
         [HarmonyPatch(typeof(Minimap), "Update")]
         public static void Minimap_Start(Toggle ___m_publicPosition)
