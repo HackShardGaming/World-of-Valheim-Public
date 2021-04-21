@@ -19,6 +19,7 @@
 ////		you can still push in but it will push you away just like it does if you fall off the map)./
 ////	PeriodicDamage(int): Deals (INT) damage periodically to the user.                               ////
 ////	PeriodicDamage(type,int) Deals (INT) damage of the damage type: (type) periodically to the user.////
+////		Damage types include: Fire, Frost, Lightning, Poison, Pierce, Blunt,, Slash, and Damage ////
 ////	PeriodicHeal(int) Heals the user for (INT) Periodically                                         ////
 ////	DamageMultiplierToMobs(int): Deals (INT) * 100 Percent damage to Mobs (Includes Mob             ////
 ////		on Mob!) (1 = 100%)                                                                     ////
