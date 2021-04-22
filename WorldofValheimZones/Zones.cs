@@ -36,7 +36,6 @@ namespace WorldofValheimZones
         public static int EffectTick = 0;
         private string hashCheck = "";
         public static Harmony harm = new Harmony("ZonePermissions");
-        public static Dictionary<string, AreaInfo> ZonePermissions = new Dictionary<string, AreaInfo>();
         private static WorldofValheimZones plugin;
         public static ConfigEntry<string> ZoneConfigurationPath;
 
@@ -155,7 +154,7 @@ namespace WorldofValheimZones
             Debug.Log("ZONES FILE CHANGED!");
             ZoneHandler.LoadZoneData(WorldofValheimZones.ZonePath.Value);
             Util.Broadcast("Reloading Zone");
-            ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.Everybody, "WoV-Z-ZoneHandler", new object[] {
+            ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.Everybody, "ZoneHandler", new object[] {
                         ZoneHandler.Serialize(null)
                     });
         }
@@ -170,7 +169,7 @@ namespace WorldofValheimZones
             if (ZNet.instance.IsServer() && ZNet.instance.IsDedicated())
             {
                 ZoneHandler.LoadZoneConfigurationData(WorldofValheimZones.ZoneConfigurationPath.Value);
-                ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.Everybody, "WoV-Z-ZoneHandler", new object[] {
+                ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.Everybody, "ZoneHandler", new object[] {
                         ZoneHandler.Serialize(null)
                     });
             }

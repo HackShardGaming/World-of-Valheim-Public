@@ -19,53 +19,24 @@ namespace WorldofValheimZones
             Player p = Player.m_localPlayer;
             if (p != null)
             {
-                // Are we in a zone? if so select that zone.
+                 // Are we in a zone? if so select that zone.
                 ZoneHandler.Zone z = new ZoneHandler.Zone();
                 ZoneHandler.ZoneTypes zt = new ZoneHandler.ZoneTypes();
-                ZoneHandler.ZoneConfig zc = new ZoneHandler.ZoneConfig();
                 List<ZoneHandler.Zone> zlist = ZoneHandler.ListOccupiedZones(p.transform.position);
-                string ZoneType = "wilderness";
-                // We are not in a zone.  Wilderness....
                 if (zlist.Count == 0)
                 {
-                    // Create a blank ZoneConfig for the requested ZoneType
-                    ZoneHandler.ZoneConfig zonename = new ZoneHandler.ZoneConfig { Name = ZoneType };
-                    // Search our existing ZoneC list for ZoneType
-                    bool contains = ZoneHandler.ZoneC.Any(Name => Name.Name == zonename.Name);
-                    // It doesn't contain the ZoneType so Exit this script...
-                    if (!contains)
-                    {
-                        return;
-                    }
-                    // It contains the ZoneType so now load it up!
-                    else
-                    {
-                        zc = ZoneHandler.FindZoneConfig(ZoneType);
-                    }
+                    zt = ZoneHandler.FindZoneType("wilderness");
+
                 }
                 else
                 {
                     z = ZoneHandler.TopZone(zlist);
                     zt = ZoneHandler.FindZoneType(z.Type);
-                    ZoneType = z.Type;
-                    // Create a blank ZoneConfig for the requested ZoneType
-                    ZoneHandler.ZoneConfig zonename = new ZoneHandler.ZoneConfig { Name = ZoneType };
-                    // Search our existing ZoneC list for ZoneType
-                    bool contains = ZoneHandler.ZoneC.Any(Name => Name.Name == zonename.Name);
-                    // It doesn't contain the ZoneType so Exit this script...
-                    if (!contains)
-                    {
-                        return;
-                    }
-                    // It contains the ZoneType so now load it up!
-                    else
-                    {
-                        zc = ZoneHandler.FindZoneConfig(z.Type);
-                    }
+
                 }
                 // Lets set our strings...
-                string admins = zc.Admins;
-                string key = zc.Configurations;
+                string admins = zt.Admins;
+                string key = zt.Configurations;
                 // Lets see if the user is considered a Zone Admin!
                 if (admins.Contains(WorldofValheimZones.MySteamID))
                 {

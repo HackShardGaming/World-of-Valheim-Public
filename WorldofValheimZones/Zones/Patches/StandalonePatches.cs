@@ -36,9 +36,9 @@ namespace WorldofValheimZones
             private static void Prefix()
             {
                 Debug.Log("AddZone RPC Created");
-                ZRoutedRpc.instance.Register("WoV-Z-AddZone", new Action<long, ZPackage>(Util.AddZone)); // Adding Zone
-                ZRoutedRpc.instance.Register("WoV-Z-ReloadZones", new Action<long, ZPackage>(Util.ReloadZones)); // Adding ReloadZones
-                ZRoutedRpc.instance.Register("WoV-Z-ZoneHandler", new Action<long, ZPackage>(ZoneHandler.RPC2)); // Adding ZoneHandler
+                ZRoutedRpc.instance.Register("AddZone", new Action<long, ZPackage>(Util.AddZone)); // Adding Zone
+                ZRoutedRpc.instance.Register("ReloadZones", new Action<long, ZPackage>(Util.ReloadZones)); // Adding ReloadZones
+                ZRoutedRpc.instance.Register("ZoneHandler", new Action<long, ZPackage>(ZoneHandler.RPC2)); // Adding ZoneHandler
             }
         }
        
@@ -113,7 +113,6 @@ namespace WorldofValheimZones
                 ZoneHandler.ZoneTypes ztype;
                 bool changed;
                 bool zonedDetected = ZoneHandler.Detect(Player.m_localPlayer.transform.position, out changed, out zone, out ztype);
-
                 if (changed)
                 {
                     if (zonedDetected)
@@ -215,15 +214,16 @@ namespace WorldofValheimZones
         private static void ZNet__OnNewConnection(ZNet __instance, ZNetPeer peer)
         {
             Debug.Log($"Server Zone Enforced: {Client.EnforceZones}");
-            WorldofValheimZones.MySteamID = SteamUser.GetSteamID().ToString();
-            Debug.Log($"Caching our SteamID as {WorldofValheimZones.MySteamID}");
+            
             if (!__instance.IsServer())
             {
                 // Client special RPC calls
                 ZoneHandler.CurrentZoneID = -2;
                 peer.m_rpc.Register<ZPackage>("ZoneHandler", new Action<ZRpc, ZPackage>(ZoneHandler.RPC));
-                peer.m_rpc.Register<ZPackage>("WoV-Z-Client", new Action<ZRpc, ZPackage>(Client.RPC));
+                peer.m_rpc.Register<ZPackage>("Client", new Action<ZRpc, ZPackage>(Client.RPC));
                 // Reset zone ID
+                WorldofValheimZones.MySteamID = SteamUser.GetSteamID().ToString();
+                Debug.Log($"Caching our SteamID as {WorldofValheimZones.MySteamID}");
                 ZoneHandler.CurrentZoneID = -2;
             }
         }

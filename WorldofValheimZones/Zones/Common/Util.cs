@@ -30,46 +30,21 @@ namespace WorldofValheimZones
             // Are we in a zone? if so select that zone.
             ZoneHandler.Zone z = new ZoneHandler.Zone();
             ZoneHandler.ZoneTypes zt = new ZoneHandler.ZoneTypes();
-            ZoneHandler.ZoneConfig zc = new ZoneHandler.ZoneConfig();
             List<ZoneHandler.Zone> zlist = ZoneHandler.ListOccupiedZones(p.transform.position);
-            string ZoneType = "wilderness";
             if (zlist.Count == 0)
             {
                 zt = ZoneHandler.FindZoneType("wilderness");
-                ZoneHandler.ZoneConfig zonename = new ZoneHandler.ZoneConfig { Name = ZoneType };
-                bool contains = ZoneHandler.ZoneC.Any(Name => Name.Name == zonename.Name);
-                if (!contains)
-                {
-                    return 1;
-                }
-                else
-                {
-                    zc = ZoneHandler.FindZoneConfig("wilderness");
-                }
-
             }
             else
             {
                 z = ZoneHandler.TopZone(zlist);
                 zt = ZoneHandler.FindZoneType(z.Type);
-                ZoneType = z.Type;
-                ZoneHandler.ZoneConfig zonename = new ZoneHandler.ZoneConfig { Name = ZoneType };
-                bool contains = ZoneHandler.ZoneC.Any(Name => Name.Name == zonename.Name);
-                if (!contains)
-                {
-                    return 1;
-                }
-                else
-                {
-                    zc = ZoneHandler.FindZoneConfig(z.Type);
-                }
-
-            }
+             }
             string key = "";
             string admins = "";
             // Lets set our admins and keys..
-            admins = zc.Admins;
-            key = zc.Configurations;
+            admins = zt.Admins;
+            key = zt.Configurations;
             // Lets see if the user is actually an admin in the zone first..
             if (admins.Contains(WorldofValheimZones.MySteamID))
             {
@@ -100,46 +75,23 @@ namespace WorldofValheimZones
             // Are we in a zone? if so select that zone.
             ZoneHandler.Zone z = new ZoneHandler.Zone();
             ZoneHandler.ZoneTypes zt = new ZoneHandler.ZoneTypes();
-            ZoneHandler.ZoneConfig zc = new ZoneHandler.ZoneConfig();
             List<ZoneHandler.Zone> zlist = ZoneHandler.ListOccupiedZones(p.transform.position);
-            string ZoneType = "wilderness";
             if (zlist.Count == 0)
             {
                 zt = ZoneHandler.FindZoneType("wilderness");
-                ZoneHandler.ZoneConfig zonename = new ZoneHandler.ZoneConfig { Name = ZoneType };
-                bool contains = ZoneHandler.ZoneC.Any(Name => Name.Name == zonename.Name);
-                if (!contains)
-                {
-                    return false;
-                }
-                else
-                {
-                    zc = ZoneHandler.FindZoneConfig("wilderness");
-                }
 
             }
             else
             {
                 z = ZoneHandler.TopZone(zlist);
                 zt = ZoneHandler.FindZoneType(z.Type);
-                ZoneType = z.Type;
-                ZoneHandler.ZoneConfig zonename = new ZoneHandler.ZoneConfig { Name = ZoneType };
-                bool contains = ZoneHandler.ZoneC.Any(Name => Name.Name == zonename.Name);
-                if (!contains)
-                {
-                    return false;
-                }
-                else
-                {
-                    zc = ZoneHandler.FindZoneConfig(z.Type);
-                }
 
             }
             string key = "";
             string admins = "";
             // Lets set our admin list and keys...
-            admins = zc.Admins;
-            key = zc.Configurations;
+            admins = zt.Admins;
+            key = zt.Configurations;
             // Lets check and see if the user is actually an admin in the zone.
             if (admins.Contains(WorldofValheimZones.MySteamID))
             {
@@ -149,28 +101,6 @@ namespace WorldofValheimZones
                 return true;
             else
                 return false;
-        }
-        public static void DownloadPAreasStart(long sender, ZPackage pkg)
-        {
-            if (pkg != null && pkg.Size() > 0 && !ZNet.instance.IsServer() && !ZNet.instance.IsDedicated())
-            {
-                WorldofValheimZones.ZonePermissions.Clear();
-                int Count = pkg.ReadInt();
-                for (int i = 0; i < Count; i++)
-                {
-                    if (pkg.ReadBool())
-                    {
-
-                        string ZoneType = pkg.ReadString();
-                        Debug.Log($"Loading Configuration for Zone Type: {ZoneType}");
-                        string configs = pkg.ReadString();
-                        WorldofValheimZones.AreaInfo info = new WorldofValheimZones.AreaInfo();
-                        info.configs = configs;
-                        WorldofValheimZones.ZonePermissions.Add(ZoneType, info);
-                        //print($"ADDED AREA {area},{info.range},{info.configs}");
-                    }
-                }
-            }
         }
         public static void DoAreaEffect(Vector3 pos)
         {
@@ -242,7 +172,7 @@ namespace WorldofValheimZones
                     ZoneHandler.LoadZoneConfigurationData(WorldofValheimZones.ZoneConfigurationPath.Value);
                     Util.Broadcast("Reloading Zone");
                     Debug.Log("S2C ZoneHandler (SendPeerInfo)");
-                    ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.Everybody, "WoV-Z-ZoneHandler", new object[] {
+                    ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.Everybody, "ZoneHandler", new object[] {
                         ZoneHandler.Serialize(peerSteamID)
                     }) ;
                 }

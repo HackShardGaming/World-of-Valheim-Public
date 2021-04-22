@@ -31,55 +31,21 @@ namespace WorldofValheimZones
 
     public static class ZoneHandler
     {
-        // Convert zoneType to a txt list so users can customize
-        // Example:
-        // none
-        // safe pvp=off
-        // battle pvp=on
-        // heal heal.period = 5
-        // chaos stamina.regain = 100
-        // prevent build
-        // Hide kill messages
-        /*
-        public enum zoneType: byte
-        {
-            custom = 0,
-            safe = 1,
-            battle = 2,
-            none = 3
-        }
-        */
-
-        // ZoneSettings is the configuration for the zone.
-        // Try to only handle the struct and not individual since it will update A LOT
 
         public class ZoneTypes
         {
             //What affect does the zone provide?
             public string Name = "Unknown";
-
             // PVP settings
             public bool PVP = false;
             public bool PVPEnforce = false;
-
             // Show position settings
             public bool ShowPosition = true;
             public bool PositionEnforce = false;
+            public string Admins = "null";
+            public string Configurations = "none";
         }
 
-        // ./addzone Neutral SquareZone Square 50 100
-        // ./addzone Neutral CircleZone Circle 50 100
-        // ./addzone Neutral CoordsZone Coords 100,100 -100,-100 100
-
-        // Zones
-        //   Name: 
-        //   Priority:
-        //   Range:
-        //     Sphere+radius (Circle)
-        //     Square+cords  (Square)
-        //     Coords+FourCorners  (Coords) <- Not Implemented
-        //   Height Range <- Not Implemented
-        //   Zone Parameters
         public struct Zone
         {
             public int ID; // Use for id to maintain current zone
@@ -91,19 +57,7 @@ namespace WorldofValheimZones
             public float Radius;
         }
 
-        public class ZoneConfig
-        {
-            public string Name;
-            public string Admins;
-            public string Configurations;
-        }
-
         
-        // Zone Details
-
-        // Which zone are we currently in.
-        // For now just the name of the zone.
-        // Later 
         public static int CurrentZoneID = -2; // -2 initial, -1 wilderness, 0 up are zones
 
         // List of all the zones
@@ -111,7 +65,6 @@ namespace WorldofValheimZones
 
         public static List<ZoneTypes> ZoneT = new List<ZoneTypes>();
 
-        public static List<ZoneConfig> ZoneC = new List<ZoneConfig>();
 
 
 
@@ -138,25 +91,9 @@ namespace WorldofValheimZones
         }
         public static void _debug(ZoneTypes zt)
         {
-            Debug.Log($"  Type: {zt.Name} -> [ {zt.PVP}, {zt.PVPEnforce}, {zt.ShowPosition}, {zt.PositionEnforce} ]");
+            Debug.Log($"  Type: {zt.Name} -> [ {zt.PVP}, {zt.PVPEnforce}, {zt.ShowPosition}, {zt.PositionEnforce}, [{zt.Admins}], [{zt.Configurations}] ]");
         }
 
-        public static void _debug(ZoneConfig zc)
-        {
-            Debug.Log($"  Zone Type: {zc.Name} -> [ Admins: {zc.Admins} | Configuration: {zc.Configurations} ]");
-        }
-        public static void _debug(List<ZoneConfig> zc)
-        {
-            Debug.Log("Loading Zone Type Custom Configurations: ");
-            Debug.Log("   Custom Configuration Cnt: " + zc.Count);
-            using (List<ZoneConfig>.Enumerator enumerator = zc.GetEnumerator())
-            {
-                while (enumerator.MoveNext())
-                {
-                    _debug(enumerator.Current);
-                }
-            }
-        }
 
         public static void _debug(List<ZoneTypes> zt)
         {
@@ -175,7 +112,6 @@ namespace WorldofValheimZones
         public static void _debug()
         {
             _debug(ZoneT);
-            _debug(ZoneC);
             _debug(Zones);
         }
 #endif
@@ -225,30 +161,12 @@ namespace WorldofValheimZones
             z.Sort((Zone a, Zone b) => a.Priority.CompareTo(b.Priority));
             return z[0];
         }
-        public static ZoneConfig FindZoneConfig(string ztType)
-        {
-            return ZoneC.Find(a => a.Name == ztType) ?? new ZoneConfig();
-        }
+
         public static ZoneTypes FindZoneType(string ztType)
         {
             //Debug.Log($"Searching for: {ztName}");
             return ZoneT.Find(a => a.Name == ztType) ?? new ZoneTypes();
-            /*
-            //ZoneTypes zt = ZoneT.Find(a => a.Name == ztName) ?? new ZoneTypes();
-            //zt = ZoneT.Where(a => a.Name.Contains(ztName));
 
-            foreach (ZoneTypes zt in ZoneT)
-            {
-                if (zt.Name.ToLower() == ztType)
-                {
-                    Debug.Log($"Found Zone: {ztType}");
-                    _debug(zt);
-                    return zt;
-                }
-            }
-
-            return new ZoneTypes();
-            */
         }
 
         public static bool Detect(Vector3 position, out bool changed, out Zone z, out ZoneTypes zt)
@@ -307,6 +225,8 @@ namespace WorldofValheimZones
                 zip.Write(zt.PVPEnforce);
                 zip.Write(zt.ShowPosition);
                 zip.Write(zt.PositionEnforce);
+                zip.Write(zt.Admins);
+                zip.Write(zt.Configurations);
             }
             zip.Write(Zones.Count);
             foreach (Zone z in Zones)
@@ -316,18 +236,9 @@ namespace WorldofValheimZones
                 zip.Write(z.Type);
                 zip.Write(z.Priority);
                 zip.Write(z.Shape);
-                //zip.Write((int)z.type);
                 zip.Write(z.Position.x);
                 zip.Write(z.Position.y);
                 zip.Write(z.Radius);
-                //zip.Write(z.pvp);
-            }
-            zip.Write(ZoneC.Count);
-            foreach (ZoneConfig zc in ZoneC)
-            {
-                zip.Write(zc.Name);
-                zip.Write(zc.Admins);
-                zip.Write(zc.Configurations);
             }
             return zip;
         }
@@ -339,14 +250,15 @@ namespace WorldofValheimZones
             for (int i = 0; i < tnum; i++)
             {
                 ZoneT.Add(new ZoneTypes
-                    {
+                {
                     Name = package.ReadString(),
                     PVP = package.ReadBool(),
                     PVPEnforce = package.ReadBool(),
                     ShowPosition = package.ReadBool(),
-                    PositionEnforce = package.ReadBool()
-                    }
-                    );
+                    PositionEnforce = package.ReadBool(),
+                    Admins = package.ReadString(),
+                    Configurations = package.ReadString()
+                });
             }
             Zones.Clear();
             int num = package.ReadInt();
@@ -359,21 +271,8 @@ namespace WorldofValheimZones
                     Type = package.ReadString(),
                     Priority = package.ReadInt(),
                     Shape = package.ReadString(),
-                    //type = (zoneType) package.ReadInt(),
                     Position = new Vector2(package.ReadSingle(), package.ReadSingle()),
                     Radius = package.ReadSingle(),
-                    //pvp = package.ReadBool()
-                });
-            }
-            ZoneC.Clear();
-            int cnum = package.ReadInt();
-            for (int i = 0; i < cnum; i++)
-            {
-                ZoneC.Add(new ZoneConfig
-                {
-                    Name = package.ReadString(),
-                    Admins = package.ReadString(),
-                    Configurations = package.ReadString()
                 });
             }
         }
@@ -452,27 +351,23 @@ namespace WorldofValheimZones
             {
                 Debug.Log($"Loading Zone Custom Configuration File: {path}");
             }
-            ZoneC.Clear();
-            int pos = 0;
             foreach (string text2 in File.ReadAllLines(path))
             {
                 if (!string.IsNullOrWhiteSpace(text2) && text2 != null && !text2.StartsWith("/") && !text2.StartsWith("#") && text2 != string.Empty)
                 {
                     string[] array = text2.Replace(" ", "").Split('|');
                     ZoneHandler.ZoneTypes zt = ZoneHandler.FindZoneType(array[0]);
-
-                    if (zt.Name != array[0] || array[0].ToLower() != "wilderness")
+                    if (zt.Name.ToLower() != array[0].ToString().ToLower())
                     {
                         Debug.Log($"ERROR: While applying custom configuration for the Zone Type: {array[0]},");
                         Debug.Log($"Zone Type: {array[0]} Does not exist in the {WorldofValheimZones.ZonePath.Value} file!");
+                        return;
                     }
                     else
-                    {
+                    { 
                         Debug.Log($"Loading Custom Configuration for the Zone Type {array[0]}");
-                        ZoneHandler.ZoneConfig zc = new ZoneHandler.ZoneConfig { Name = array[0] };
-                        zc.Admins = array[1];
-                        zc.Configurations = array[2];
-                        ZoneC.Add(zc);
+                        zt.Admins = array[1];
+                        zt.Configurations = array[2];
                     }
                 }
             }

@@ -85,7 +85,7 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Zones\Patches\ZonePermission-Patches.cs" />
+    <Compile Include="Zones\Patches\Zone-Configurations.cs" />
     <Compile Include="Zones.cs" />
     <Compile Include="Zones\ZoneHandler.cs" />
     <Compile Include="Zones\Console\Runner.cs" />
