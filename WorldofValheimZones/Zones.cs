@@ -8,7 +8,6 @@ using System.Text.RegularExpressions;
 using System;
 using System.Linq;
 using System.Security.Cryptography;
-using Steamworks;
 
 #if client_cli
 using WorldofValheimZones.Console;
@@ -34,6 +33,7 @@ namespace WorldofValheimZones
         public static int HealTick = 0;
         public static int DamageTick = 0;
         public static int EffectTick = 0;
+        public static bool HELLOGITHUB = false;
         private string hashCheck = "";
         public static Harmony harm = new Harmony("ZonePermissions");
         private static WorldofValheimZones plugin;
