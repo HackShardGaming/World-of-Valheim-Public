@@ -158,6 +158,8 @@ namespace WorldofValheimZones
                             Client.ShowPosition = ztype.ShowPosition;
                         // Run the updated settings for the Clients
                         Player.m_localPlayer.SetPVP(Client.PVPMode);
+                        InventoryGui.instance.m_pvp.isOn = Client.PVPMode;
+                        InventoryGui.instance.m_pvp.interactable = !Client.PVPEnforced;
                         ZNet.instance.SetPublicReferencePosition(Client.ShowPosition);
 
                         // Other settings are scattered among the wind to other functions
