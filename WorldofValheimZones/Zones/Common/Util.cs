@@ -73,6 +73,10 @@ namespace WorldofValheimZones
         {
             Player p = Player.m_localPlayer;
             // Are we in a zone? if so select that zone.
+            if (ZoneHandler.Zones.Count() == 0)
+            {
+                return false;
+            }
             ZoneHandler.Zone z = new ZoneHandler.Zone();
             ZoneHandler.ZoneTypes zt = new ZoneHandler.ZoneTypes();
             List<ZoneHandler.Zone> zlist = ZoneHandler.ListOccupiedZones(p.transform.position);

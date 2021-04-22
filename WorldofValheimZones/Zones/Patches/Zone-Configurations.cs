@@ -312,6 +312,7 @@ namespace WorldofValheimZones
         {
             public static void Prefix(Character __instance, HitData hit)
             {
+                Debug.Log($"{ __instance.m_faction}");
                 if (Util.RestrictionCheck("damagemultipliertomobs") && (__instance.m_faction != Character.Faction.Players))
                 {
                     float multiplier = Util.RestrictionCheckFloatReturn("damagemultipliertomobs");
