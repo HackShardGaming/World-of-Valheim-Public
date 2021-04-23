@@ -2,36 +2,16 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEngine;
+using System.Globalization;
+
 
 
 namespace WorldofValheimZones
 {
-    // 
-    // The state of the client to follow
-    // upon connecting, will sync with the server and enforce the settings provided.
-    // 
-
-    // Example to add client class for RPC
-    //
-    //   Register the RPC call on the client
-    //     This is done in the OnNewConnection Method
-    //
-    //     peer.m_rpc.Register<ZPackage>("ZoneHandler", new Action<ZRpc, ZPackage>(ZoneHandler.RPC) );
-    //
-    //   Tell the server to call the RPC
-    //     This is done in the SendPeerInfo Method
-    //
-    //      Debug.Log("S2C ZoneHandler (SendPeerInfo)");
-    //      ZoneHandler._debug();
-    //      rpc.Invoke("ZoneHandler", new object[] {
-    //          ZoneHandler.Serialize()
-    //      });
-    //
-
     public static class ZoneHandler
     {
-
         public class ZoneTypes
         {
             //What affect does the zone provide?
@@ -42,10 +22,11 @@ namespace WorldofValheimZones
             // Show position settings
             public bool ShowPosition = true;
             public bool PositionEnforce = false;
+            // Administrators of the zone
             public string Admins = "null";
+            // Configurations in the zone
             public string Configurations = "none";
         }
-
         public struct Zone
         {
             public int ID; // Use for id to maintain current zone
@@ -56,18 +37,10 @@ namespace WorldofValheimZones
             public Vector2 Position;
             public float Radius;
         }
-
-        
         public static int CurrentZoneID = -2; // -2 initial, -1 wilderness, 0 up are zones
-
         // List of all the zones
         public static List<Zone> Zones = new List<Zone>();
-
         public static List<ZoneTypes> ZoneT = new List<ZoneTypes>();
-
-
-
-
         // Generic debug output
         // Do not change name to debug. Will break "debug()" function in class.
 #if DEBUG
@@ -165,9 +138,13 @@ namespace WorldofValheimZones
         public static ZoneTypes FindZoneType(string ztType)
         {
             //Debug.Log($"Searching for: {ztName}");
-            return ZoneT.Find(a => a.Name == ztType) ?? new ZoneTypes();
-
+            bool contains = ZoneT.Any(b => b.Name == ztType);
+            if (!contains)
+                return new ZoneTypes();
+            else
+                return ZoneT.Find(a => a.Name == ztType) ?? new ZoneTypes();
         }
+
 
         public static bool Detect(Vector3 position, out bool changed, out Zone z, out ZoneTypes zt)
         {
@@ -397,7 +374,6 @@ namespace WorldofValheimZones
             // Clean up the old zone data
             ZoneT.Clear();
             Zones.Clear();
-
             int pos = 0;
             foreach (string text2 in File.ReadAllLines(ZonePath))
             {
@@ -426,7 +402,6 @@ namespace WorldofValheimZones
                             zt.PositionEnforce = bool.Parse(array2[5]);
 
                         ZoneT.Add(zt);
-
                     }
                     else
                     {
@@ -436,28 +411,59 @@ namespace WorldofValheimZones
                         }
                         else
                         {
-
                             Debug.Log($"Loading Zone: {array2[0]}");
                             Zone z = new Zone();
                             z.Name = array2[0];
                             z.Type = array2[1];
                             z.Priority = int.Parse(array2[2]);
                             z.Shape = array2[3];
-                            //z.type = (zoneType) Enum.Parse(typeof(zoneType), array2[1]);
-                            z.Position.x = float.Parse(array2[4]);
-                            z.Position.y = float.Parse(array2[5]);
-                            z.Radius = float.Parse(array2[6]);
+                            Vector3 posi = new Vector3();
+                            posi.x = Convert.ToSingle(array2[4], new CultureInfo("en-US"));
+                            posi.y = Convert.ToSingle(array2[5], new CultureInfo("en-US"));
+                            posi.z = Convert.ToSingle(array2[6], new CultureInfo("en-US"));
+                            z.Position.x = posi.x;
+                            z.Position.y = posi.y;
+                            z.Radius = posi.z;
                             //z.pvp = bool.Parse(array2[7]);
                             z.ID = pos;
-
                             Zones.Add(z);
-
                             pos++;
                         }
                     }
                 }
             }
+            int contains2 = Zones.Count();
+            if (contains2 == 0)
+            {
+                Debug.Log("ERROR: You have no zones listed in your file! Creating you a blank one at 20000.0 0.0 20000.0");
+                Zone z = new Zone();
+                z.Name = "No-Zones";
+                z.Type = "wilderness";
+                z.Priority = int.Parse("5");
+                z.Shape = "circle";
+                Vector3 posi = new Vector3();
+                posi.x = Convert.ToSingle("20000", new CultureInfo("en-US"));
+                posi.y = Convert.ToSingle("20000", new CultureInfo("en-US"));
+                posi.z = Convert.ToSingle("0", new CultureInfo("en-US"));
+                z.Position.x = posi.x;
+                z.Position.y = posi.y;
+                z.Radius = posi.z;
+                Zones.Add(z);
+            }
+            bool contains = ZoneT.Any(b => b.Name == "wilderness");
+            if (!contains)
+            {
+                Debug.Log("ERROR: the ZoneType wilderness does not exist! Loading a default one with default variables..");
+                ZoneTypes zt = new ZoneTypes();
+                zt.Name = "wilderness";
+                zt.PVP = false;
+                zt.PVPEnforce = false;
+                zt.ShowPosition = false;
+                zt.PositionEnforce = false;
+                zt.Admins = "";
+                zt.Configurations = "";
+                ZoneT.Add(zt);
+            }
         }
-
     }
 }

@@ -9,6 +9,7 @@ using System;
 using System.Linq;
 using System.Security.Cryptography;
 using Steamworks;
+using System.Globalization;
 
 #if client_cli
 using WorldofValheimZones.Console;

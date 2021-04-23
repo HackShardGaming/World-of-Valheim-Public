@@ -1,10 +1,6 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Reflection.Emit;
 using HarmonyLib;
-using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 
 namespace WorldofValheimZones
@@ -14,6 +10,91 @@ namespace WorldofValheimZones
     public static class PVPHandler
     {
         [HarmonyPostfix]
+        [HarmonyPatch(typeof(Game), "Update")]
+        private static void Game__Update()
+        {
+            if (Player.m_localPlayer)
+            {
+                // 
+                // Goes through the zones and setup the necessary enforcements.
+
+                ZoneHandler.Zone zone;
+                ZoneHandler.ZoneTypes ztype;
+                bool changed;
+                bool zonedDetected = ZoneHandler.Detect(Player.m_localPlayer.transform.position, out changed, out zone, out ztype);
+                if (changed)
+                {
+                    if (zonedDetected)
+                    {
+                        var color = (ztype.PVPEnforce ? (ztype.PVP ? WorldofValheimZones.PVPColor.Value : WorldofValheimZones.PVEColor.Value) : WorldofValheimZones.NonEnforcedColor.Value);
+                        string Name = zone.Name.Replace("_", " ");
+                        string Message = $"<color={color}>Now entering <b>{Name}</b>.</color>";
+                        string BiomeMessage = (ztype.PVPEnforce ? ztype.PVP ? "PVP Enabled" : "PVP Disabled" : String.Empty);
+                        // The message at the end is in the format of (PVP) (NOPVP) (NON-ENFORCED)
+                        Player.m_localPlayer.Message(MessageHud.MessageType.Center, Message,
+                                0, null);
+                        if (Client.EnforceZones && ztype.PVPEnforce && (ztype.PVP != Player.m_localPlayer.m_pvp))
+                            MessageHud.instance.ShowBiomeFoundMsg(BiomeMessage, true);
+                    }
+                    else
+                    {
+                        var color = (ztype.PVPEnforce ? (ztype.PVP ? WorldofValheimZones.PVPColor.Value : WorldofValheimZones.PVEColor.Value) : WorldofValheimZones.NonEnforcedColor.Value);
+                        string Name = "The Wilderness";
+                        string Message = $"<color={color}>Now entering <b>{Name}</b>.</color>";
+                        string BiomeMessage = (ztype.PVPEnforce ? ztype.PVP ? "PVP Enabled" : "PVP Disabled" : String.Empty);
+                        // The message at the end is in the format of (PVP) (NOPVP) (NON-ENFORCED)
+                        Player.m_localPlayer.Message(MessageHud.MessageType.Center, Message,
+                                0, null);
+                        if (Client.EnforceZones && ztype.PVPEnforce && (ztype.PVP != Player.m_localPlayer.m_pvp))
+                            MessageHud.instance.ShowBiomeFoundMsg(BiomeMessage, true);
+
+                    }
+
+                    // Zones are now being enforced?
+                    if (Client.EnforceZones)
+                    {
+                        // Update the client settings based on zone type
+
+                        // PVP settings:
+
+                        Client.PVPEnforced = ztype.PVPEnforce;
+                        if (ztype.PVPEnforce)
+                            Client.PVPMode = ztype.PVP;
+
+                        // Position settings:
+                        Client.PositionEnforce = ztype.PositionEnforce;
+                        if (ztype.PositionEnforce)
+                            Client.ShowPosition = ztype.ShowPosition;
+                        // Run the updated settings for the Clients
+                        Player.m_localPlayer.SetPVP(Client.PVPMode);
+                        InventoryGui.instance.m_pvp.isOn = Client.PVPMode;
+                        InventoryGui.instance.m_pvp.interactable = !Client.PVPEnforced;
+                        ZNet.instance.SetPublicReferencePosition(Client.ShowPosition);
+
+                        // Other settings are scattered among the wind to other functions
+                        // (Use Client class for the current state)
+                    }
+#if DEBUG
+                    ZoneHandler._debug(ztype);
+                    Client._debug();
+#endif
+                }
+                else
+                {
+                    if (Client.PVPEnforced && (Player.m_localPlayer.m_pvp != Client.PVPMode))
+                    {
+                        Debug.Log($"{ModInfo.Title}: ERROR: Your PVP Mode was changed by another plugin.  Resetting client PVP!");
+                        Player.m_localPlayer.SetPVP(Client.PVPMode);
+                    }
+                    if (Client.PositionEnforce && (ZNet.instance.m_publicReferencePosition != Client.ShowPosition))
+                    {
+                        Debug.Log($"{ModInfo.Title}: ERROR: Your Position Sharing was changed by another plugin.  Resetting client Position Sharing!");
+                        ZNet.instance.SetPublicReferencePosition(Client.ShowPosition);
+                    }
+                }
+            }
+        }
+        [HarmonyPostfix]
         [HarmonyPatch(typeof(Minimap), "Update")]
         public static void Minimap_Start(Toggle ___m_publicPosition)
         {
@@ -21,88 +102,13 @@ namespace WorldofValheimZones
 
             ___m_publicPosition.interactable = !Client.PositionEnforce;
         }
-
-        [HarmonyTranspiler]
-        [HarmonyPatch(typeof(Player), "SetPVP")]
-        public static IEnumerable<CodeInstruction> Transpiler__SetPVP(IEnumerable<CodeInstruction> instructions)
-        {
-            List<CodeInstruction> list = instructions.ToList<CodeInstruction>();
-            for (int i = 0; i < list.Count; i++)
-            {
-                if (list[i].Calls(PVPHandler.func_message))
-                {
-                    list[i].opcode = OpCodes.Call;
-                    list[i].operand = PVPHandler.func_messageNone;
-                }
-            }
-
-            return list.AsEnumerable<CodeInstruction>();
-
-        }
-
-        private static void MessageNone(Character _0, MessageHud.MessageType _1, string _2, int _3, Sprite _4)
-        {
-        }
-
-
-        // Harmony Transpiler
-        // Patch the InventoryGui::UpdateCharacterStats
-
-        /* code section in game (dnSpy results for reference)
-        public void UpdateCharacterStats(Player player)
-        {
-            PlayerProfile playerProfile = Game.instance.GetPlayerProfile();
-            this.m_playerName.text = playerProfile.GetName();
-            float bodyArmor = player.GetBodyArmor();
-            this.m_armor.text = bodyArmor.ToString();
-            this.m_pvp.interactable = player.CanSwitchPVP();
-            player.SetPVP(this.m_pvp.isOn);
-        }*/
-
-
-        [HarmonyTranspiler]
         [HarmonyPatch(typeof(InventoryGui), "UpdateCharacterStats")]
-        public static IEnumerable<CodeInstruction> Transpiler__UpdateCharacterStats(IEnumerable<CodeInstruction> instructions)
+        public static class PVP_Patch
         {
-            List<CodeInstruction> list = instructions.ToList<CodeInstruction>();
-            for (int i = 0; i < list.Count; i++)
+            private static void Postfix(InventoryGui __instance)
             {
-                // Will go through all the Code Instructions until we find the following handler in the code.
-                // Do NOT change the values below.
-                // This function just looks for the handler and the by address field is meant to be false.
-                if (list[i].LoadsField(PVPHandler.f_m_pvp, false))
-                {
-                    i--;
-                    list.RemoveRange(i, list.Count - i - 1);
-                    list.Insert(i++, new CodeInstruction(OpCodes.Ldarg_0, null));
-                    list.Insert(i++, new CodeInstruction(OpCodes.Ldarg_1, null));
-                    list.Insert(i++, new CodeInstruction(OpCodes.Call, PVPHandler.func_handleInteraction));
-                    list.Insert(i++, new CodeInstruction(OpCodes.Ret, null));
-                }
-            }
-            return list.AsEnumerable<CodeInstruction>();
-        }
-
-        public static void HandleInteraction(InventoryGui instance, Player player)
-        {
-            instance.m_pvp.interactable = !Client.PVPEnforced;
-            if (Client.PVPEnforced == true)
-            {
-
-                instance.m_pvp.isOn = Client.PVPMode;
-            }
-            else
-            {
-                player.SetPVP(instance.m_pvp.isOn);
+                __instance.m_pvp.interactable = !Client.PVPEnforced;
             }
         }
-
-        private static MethodInfo func_message = AccessTools.Method(typeof(Character), "Message", null, null);
-
-        private static MethodInfo func_messageNone = AccessTools.Method(typeof(PVPHandler), "MessageNone", null, null);
-
-        private static FieldInfo f_m_pvp = AccessTools.Field(typeof(InventoryGui), "m_pvp");
-
-        private static MethodInfo func_handleInteraction = AccessTools.Method(typeof(PVPHandler), "HandleInteraction", null, null);
     }
 }

@@ -178,6 +178,10 @@ namespace WorldofValheimZones
             private static bool Prefix(Vector3 hitPoint)
             {
                 bool isInArea = false;
+                if (WorldofValheimZones.ServerMode)
+                {
+                    return true;
+                }
                 if (Util.RestrictionCheck("nopickaxe"))
                 {
                     isInArea = true;
@@ -195,7 +199,10 @@ namespace WorldofValheimZones
             private static bool Prefix(Container __instance)
             {
                 bool isInArea = false;
-
+                if (WorldofValheimZones.ServerMode)
+                {
+                    return true;
+                }
                 if (Util.RestrictionCheck("nochest"))
                 {
                     isInArea = true;
@@ -212,6 +219,10 @@ namespace WorldofValheimZones
         {
             private static bool Prefix(Door __instance)
             {
+                if (WorldofValheimZones.ServerMode)
+                {
+                    return true;
+                }
                 bool isInArea = false;
                 if (Util.RestrictionCheck("nodoors"))
                 {
@@ -229,6 +240,10 @@ namespace WorldofValheimZones
         {
             private static bool Prefix(Player __instance)
             {
+                if (WorldofValheimZones.ServerMode)
+                {
+                    return true;
+                }
                 bool isInArea = false;
                 if (Util.RestrictionCheck("nobuilding"))
                 {
@@ -246,6 +261,10 @@ namespace WorldofValheimZones
         {
             private static bool Prefix(Player __instance)
             {
+                if (WorldofValheimZones.ServerMode)
+                {
+                    return true;
+                }
                 bool isInArea = false;
                 if (Util.RestrictionCheck("nobuilding"))
                 {
@@ -264,6 +283,10 @@ namespace WorldofValheimZones
         {
             private static bool Prefix(WearNTear __instance)
             {
+                if (WorldofValheimZones.ServerMode)
+                {
+                    return true;
+                }
                 bool isInArea = false;
                 if (Util.RestrictionCheck("nobuilddamage"))
                 {
@@ -281,6 +304,10 @@ namespace WorldofValheimZones
         {
             private static bool Prefix(ItemDrop __instance)
             {
+                if (WorldofValheimZones.ServerMode)
+                {
+                    return true;
+                }
                 bool isInArea = false;
                 if (Util.RestrictionCheck("noitempickup"))
                 {
@@ -298,6 +325,10 @@ namespace WorldofValheimZones
         {
             private static bool Prefix(Player __instance)
             {
+                if (WorldofValheimZones.ServerMode)
+                {
+                    return true;
+                }
                 bool isInArea = false;
                 if (Util.RestrictionCheck("noitempickup"))
                 {
@@ -312,25 +343,28 @@ namespace WorldofValheimZones
         {
             public static void Prefix(Character __instance, HitData hit)
             {
-                if (Util.RestrictionCheck("damagemultipliertomobs") && (__instance.m_faction != Character.Faction.Players))
+                if (Player.m_localPlayer)
                 {
-                    float multiplier = Util.RestrictionCheckFloatReturn("damagemultipliertomobs");
-                    Debug.Log($"Damage is over {multiplier}!!!!!");
-                    hit.m_damage.m_damage *= multiplier;
-                    hit.m_damage.m_blunt *= multiplier;
-                    hit.m_damage.m_slash *= multiplier;
-                    hit.m_damage.m_pierce *= multiplier;
-                    hit.m_damage.m_chop *= multiplier;
-                    hit.m_damage.m_pickaxe *= multiplier;
-                    hit.m_damage.m_fire *= multiplier;
-                    hit.m_damage.m_frost *= multiplier;
-                    hit.m_damage.m_lightning *= multiplier;
-                    hit.m_damage.m_poison *= multiplier;
-                    hit.m_damage.m_spirit *= multiplier;
+                    if (Util.RestrictionCheck("damagemultipliertomobs") && (__instance.m_faction != Character.Faction.Players))
+                    {
+                        float multiplier = Util.RestrictionCheckFloatReturn("damagemultipliertomobs");
+                        hit.m_damage.m_damage *= multiplier;
+                        hit.m_damage.m_blunt *= multiplier;
+                        hit.m_damage.m_slash *= multiplier;
+                        hit.m_damage.m_pierce *= multiplier;
+                        hit.m_damage.m_chop *= multiplier;
+                        hit.m_damage.m_pickaxe *= multiplier;
+                        hit.m_damage.m_fire *= multiplier;
+                        hit.m_damage.m_frost *= multiplier;
+                        hit.m_damage.m_lightning *= multiplier;
+                        hit.m_damage.m_poison *= multiplier;
+                        hit.m_damage.m_spirit *= multiplier;
+                        return;
+                    }
                 }
-                if (Util.RestrictionCheck("damagemultipliertoplayers") && (__instance == Player.m_localPlayer))
+                else if (Util.RestrictionCheckCharacter(__instance, "damagemultipliertoplayers"))
                 {
-                    float multiplier = Util.RestrictionCheckFloatReturn("damagemultipliertoplayers");
+                    float multiplier = Util.RestrictionCheckFloatReturnCharacter(__instance, "damagemultipliertoplayers");
                     hit.m_damage.m_damage *= multiplier;
                     hit.m_damage.m_blunt *= multiplier;
                     hit.m_damage.m_slash *= multiplier;
@@ -342,6 +376,7 @@ namespace WorldofValheimZones
                     hit.m_damage.m_lightning *= multiplier;
                     hit.m_damage.m_poison *= multiplier;
                     hit.m_damage.m_spirit *= multiplier;
+                    return;
                 }
             }
         }
@@ -351,6 +386,10 @@ namespace WorldofValheimZones
         {
             public static void Prefix(TreeBase __instance, HitData hit)
             {
+                if (WorldofValheimZones.ServerMode)
+                {
+                    return;
+                }
                 if (Util.RestrictionCheck("damagemultipliertotrees"))
                 {
                     float multiplier = Util.RestrictionCheckFloatReturn("damagemultipliertotrees");
@@ -374,6 +413,10 @@ namespace WorldofValheimZones
         {
             public static void Prefix(TreeLog __instance, HitData hit)
             {
+                if (WorldofValheimZones.ServerMode)
+                {
+                    return;
+                }
                 if (Util.RestrictionCheck("damagemultipliertotrees"))
                 {
                     float multiplier = Util.RestrictionCheckFloatReturn("damagemultipliertotrees");
@@ -399,6 +442,10 @@ namespace WorldofValheimZones
         {
             private static bool Prefix(InventoryGui __instance)
             {
+                if (WorldofValheimZones.ServerMode)
+                {
+                    return true;
+                }
                 bool isInArea = false;
                 if (Util.RestrictionCheck("noitemdrop"))
                 {
@@ -416,6 +463,10 @@ namespace WorldofValheimZones
         {
             private static bool Prefix(InventoryGrid __instance)
             {
+                if (WorldofValheimZones.ServerMode)
+                {
+                    return true;
+                }
                 bool isInArea = false;
                 if (Util.RestrictionCheck("noitemdrop"))
                 {
