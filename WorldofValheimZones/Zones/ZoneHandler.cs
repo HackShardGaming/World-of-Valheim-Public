@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
+using System.Globalization;
 
 
 
@@ -373,7 +374,6 @@ namespace WorldofValheimZones
             // Clean up the old zone data
             ZoneT.Clear();
             Zones.Clear();
-
             int pos = 0;
             foreach (string text2 in File.ReadAllLines(ZonePath))
             {
@@ -417,10 +417,13 @@ namespace WorldofValheimZones
                             z.Type = array2[1];
                             z.Priority = int.Parse(array2[2]);
                             z.Shape = array2[3];
-                            //z.type = (zoneType) Enum.Parse(typeof(zoneType), array2[1]);
-                            z.Position.x = float.Parse(array2[4]);
-                            z.Position.y = float.Parse(array2[5]);
-                            z.Radius = float.Parse(array2[6]);
+                            Vector3 posi = new Vector3();
+                            posi.x = Convert.ToSingle(array2[4], new CultureInfo("en-US"));
+                            posi.y = Convert.ToSingle(array2[5], new CultureInfo("en-US"));
+                            posi.z = Convert.ToSingle(array2[6], new CultureInfo("en-US"));
+                            z.Position.x = posi.x;
+                            z.Position.y = posi.y;
+                            z.Radius = posi.z;
                             //z.pvp = bool.Parse(array2[7]);
                             z.ID = pos;
                             Zones.Add(z);
@@ -438,10 +441,13 @@ namespace WorldofValheimZones
                 z.Type = "wilderness";
                 z.Priority = int.Parse("5");
                 z.Shape = "circle";
-                //z.type = (zoneType) Enum.Parse(typeof(zoneType), array2[1]);
-                z.Position.x = float.Parse("20000.0");
-                z.Position.y = float.Parse("20000.0");
-                z.Radius = float.Parse("0.0");
+                Vector3 posi = new Vector3();
+                posi.x = Convert.ToSingle("20000", new CultureInfo("en-US"));
+                posi.y = Convert.ToSingle("20000", new CultureInfo("en-US"));
+                posi.z = Convert.ToSingle("0", new CultureInfo("en-US"));
+                z.Position.x = posi.x;
+                z.Position.y = posi.y;
+                z.Radius = posi.z;
                 Zones.Add(z);
             }
             bool contains = ZoneT.Any(b => b.Name == "wilderness");
@@ -457,9 +463,7 @@ namespace WorldofValheimZones
                 zt.Admins = "";
                 zt.Configurations = "";
                 ZoneT.Add(zt);
-           
             }
         }
-
     }
 }

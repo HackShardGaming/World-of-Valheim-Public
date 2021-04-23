@@ -13,7 +13,7 @@
 ////	NoChest: Prevent the user from accessing chests                                                 ////
 ////	NoDoors: Prevent the user from opening doors.                                                   ////
 ////	NoBuilding: Prevent anyone / anything from damaging buildings.                                  ////
-////	NoPickup: Prevent the user from picking up items.                                               ////
+////	NoItemPickup: Prevent the user from picking up items.                                           ////
 ////	NoItemDrop: Prevent the user from dropping items.                                               ////
 ////	PushAway: Prevent the user from entering the area. (Please not if your sprint is fast enough	////
 ////		you can still push in but it will push you away just like it does if you fall off the map)./
