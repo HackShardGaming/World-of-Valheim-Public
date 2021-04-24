@@ -341,13 +341,28 @@ namespace WorldofValheimZones
         [HarmonyPatch(typeof(Character), "Damage")]
         public static class Damage_Modifier
         {
+            
             public static void Prefix(Character __instance, HitData hit)
             {
+                long LocalPlayer = long.Parse("0000000");
                 if (Player.m_localPlayer)
+                    LocalPlayer = Player.m_localPlayer.GetZDOID().m_userID;
+                long RemotePlayer = __instance.GetZDOID().m_userID;
+#if DEBUG
+                Debug.Log($"Local UID: {LocalPlayer} Remote UID: {RemotePlayer}");
+#endif
+                if (LocalPlayer == RemotePlayer)
                 {
-                    if (Util.RestrictionCheck("damagemultipliertomobs") && (__instance.m_faction != Character.Faction.Players))
+#if DEBUG
+                    Debug.Log($"Checking SteamID: {(ZNet.instance.GetPeer(__instance.GetZDOID().m_userID)).m_socket.GetHostName()} against DamageMultiplierToPlayers");
+#endif
+                    if (Util.RestrictionCheck("damagemultipliertoplayers"))
                     {
-                        float multiplier = Util.RestrictionCheckFloatReturn("damagemultipliertomobs");
+#if DEBUG
+                        Debug.Log($"User SteamID: {(ZNet.instance.GetPeer(__instance.GetZDOID().m_userID)).m_socket.GetHostName()} is restricted! Lets modify data");
+#endif
+                        float multiplier = Util.RestrictionCheckFloatReturn("damagemultipliertoplayers");
+                        Debug.Log($"The multiplier is: {multiplier}");
                         hit.m_damage.m_damage *= multiplier;
                         hit.m_damage.m_blunt *= multiplier;
                         hit.m_damage.m_slash *= multiplier;
@@ -362,21 +377,61 @@ namespace WorldofValheimZones
                         return;
                     }
                 }
-                else if (Util.RestrictionCheckCharacter(__instance, "damagemultipliertoplayers"))
+                else
                 {
-                    float multiplier = Util.RestrictionCheckFloatReturnCharacter(__instance, "damagemultipliertoplayers");
-                    hit.m_damage.m_damage *= multiplier;
-                    hit.m_damage.m_blunt *= multiplier;
-                    hit.m_damage.m_slash *= multiplier;
-                    hit.m_damage.m_pierce *= multiplier;
-                    hit.m_damage.m_chop *= multiplier;
-                    hit.m_damage.m_pickaxe *= multiplier;
-                    hit.m_damage.m_fire *= multiplier;
-                    hit.m_damage.m_frost *= multiplier;
-                    hit.m_damage.m_lightning *= multiplier;
-                    hit.m_damage.m_poison *= multiplier;
-                    hit.m_damage.m_spirit *= multiplier;
-                    return;
+#if DEBUG
+                    Debug.Log($"Instance is not a local player.  Lets see what it really is...");
+#endif
+                    if (__instance.m_faction != Character.Faction.Players)
+                    {
+#if DEBUG
+                        Debug.Log($"A monster is being attacked!");
+#endif
+                        if (Util.RestrictionCheckNone(__instance, "damagemultipliertomobs") && (__instance.m_faction != Character.Faction.Players))
+                        {
+                            float multiplier = Util.RestrictionCheckFloatReturnNone(__instance, "damagemultipliertomobs");
+#if DEBUG
+                            Debug.Log($"Multiplier: {multiplier}");
+#endif
+                            hit.m_damage.m_damage *= multiplier;
+                            hit.m_damage.m_blunt *= multiplier;
+                            hit.m_damage.m_slash *= multiplier;
+                            hit.m_damage.m_pierce *= multiplier;
+                            hit.m_damage.m_chop *= multiplier;
+                            hit.m_damage.m_pickaxe *= multiplier;
+                            hit.m_damage.m_fire *= multiplier;
+                            hit.m_damage.m_frost *= multiplier;
+                            hit.m_damage.m_lightning *= multiplier;
+                            hit.m_damage.m_poison *= multiplier;
+                            hit.m_damage.m_spirit *= multiplier;
+                            return;
+                        }
+                    }
+                    else if (__instance.m_faction == Character.Faction.Players)
+                    {
+#if DEBUG
+                        Debug.Log("A remote player is being targeted.");
+#endif
+                        if (Util.RestrictionCheckCharacter(__instance, "damagemultipliertoplayers"))
+                        {
+                            float multiplier = Util.RestrictionCheckFloatReturnCharacter(__instance, "damagemultipliertoplayers");
+#if DEBUG
+                            Debug.Log($"Mutliplier: {multiplier}");
+#endif
+                            hit.m_damage.m_damage *= multiplier;
+                            hit.m_damage.m_blunt *= multiplier;
+                            hit.m_damage.m_slash *= multiplier;
+                            hit.m_damage.m_pierce *= multiplier;
+                            hit.m_damage.m_chop *= multiplier;
+                            hit.m_damage.m_pickaxe *= multiplier;
+                            hit.m_damage.m_fire *= multiplier;
+                            hit.m_damage.m_frost *= multiplier;
+                            hit.m_damage.m_lightning *= multiplier;
+                            hit.m_damage.m_poison *= multiplier;
+                            hit.m_damage.m_spirit *= multiplier;
+                            return;
+                        }
+                    }
                 }
             }
         }
