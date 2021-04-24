@@ -33,7 +33,7 @@ namespace WorldofValheimZones
                         // The message at the end is in the format of (PVP) (NOPVP) (NON-ENFORCED)
                         Player.m_localPlayer.Message(MessageHud.MessageType.Center, Message,
                                 0, null);
-                        if (Client.EnforceZones && ztype.PVPEnforce && (ztype.PVP != Player.m_localPlayer.m_pvp))
+                        if (Client.EnforceZones && ztype.PVPEnforce && (ztype.PVP != Player.m_localPlayer.m_pvp) && (WorldofValheimZones.BiomePVPAnnouncement.Value = true))
                             MessageHud.instance.ShowBiomeFoundMsg(BiomeMessage, true);
                     }
                     else
@@ -45,22 +45,18 @@ namespace WorldofValheimZones
                         // The message at the end is in the format of (PVP) (NOPVP) (NON-ENFORCED)
                         Player.m_localPlayer.Message(MessageHud.MessageType.Center, Message,
                                 0, null);
-                        if (Client.EnforceZones && ztype.PVPEnforce && (ztype.PVP != Player.m_localPlayer.m_pvp))
+                        if (Client.EnforceZones && ztype.PVPEnforce && (ztype.PVP != Player.m_localPlayer.m_pvp) && (WorldofValheimZones.BiomePVPAnnouncement.Value = true))
                             MessageHud.instance.ShowBiomeFoundMsg(BiomeMessage, true);
-
                     }
 
                     // Zones are now being enforced?
                     if (Client.EnforceZones)
                     {
                         // Update the client settings based on zone type
-
                         // PVP settings:
-
                         Client.PVPEnforced = ztype.PVPEnforce;
                         if (ztype.PVPEnforce)
                             Client.PVPMode = ztype.PVP;
-
                         // Position settings:
                         Client.PositionEnforce = ztype.PositionEnforce;
                         if (ztype.PositionEnforce)
@@ -70,7 +66,6 @@ namespace WorldofValheimZones
                         InventoryGui.instance.m_pvp.isOn = Client.PVPMode;
                         InventoryGui.instance.m_pvp.interactable = !Client.PVPEnforced;
                         ZNet.instance.SetPublicReferencePosition(Client.ShowPosition);
-
                         // Other settings are scattered among the wind to other functions
                         // (Use Client class for the current state)
                     }

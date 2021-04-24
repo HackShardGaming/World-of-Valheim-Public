@@ -125,7 +125,6 @@ namespace WorldofValheimZones
             }
             return occupiedZones;
         }
-
         // Output the zone that we will use in the current area.
         // Will go through and find which one has the highest priority.
         public static Zone TopZone(List<Zone> z)
@@ -134,7 +133,6 @@ namespace WorldofValheimZones
             z.Sort((Zone a, Zone b) => a.Priority.CompareTo(b.Priority));
             return z[0];
         }
-
         public static ZoneTypes FindZoneType(string ztType)
         {
             //Debug.Log($"Searching for: {ztName}");
@@ -144,8 +142,6 @@ namespace WorldofValheimZones
             else
                 return ZoneT.Find(a => a.Name == ztType) ?? new ZoneTypes();
         }
-
-
         public static bool Detect(Vector3 position, out bool changed, out Zone z, out ZoneTypes zt)
         {
             List<Zone> zlist = ListOccupiedZones(position);
@@ -189,8 +185,6 @@ namespace WorldofValheimZones
 
             }
         }
-
-
         public static ZPackage Serialize(string SteamID)
         {
             ZPackage zip = new ZPackage();
@@ -219,7 +213,6 @@ namespace WorldofValheimZones
             }
             return zip;
         }
-
         public static void Deserialize(ZPackage package)
         {
             ZoneT.Clear();
@@ -253,8 +246,6 @@ namespace WorldofValheimZones
                 });
             }
         }
-
-
         // RPC function class. This is the class that you register to receive rpc data.
         public static void RPC(ZRpc rpc, ZPackage data)
         {
@@ -312,7 +303,6 @@ namespace WorldofValheimZones
             }
         }
         */
-
         public static void LoadZoneConfigurationData(string path)
         {
             if (!File.Exists(path))

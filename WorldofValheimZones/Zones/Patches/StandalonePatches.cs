@@ -3,7 +3,6 @@ using HarmonyLib;
 using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
-using UnityEngine;
 using Steamworks;
 
 
@@ -17,7 +16,6 @@ namespace WorldofValheimZones
     [HarmonyPatch]
     public static class StandalonePatches
     {
-
 #if CHANGELOG_EN
         // Patches assembly_valheim::ChangeLog::Start
         // Attaches our mod details to the games changelog
@@ -29,7 +27,6 @@ namespace WorldofValheimZones
             ___m_changeLog = new TextAsset(str + ___m_changeLog.text);
         }
 #endif
-
         [HarmonyPatch(typeof(Game), "Start")]
         public static class GameStartPatch
         {
@@ -41,7 +38,6 @@ namespace WorldofValheimZones
                 ZRoutedRpc.instance.Register("ZoneHandler", new Action<long, ZPackage>(ZoneHandler.RPC2)); // Adding ZoneHandler
             }
         }
-       
         //Remove that bird!
         [HarmonyPatch(typeof(Game), "UpdateRespawn")]
         public static class NoArrival
@@ -80,21 +76,6 @@ namespace WorldofValheimZones
 #endif
             }
         }
-
-#if client_cli
-        // Patches assembly_valheim::Version::GetVersionString
-        // Links in our version detail to override games original one to maintain compatibility
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(Chat), "InputText")]
-        private static void Chat__InputText(ref Chat __instance)
-        {
-            var text = __instance.m_input.text;
-            // Parse client or server commands.
-            Runner console = new Runner();
-            console.RunCommand(text, false);
-        }
-#endif
-
         //
         // This is the bread and butter of maintaining the user PVP state
         //
@@ -122,7 +103,6 @@ namespace WorldofValheimZones
             if (__instance == Player.m_localPlayer)
                 ZoneHandler.CurrentZoneID = -2;
         }
-
         // Patch ZNet::OnNewConnection
         // This is where a client setup a connection to the server (vice versa)
         // Put any RPC register here to sync between server/client.
@@ -145,11 +125,9 @@ namespace WorldofValheimZones
                 ZoneHandler.CurrentZoneID = -2;
             }
         }
-
         // Patch ZNet::SendPeerInfo
         // During connection, use to send info to the peer.
         // Great point to send to client.
-
         [HarmonyPostfix]
         [HarmonyPatch(typeof(ZNet), "SendPeerInfo")]
         private static void ZNet__SendPeerInfo(ZNet __instance, ZRpc rpc)

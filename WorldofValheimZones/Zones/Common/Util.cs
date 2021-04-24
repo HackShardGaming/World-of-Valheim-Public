@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
-using System.Reflection;
-using HarmonyLib;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Rendering;
-using ValheimPermissions;
 using System.Linq;
 using Steamworks;
 using System.Globalization;
@@ -409,7 +405,6 @@ namespace WorldofValheimZones
                 }
             }
         }
-
         public static Util.ConnectionData GetServer()
         {
             Debug.Assert(!ZNet.instance.IsServer());
