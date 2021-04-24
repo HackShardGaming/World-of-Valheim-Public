@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
-using System.Reflection;
-using HarmonyLib;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Rendering;
-using ValheimPermissions;
 using System.Linq;
 using Steamworks;
+using System.Globalization;
 
 namespace WorldofValheimZones
 {
@@ -63,15 +60,16 @@ namespace WorldofValheimZones
                     test += s[i];
                 }
                 float multiplier = 1;
-                float.TryParse(test, out multiplier);
+                multiplier = Convert.ToSingle(test, new CultureInfo("en-US"));
                 return multiplier;
             }
             else
                 return 1;
         }
-        public static bool RestrictionCheck(string restriction)
+        public static float RestrictionCheckFloatReturnCharacter(Character __instance,string restriction)
         {
-            Player p = Player.m_localPlayer;
+            Character p = __instance;
+            string CharacterSteamID = (ZNet.instance.GetPeer(__instance.GetZDOID().m_userID)).m_socket.GetHostName();
             // Are we in a zone? if so select that zone.
             ZoneHandler.Zone z = new ZoneHandler.Zone();
             ZoneHandler.ZoneTypes zt = new ZoneHandler.ZoneTypes();
@@ -79,13 +77,166 @@ namespace WorldofValheimZones
             if (zlist.Count == 0)
             {
                 zt = ZoneHandler.FindZoneType("wilderness");
-
             }
             else
             {
                 z = ZoneHandler.TopZone(zlist);
                 zt = ZoneHandler.FindZoneType(z.Type);
-
+            }
+            string key = "";
+            string admins = "";
+            // Lets set our admins and keys..
+            admins = zt.Admins;
+            key = zt.Configurations;
+            // Lets see if the user is actually an admin in the zone first..
+            if (admins.Contains(CharacterSteamID))
+            {
+                // Ok they are an admin. Therefore, do not initialize the change...
+                return 1;
+            }
+            if (key.ToLower().Contains(restriction))
+            {
+                string s = key.ToLower();
+                string restrictioncheck = restriction + "(";
+                int indexStart = s.IndexOf(restrictioncheck) + restrictioncheck.Length;
+                string test = "";
+                for (int i = indexStart; i < indexStart + 20; i++)
+                {
+                    if (s[i] == ')') break;
+                    test += s[i];
+                }
+                float multiplier = 1;
+                multiplier = Convert.ToSingle(test, new CultureInfo("en-US"));
+                return multiplier;
+            }
+            else
+                return 1;
+        }
+        public static float RestrictionCheckFloatReturnNone(Character __instance, string restriction)
+        {
+            Character p = __instance;
+            // Are we in a zone? if so select that zone.
+            ZoneHandler.Zone z = new ZoneHandler.Zone();
+            ZoneHandler.ZoneTypes zt = new ZoneHandler.ZoneTypes();
+            List<ZoneHandler.Zone> zlist = ZoneHandler.ListOccupiedZones(p.transform.position);
+            if (zlist.Count == 0)
+            {
+                zt = ZoneHandler.FindZoneType("wilderness");
+            }
+            else
+            {
+                z = ZoneHandler.TopZone(zlist);
+                zt = ZoneHandler.FindZoneType(z.Type);
+            }
+            string key = "";
+            string admins = "";
+            // Lets set our admins and keys..
+            admins = zt.Admins;
+            key = zt.Configurations;
+            // Lets see if the user is actually an admin in the zone first..
+            if (key.ToLower().Contains(restriction))
+            {
+                string s = key.ToLower();
+                string restrictioncheck = restriction + "(";
+                int indexStart = s.IndexOf(restrictioncheck) + restrictioncheck.Length;
+                string test = "";
+                for (int i = indexStart; i < indexStart + 20; i++)
+                {
+                    if (s[i] == ')') break;
+                    test += s[i];
+                }
+                float multiplier = 1;
+                multiplier = Convert.ToSingle(test, new CultureInfo("en-US"));
+                return multiplier;
+            }
+            else
+                return 1;
+        }
+        public static bool RestrictionCheckCharacter(Character __instance, string restriction)
+        {
+            Character p = __instance;
+            string CharacterSteamID = (ZNet.instance.GetPeer(__instance.GetZDOID().m_userID)).m_socket.GetHostName();
+            // Are we in a zone? if so select that zone.
+            if (ZoneHandler.Zones.Count() == 0)
+            {
+                return false;
+            }
+            ZoneHandler.Zone z = new ZoneHandler.Zone();
+            ZoneHandler.ZoneTypes zt = new ZoneHandler.ZoneTypes();
+            List<ZoneHandler.Zone> zlist = ZoneHandler.ListOccupiedZones(p.transform.position);
+            if (zlist.Count == 0)
+            {
+                zt = ZoneHandler.FindZoneType("wilderness");
+            }
+            else
+            {
+                z = ZoneHandler.TopZone(zlist);
+                zt = ZoneHandler.FindZoneType(z.Type);
+            }
+            string key = "";
+            string admins = "";
+            // Lets set our admin list and keys...
+            admins = zt.Admins;
+            key = zt.Configurations;
+            // Lets check and see if the user is actually an admin in the zone.
+            if (admins.Contains(CharacterSteamID))
+            {
+                return false;
+            }
+            if (key.ToLower().Contains(restriction))
+                return true;
+            else
+                return false;
+        }
+        public static bool RestrictionCheckNone(Character __instance, string restriction)
+        {
+            Character p = __instance;
+            // Are we in a zone? if so select that zone.
+            if (ZoneHandler.Zones.Count() == 0)
+            {
+                return false;
+            }
+            ZoneHandler.Zone z = new ZoneHandler.Zone();
+            ZoneHandler.ZoneTypes zt = new ZoneHandler.ZoneTypes();
+            List<ZoneHandler.Zone> zlist = ZoneHandler.ListOccupiedZones(p.transform.position);
+            if (zlist.Count == 0)
+            {
+                zt = ZoneHandler.FindZoneType("wilderness");
+            }
+            else
+            {
+                z = ZoneHandler.TopZone(zlist);
+                zt = ZoneHandler.FindZoneType(z.Type);
+            }
+            string key = "";
+            string admins = "";
+            // Lets set our admin list and keys...
+            admins = zt.Admins;
+            key = zt.Configurations;
+            if (key.ToLower().Contains(restriction))
+                return true;
+            else
+                return false;
+        }
+        public static bool RestrictionCheck(string restriction)
+        {
+            Player p = Player.m_localPlayer;
+            // Are we in a zone? if so select that zone.
+            if (ZoneHandler.Zones.Count() == 0)
+            {
+                return false;
+            }
+            ZoneHandler.Zone z = new ZoneHandler.Zone();
+            ZoneHandler.ZoneTypes zt = new ZoneHandler.ZoneTypes();
+            List<ZoneHandler.Zone> zlist = ZoneHandler.ListOccupiedZones(p.transform.position);
+            if (zlist.Count == 0)
+            {
+                zt = ZoneHandler.FindZoneType("wilderness");
+            }
+            else
+            {
+                z = ZoneHandler.TopZone(zlist);
+                zt = ZoneHandler.FindZoneType(z.Type);
             }
             string key = "";
             string admins = "";
@@ -254,7 +405,6 @@ namespace WorldofValheimZones
                 }
             }
         }
-
         public static Util.ConnectionData GetServer()
         {
             Debug.Assert(!ZNet.instance.IsServer());

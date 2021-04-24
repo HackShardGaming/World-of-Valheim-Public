@@ -10,14 +10,11 @@ namespace WorldofValheimZones
         public const string Title = "WoV - Zones";
         public const string Group = "HackShardGaming";
         public const string Guid = "HackShardGaming.WorldofValheimZones";
-
         // Version follow Semantic Versioning Scheme (https://semver.org/)
-        public const string Version = "0.5.3";
-        public const string buildDate = "2021-04-21";
-
+        public const string Version = "0.5.9";
+        public const string buildDate = "2021-04-23";
         // Nexus Plugin ID (Use to maintain updates with Nexus)
         public const int NexusID = 891;
-
         // Use GetBuildDate(Assembly.GetExecutingAssembly()); to get build date
         private static DateTime m_GetBuildDate(Assembly assembly)
         {
@@ -40,7 +37,6 @@ namespace WorldofValheimZones
 
             return default;
         }
-
         public static String GetBuildDate()
         {
             return ModInfo.buildDate;

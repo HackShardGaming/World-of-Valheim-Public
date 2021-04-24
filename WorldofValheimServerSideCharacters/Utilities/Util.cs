@@ -88,51 +88,55 @@ namespace WorldofValheimServerSideCharacters
 
         public static ZPackage Serialize(this PlayerProfile profile, Player player, bool logout_point = true)
         {
-            if (logout_point)
+            if (Player.m_localPlayer)
             {
-                profile.SetLogoutPoint(player.transform.position);
-            }
-            if (profile.m_playerID != 0L)
-            {
-                profile.SetMapData(Minimap.instance.GetMapData());
-            }
-            profile.SavePlayerData(player);
-            ZPackage zpackage = new ZPackage();
-            zpackage.Write(Version.m_playerVersion);
-            zpackage.Write(profile.m_playerStats.m_kills);
-            zpackage.Write(profile.m_playerStats.m_deaths);
-            zpackage.Write(profile.m_playerStats.m_crafts);
-            zpackage.Write(profile.m_playerStats.m_builds);
-            zpackage.Write(profile.m_worldData.Count);
-            foreach (KeyValuePair<long, PlayerProfile.WorldPlayerData> keyValuePair in profile.m_worldData)
-            {
-                zpackage.Write(keyValuePair.Key);
-                zpackage.Write(keyValuePair.Value.m_haveCustomSpawnPoint);
-                zpackage.Write(keyValuePair.Value.m_spawnPoint);
-                zpackage.Write(keyValuePair.Value.m_haveLogoutPoint);
-                zpackage.Write(keyValuePair.Value.m_logoutPoint);
-                zpackage.Write(keyValuePair.Value.m_haveDeathPoint);
-                zpackage.Write(keyValuePair.Value.m_deathPoint);
-                zpackage.Write(keyValuePair.Value.m_homePoint);
-                zpackage.Write(keyValuePair.Value.m_mapData != null);
-                if (keyValuePair.Value.m_mapData != null)
+                if (logout_point)
                 {
-                    zpackage.Write(keyValuePair.Value.m_mapData);
+                    profile.SetLogoutPoint(player.transform.position);
                 }
+                if (profile.m_playerID != 0L)
+                {
+                    profile.SetMapData(Minimap.instance.GetMapData());
+                }
+                profile.SavePlayerData(player);
+                ZPackage zpackage = new ZPackage();
+                zpackage.Write(Version.m_playerVersion);
+                zpackage.Write(profile.m_playerStats.m_kills);
+                zpackage.Write(profile.m_playerStats.m_deaths);
+                zpackage.Write(profile.m_playerStats.m_crafts);
+                zpackage.Write(profile.m_playerStats.m_builds);
+                zpackage.Write(profile.m_worldData.Count);
+                foreach (KeyValuePair<long, PlayerProfile.WorldPlayerData> keyValuePair in profile.m_worldData)
+                {
+                    zpackage.Write(keyValuePair.Key);
+                    zpackage.Write(keyValuePair.Value.m_haveCustomSpawnPoint);
+                    zpackage.Write(keyValuePair.Value.m_spawnPoint);
+                    zpackage.Write(keyValuePair.Value.m_haveLogoutPoint);
+                    zpackage.Write(keyValuePair.Value.m_logoutPoint);
+                    zpackage.Write(keyValuePair.Value.m_haveDeathPoint);
+                    zpackage.Write(keyValuePair.Value.m_deathPoint);
+                    zpackage.Write(keyValuePair.Value.m_homePoint);
+                    zpackage.Write(keyValuePair.Value.m_mapData != null);
+                    if (keyValuePair.Value.m_mapData != null)
+                    {
+                        zpackage.Write(keyValuePair.Value.m_mapData);
+                    }
+                }
+                zpackage.Write("");
+                zpackage.Write(profile.m_playerID);
+                zpackage.Write("");
+                if (profile.m_playerData != null)
+                {
+                    zpackage.Write(true);
+                    zpackage.Write(profile.m_playerData);
+                }
+                else
+                {
+                    zpackage.Write(false);
+                }
+                return zpackage;
             }
-            zpackage.Write("");
-            zpackage.Write(profile.m_playerID);
-            zpackage.Write("");
-            if (profile.m_playerData != null)
-            {
-                zpackage.Write(true);
-                zpackage.Write(profile.m_playerData);
-            }
-            else
-            {
-                zpackage.Write(false);
-            }
-            return zpackage;
+            return new ZPackage();
         }
 
         public static void Deserialize(this PlayerProfile profile, ZPackage data)

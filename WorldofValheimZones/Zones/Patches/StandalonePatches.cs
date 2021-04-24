@@ -3,7 +3,6 @@ using HarmonyLib;
 using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
-using UnityEngine;
 using Steamworks;
 
 
@@ -17,7 +16,6 @@ namespace WorldofValheimZones
     [HarmonyPatch]
     public static class StandalonePatches
     {
-
 #if CHANGELOG_EN
         // Patches assembly_valheim::ChangeLog::Start
         // Attaches our mod details to the games changelog
@@ -29,7 +27,6 @@ namespace WorldofValheimZones
             ___m_changeLog = new TextAsset(str + ___m_changeLog.text);
         }
 #endif
-
         [HarmonyPatch(typeof(Game), "Start")]
         public static class GameStartPatch
         {
@@ -41,7 +38,6 @@ namespace WorldofValheimZones
                 ZRoutedRpc.instance.Register("ZoneHandler", new Action<long, ZPackage>(ZoneHandler.RPC2)); // Adding ZoneHandler
             }
         }
-       
         //Remove that bird!
         [HarmonyPatch(typeof(Game), "UpdateRespawn")]
         public static class NoArrival
@@ -80,109 +76,12 @@ namespace WorldofValheimZones
 #endif
             }
         }
-
-#if client_cli
-        // Patches assembly_valheim::Version::GetVersionString
-        // Links in our version detail to override games original one to maintain compatibility
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(Chat), "InputText")]
-        private static void Chat__InputText(ref Chat __instance)
-        {
-            var text = __instance.m_input.text;
-            // Parse client or server commands.
-            Runner console = new Runner();
-            console.RunCommand(text, false);
-        }
-#endif
-
         //
         // This is the bread and butter of maintaining the user PVP state
         //
         // This class will constantly check for any updates in position and set the client PVP state accordingly.
         //
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(Game), "Update")]
-        private static void Game__Update()
-        {
-            if (Player.m_localPlayer)
-            {
-                // 
-                // Goes through the zones and setup the necessary enforcements.
-
-                ZoneHandler.Zone zone;
-                ZoneHandler.ZoneTypes ztype;
-                bool changed;
-                bool zonedDetected = ZoneHandler.Detect(Player.m_localPlayer.transform.position, out changed, out zone, out ztype);
-                if (changed)
-                {
-                    if (zonedDetected)
-                    {
-                        var color = (ztype.PVPEnforce ? (ztype.PVP ? WorldofValheimZones.PVPColor.Value : WorldofValheimZones.PVEColor.Value) : WorldofValheimZones.NonEnforcedColor.Value);
-                        string Name = zone.Name.Replace("_", " ");
-                        string Message = $"<color={color}>Now entering <b>{Name}</b>.</color>";
-                        string BiomeMessage = (ztype.PVPEnforce ? ztype.PVP ? "PVP Enabled" : "PVP Disabled" : String.Empty);
-                        // The message at the end is in the format of (PVP) (NOPVP) (NON-ENFORCED)
-                        Player.m_localPlayer.Message(MessageHud.MessageType.Center, Message,
-                                0, null);
-                        if (Client.EnforceZones && ztype.PVPEnforce && (ztype.PVP != Player.m_localPlayer.m_pvp))
-                            MessageHud.instance.ShowBiomeFoundMsg(BiomeMessage, true);
-                    }
-                    else
-                    {
-                        var color = (ztype.PVPEnforce ? (ztype.PVP ? WorldofValheimZones.PVPColor.Value : WorldofValheimZones.PVEColor.Value) : WorldofValheimZones.NonEnforcedColor.Value);
-                        string Name = "The Wilderness";
-                        string Message = $"<color={color}>Now entering <b>{Name}</b>.</color>";
-                        string BiomeMessage = (ztype.PVPEnforce ? ztype.PVP ? "PVP Enabled" : "PVP Disabled" : String.Empty);
-                        // The message at the end is in the format of (PVP) (NOPVP) (NON-ENFORCED)
-                        Player.m_localPlayer.Message(MessageHud.MessageType.Center, Message,
-                                0, null);
-                        if (Client.EnforceZones && ztype.PVPEnforce && (ztype.PVP != Player.m_localPlayer.m_pvp))
-                            MessageHud.instance.ShowBiomeFoundMsg(BiomeMessage, true);
-
-                    }
-
-                    // Zones are now being enforced?
-                    if (Client.EnforceZones)
-                    {
-                        // Update the client settings based on zone type
-
-                        // PVP settings:
-
-                        Client.PVPEnforced = ztype.PVPEnforce;
-                        if (ztype.PVPEnforce)
-                            Client.PVPMode = ztype.PVP;
-
-                        // Position settings:
-                        Client.PositionEnforce = ztype.PositionEnforce;
-                        if (ztype.PositionEnforce)
-                            Client.ShowPosition = ztype.ShowPosition;
-                        // Run the updated settings for the Clients
-                        Player.m_localPlayer.SetPVP(Client.PVPMode);
-                        ZNet.instance.SetPublicReferencePosition(Client.ShowPosition);
-
-                        // Other settings are scattered among the wind to other functions
-                        // (Use Client class for the current state)
-                    }
-#if DEBUG
-                    ZoneHandler._debug(ztype);
-                    Client._debug();
-#endif
-                }
-                else
-                {
-                    if (Client.PVPEnforced && (Player.m_localPlayer.m_pvp != Client.PVPMode))
-                    {
-                        Debug.Log($"{ModInfo.Title}: ERROR: Your PVP Mode was changed by another plugin.  Resetting client PVP!");
-                        Player.m_localPlayer.SetPVP(Client.PVPMode);
-                    }
-                    if (Client.PositionEnforce && (ZNet.instance.m_publicReferencePosition != Client.ShowPosition))
-                    {
-                        Debug.Log($"{ModInfo.Title}: ERROR: Your Position Sharing was changed by another plugin.  Resetting client Position Sharing!");
-                        ZNet.instance.SetPublicReferencePosition(Client.ShowPosition);
-                    }
-                }
-            }
-        }
+        
         // Patch Znet::OnDeath
         // We died! We need to reset variables to default
         [HarmonyPostfix]
@@ -204,7 +103,6 @@ namespace WorldofValheimZones
             if (__instance == Player.m_localPlayer)
                 ZoneHandler.CurrentZoneID = -2;
         }
-
         // Patch ZNet::OnNewConnection
         // This is where a client setup a connection to the server (vice versa)
         // Put any RPC register here to sync between server/client.
@@ -227,11 +125,9 @@ namespace WorldofValheimZones
                 ZoneHandler.CurrentZoneID = -2;
             }
         }
-
         // Patch ZNet::SendPeerInfo
         // During connection, use to send info to the peer.
         // Great point to send to client.
-
         [HarmonyPostfix]
         [HarmonyPatch(typeof(ZNet), "SendPeerInfo")]
         private static void ZNet__SendPeerInfo(ZNet __instance, ZRpc rpc)
