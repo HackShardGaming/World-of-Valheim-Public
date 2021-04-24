@@ -73,9 +73,7 @@ namespace WorldofValheimZones
         public static float RestrictionCheckFloatReturnCharacter(Character __instance,string restriction)
         {
             Character p = __instance;
-            ZDOID testc = __instance.GetZDOID();
-            ZNetPeer zp = ZNet.instance.GetPeer(testc.m_userID);
-            string CharacterSteamID = zp.m_socket.GetHostName();
+            string CharacterSteamID = (ZNet.instance.GetPeer(__instance.GetZDOID().m_userID)).m_socket.GetHostName();
             // Are we in a zone? if so select that zone.
             ZoneHandler.Zone z = new ZoneHandler.Zone();
             ZoneHandler.ZoneTypes zt = new ZoneHandler.ZoneTypes();
@@ -118,12 +116,50 @@ namespace WorldofValheimZones
             else
                 return 1;
         }
+        public static float RestrictionCheckFloatReturnNone(Character __instance, string restriction)
+        {
+            Character p = __instance;
+            // Are we in a zone? if so select that zone.
+            ZoneHandler.Zone z = new ZoneHandler.Zone();
+            ZoneHandler.ZoneTypes zt = new ZoneHandler.ZoneTypes();
+            List<ZoneHandler.Zone> zlist = ZoneHandler.ListOccupiedZones(p.transform.position);
+            if (zlist.Count == 0)
+            {
+                zt = ZoneHandler.FindZoneType("wilderness");
+            }
+            else
+            {
+                z = ZoneHandler.TopZone(zlist);
+                zt = ZoneHandler.FindZoneType(z.Type);
+            }
+            string key = "";
+            string admins = "";
+            // Lets set our admins and keys..
+            admins = zt.Admins;
+            key = zt.Configurations;
+            // Lets see if the user is actually an admin in the zone first..
+            if (key.ToLower().Contains(restriction))
+            {
+                string s = key.ToLower();
+                string restrictioncheck = restriction + "(";
+                int indexStart = s.IndexOf(restrictioncheck) + restrictioncheck.Length;
+                string test = "";
+                for (int i = indexStart; i < indexStart + 20; i++)
+                {
+                    if (s[i] == ')') break;
+                    test += s[i];
+                }
+                float multiplier = 1;
+                multiplier = Convert.ToSingle(test, new CultureInfo("en-US"));
+                return multiplier;
+            }
+            else
+                return 1;
+        }
         public static bool RestrictionCheckCharacter(Character __instance, string restriction)
         {
             Character p = __instance;
-            ZDOID testc = __instance.GetZDOID();
-            ZNetPeer zp = ZNet.instance.GetPeer(testc.m_userID);
-            string CharacterSteamID = zp.m_socket.GetHostName();
+            string CharacterSteamID = (ZNet.instance.GetPeer(__instance.GetZDOID().m_userID)).m_socket.GetHostName();
             // Are we in a zone? if so select that zone.
             if (ZoneHandler.Zones.Count() == 0)
             {
@@ -151,6 +187,36 @@ namespace WorldofValheimZones
             {
                 return false;
             }
+            if (key.ToLower().Contains(restriction))
+                return true;
+            else
+                return false;
+        }
+        public static bool RestrictionCheckNone(Character __instance, string restriction)
+        {
+            Character p = __instance;
+            // Are we in a zone? if so select that zone.
+            if (ZoneHandler.Zones.Count() == 0)
+            {
+                return false;
+            }
+            ZoneHandler.Zone z = new ZoneHandler.Zone();
+            ZoneHandler.ZoneTypes zt = new ZoneHandler.ZoneTypes();
+            List<ZoneHandler.Zone> zlist = ZoneHandler.ListOccupiedZones(p.transform.position);
+            if (zlist.Count == 0)
+            {
+                zt = ZoneHandler.FindZoneType("wilderness");
+            }
+            else
+            {
+                z = ZoneHandler.TopZone(zlist);
+                zt = ZoneHandler.FindZoneType(z.Type);
+            }
+            string key = "";
+            string admins = "";
+            // Lets set our admin list and keys...
+            admins = zt.Admins;
+            key = zt.Configurations;
             if (key.ToLower().Contains(restriction))
                 return true;
             else
