@@ -354,15 +354,17 @@ namespace WorldofValheimZones
                 if (LocalPlayer == RemotePlayer)
                 {
 #if DEBUG
-                    Debug.Log($"Checking SteamID: {(ZNet.instance.GetPeer(__instance.GetZDOID().m_userID)).m_socket.GetHostName()} against DamageMultiplierToPlayers");
+                    Debug.Log($"Checking Local Player against DamageMultiplierToPlayers");
 #endif
                     if (Util.RestrictionCheck("damagemultipliertoplayers"))
                     {
 #if DEBUG
-                        Debug.Log($"User SteamID: {(ZNet.instance.GetPeer(__instance.GetZDOID().m_userID)).m_socket.GetHostName()} is restricted! Lets modify data");
+                        Debug.Log($Local Player is restricted! Lets modify data");
 #endif
                         float multiplier = Util.RestrictionCheckFloatReturn("damagemultipliertoplayers");
+#if DEBUG
                         Debug.Log($"The multiplier is: {multiplier}");
+#endif
                         hit.m_damage.m_damage *= multiplier;
                         hit.m_damage.m_blunt *= multiplier;
                         hit.m_damage.m_slash *= multiplier;
