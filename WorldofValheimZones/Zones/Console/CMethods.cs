@@ -1,9 +1,6 @@
 ﻿
-using BepInEx;
-using BepInEx.Configuration;
 using HarmonyLib;
 using UnityEngine;
-using System;
 using System.Linq;
 
 namespace WorldofValheimZones
@@ -18,7 +15,6 @@ namespace WorldofValheimZones
             Traverse.Create(__instance).Method("AddString", new object[] { $"{ModInfo.Title}: !addzone [Name] [ZoneType] [Priority] [Shape(circle/square)] [r] (Add a zone to the server using YOUR current location! **ADMIN COMMAND**)" }).GetValue();;
             Traverse.Create(__instance).Method("AddString", new object[] { $"{ModInfo.Title}: !reload-zones (Reload all zones and update all users that are connected **ADMIN COMMAND**)" }).GetValue();
         }
-
         // Give the user their current coordinates (X Y).
         public static void GetCoords(Console __instance)
         {
