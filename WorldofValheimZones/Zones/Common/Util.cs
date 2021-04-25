@@ -206,9 +206,9 @@ namespace WorldofValheimZones
                 return false;
         }
 
-        public static bool RestrictionCheckTerrain(TerrainModifier __instance, string restriction)
+        public static bool RestrictionCheckTerrain(TerrainComp __instance, string restriction)
         {
-            TerrainModifier p = __instance;
+            TerrainComp p = __instance;
             // Are we in a zone? if so select that zone.
             if (ZoneHandler.Zones.Count() == 0)
             {
@@ -257,9 +257,7 @@ namespace WorldofValheimZones
                 zt = ZoneHandler.FindZoneType(z.Type);
             }
             string key = "";
-            string admins = "";
             // Lets set our admin list and keys...
-            admins = zt.Admins;
             key = zt.Configurations;
             if (key.ToLower().Contains(restriction))
                 return true;
@@ -319,8 +317,6 @@ namespace WorldofValheimZones
                 worldTextInstance.m_timer = -2f;
             }
         }
-       
-
         public static void DoAreaEffectW(Vector3 pos)
         {
             if (WorldofValheimZones.EffectTick <= 0)

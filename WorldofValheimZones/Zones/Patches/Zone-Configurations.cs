@@ -216,17 +216,16 @@ namespace WorldofValheimZones
             }
         }
         /// <summary>
-        /// Harmony Patch Type: TerrainModifier Method: Awake
+        /// Harmony Patch Type: TerrainComp Method: DoOperation
         /// Includes the following:
         /// if the zone includes "NoTerrain" prevent modifying the terrain in the area.
         ///     Last Updated: 4/24/2021
         ///     Status: 100% Working
         /// </summary>
-        [HarmonyPatch(typeof(TerrainModifier), "Awake")]
-        public static class TerrainModifier_Patch
+        [HarmonyPatch(typeof(TerrainOp), "Awake")]
+        public static class TerrainComp_Patch
         {
-            // Token: 0x06000008 RID: 8 RVA: 0x0000224C File Offset: 0x0000044C
-            private static void PostFix(ref TerrainModifier __instance)
+            private static bool Prefix(TerrainOp __instance)
             {
                 if (Player.m_localPlayer)
                 {
@@ -234,26 +233,24 @@ namespace WorldofValheimZones
                     {
                         Util.DoAreaEffect(__instance.transform.position);
                         MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is a Private Area", 0, null);
-                        __instance.m_levelRadius = 0;
-                        __instance.m_smoothRadius = 0;
-                        __instance.m_smoothPower = 0;
-                        __instance.m_paintRadius = 0;
+                        return false;
                     }
                 }
                 else
                 {
+                    /*
                     if (Util.RestrictionCheckTerrain(__instance, "noterrain"))
                     {
                         Util.DoAreaEffect(__instance.transform.position);
                         MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is a Private Area", 0, null);
-                        __instance.m_levelRadius = 0;
-                        __instance.m_smoothRadius = 0;
-                        __instance.m_smoothPower = 0;
-                        __instance.m_paintRadius = 0;
+                        return false;
                     }
+                    */
                 }
+                return true;
             }
         }
+
 
         /// <summary>
         /// Harmony Patch Type: Container Method: Interact

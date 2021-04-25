@@ -36,6 +36,17 @@ namespace WorldofValheimZones
             public string Shape;//0 - circle, 1 - square, 2 - coords
             public Vector2 Position;
             public float Radius;
+            public Zone(int _ID, string _Name, string _Type, int _Priority, string _Shape, Vector2 _Position,
+                  float _Radius)
+            {
+                ID = _ID;
+                Name = _Name;
+                Type = _Type;
+                Priority = _Priority;
+                Shape = _Shape;
+                Position = _Position;
+                Radius = _Radius;
+            }
         }
         public static int CurrentZoneID = -2; // -2 initial, -1 wilderness, 0 up are zones
         // List of all the zones
@@ -402,20 +413,14 @@ namespace WorldofValheimZones
                         else
                         {
                             Debug.Log($"Loading Zone: {array2[0]}");
-                            Zone z = new Zone();
-                            z.Name = array2[0];
-                            z.Type = array2[1];
-                            z.Priority = int.Parse(array2[2]);
-                            z.Shape = array2[3];
-                            Vector3 posi = new Vector3();
-                            posi.x = Convert.ToSingle(array2[4], new CultureInfo("en-US"));
-                            posi.y = Convert.ToSingle(array2[5], new CultureInfo("en-US"));
-                            posi.z = Convert.ToSingle(array2[6], new CultureInfo("en-US"));
-                            z.Position.x = posi.x;
-                            z.Position.y = posi.y;
-                            z.Radius = posi.z;
-                            //z.pvp = bool.Parse(array2[7]);
-                            z.ID = pos;
+                            ///
+                            /// In this Vector3 Posi We have the following
+                            /// posi.x = the Vector2's X
+                            /// posi.y = the Vector2's Y
+                            /// posi.z = The Radius sent from the config.
+                            /// 
+                            CultureInfo info = new CultureInfo("en-US");
+                            Zone z = new Zone(pos, array2[0], array2[1], int.Parse(array2[2]), array2[3], new Vector2(Convert.ToSingle(array2[4], info), Convert.ToSingle(array2[5], info)), Convert.ToSingle(array2[7], info));
                             Zones.Add(z);
                             pos++;
                         }
@@ -429,12 +434,9 @@ namespace WorldofValheimZones
                 Zone z = new Zone();
                 z.Name = "No-Zones";
                 z.Type = "wilderness";
-                z.Priority = int.Parse("5");
+                z.Priority = 5;
                 z.Shape = "circle";
-                Vector3 posi = new Vector3();
-                posi.x = Convert.ToSingle("20000", new CultureInfo("en-US"));
-                posi.y = Convert.ToSingle("20000", new CultureInfo("en-US"));
-                posi.z = Convert.ToSingle("0", new CultureInfo("en-US"));
+                Vector3 posi = new Vector3(x: 20000f, y: 20000f, z: 0f);
                 z.Position.x = posi.x;
                 z.Position.y = posi.y;
                 z.Radius = posi.z;
