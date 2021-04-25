@@ -15,6 +15,15 @@ namespace WorldofValheimServerSideCharacters
 
     public static class Util
     {
+        public static IEnumerator CharacterData(ZRpc rpc)
+        {
+            Debug.Log("Server->Client CharacterData");
+            rpc.Invoke("CharacterData", new object[]
+            {
+                Util.Compress(Util.LoadOrMakeCharacter(rpc.GetSocket().GetHostName()))
+            });
+            yield return new WaitForSeconds(2);
+        }
         public static bool isServer()
         {
             return SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;

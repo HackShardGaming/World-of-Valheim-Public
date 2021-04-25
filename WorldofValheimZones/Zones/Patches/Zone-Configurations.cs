@@ -1,14 +1,25 @@
 ﻿using System.Collections.Generic;
+using System;
 using System.Linq;
 using HarmonyLib;
 using UnityEngine;
+using System.Text;
+using UnityEngine.UI;
 
 
 namespace WorldofValheimZones
 {
     class Patches
     {
-        //chat
+        /// <summary>
+        /// FixedUpdate<> Patch
+        /// Includes the following:
+        ///     PushAway (Do not enter zone)
+        ///     PeriodicDamage
+        ///     PeriodicHeal
+        ///     Last Updated: 4/24/2021
+        ///     Status: 100% Working
+        /// </summary>
         public static void FixedUpdatez()
         {
             if (WorldofValheimZones.EffectTick > 0) WorldofValheimZones.EffectTick--;
@@ -128,6 +139,13 @@ namespace WorldofValheimZones
                 }
             }
         }
+        /// <summary>
+        /// HarmonyPatch: Chat InputText
+        /// Includes the following chat commands:
+        ///     /pos (Display my POS in chat)
+        ///     Last Updated: 4/24/2021
+        ///     Status: 100% Working
+        /// </summary>
         [HarmonyPatch(typeof(Chat), "InputText")]
         public static class Chat_Patch
         {
@@ -169,7 +187,15 @@ namespace WorldofValheimZones
         /// <summary>
         /// This is a list of our "Zone Configurations"
         /// </summary>
-        /// No Pickaxe! (NoPickaxe)
+
+        /// <summary>
+        /// Harmony Patch Type: Attack Method: SpawnOnHitTerrain
+        /// Includes the following:
+        /// if the zone includes "NoPickaxe" prevent the use of Pickaxes in this area.
+        /// If the zone includes "NoTerrain" prevent the use of PickAxes in this area.
+        ///     Last Updated: 4/24/2021
+        ///     Status: 100% Working
+        /// </summary>
         [HarmonyPatch(typeof(Attack), "SpawnOnHitTerrain")]
         public static class Attack_Patch
         {
@@ -180,17 +206,62 @@ namespace WorldofValheimZones
                 {
                     return true;
                 }
-                if (Util.RestrictionCheck("nopickaxe"))
+                if (Util.RestrictionCheck("nopickaxe") || Util.RestrictionCheck("noterrain"))
                 {
                     isInArea = true;
                     Util.DoAreaEffect(hitPoint + Player.m_localPlayer.transform.forward * 1f);
-                    MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is Private Area", 0, null);
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is a Private Area", 0, null);
                 }
                 return !isInArea;
             }
         }
+        /// <summary>
+        /// Harmony Patch Type: TerrainModifier Method: Awake
+        /// Includes the following:
+        /// if the zone includes "NoTerrain" prevent modifying the terrain in the area.
+        ///     Last Updated: 4/24/2021
+        ///     Status: 100% Working
+        /// </summary>
+        [HarmonyPatch(typeof(TerrainModifier), "Awake")]
+        public static class TerrainModifier_Patch
+        {
+            // Token: 0x06000008 RID: 8 RVA: 0x0000224C File Offset: 0x0000044C
+            private static void PostFix(ref TerrainModifier __instance)
+            {
+                if (Player.m_localPlayer)
+                {
+                    if (Util.RestrictionCheck("noterrain"))
+                    {
+                        Util.DoAreaEffect(__instance.transform.position);
+                        MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is a Private Area", 0, null);
+                        __instance.m_levelRadius = 0;
+                        __instance.m_smoothRadius = 0;
+                        __instance.m_smoothPower = 0;
+                        __instance.m_paintRadius = 0;
+                    }
+                }
+                else
+                {
+                    if (Util.RestrictionCheckTerrain(__instance, "noterrain"))
+                    {
+                        Util.DoAreaEffect(__instance.transform.position);
+                        MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is a Private Area", 0, null);
+                        __instance.m_levelRadius = 0;
+                        __instance.m_smoothRadius = 0;
+                        __instance.m_smoothPower = 0;
+                        __instance.m_paintRadius = 0;
+                    }
+                }
+            }
+        }
 
-        // No Chest Access! (NoChest)
+        /// <summary>
+        /// Harmony Patch Type: Container Method: Interact
+        /// Includes the following:
+        /// if the zone includes "NoChest" prevent accessing Chests in this area.
+        ///     Last Updated: 4/24/2021
+        ///     Status: 100% Working
+        /// </summary>
         [HarmonyPatch(typeof(Container), "Interact")]
         public static class Container_Patch
         {
@@ -205,13 +276,19 @@ namespace WorldofValheimZones
                 {
                     isInArea = true;
                     Util.DoAreaEffect(__instance.transform.position);
-                    MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is Private Area", 0, null);
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is a Private Area", 0, null);
                 }
                 return !isInArea;
             }
         }
 
-        // No Door Access! (NoDoors)
+        /// <summary>
+        /// Harmony Patch Type: Door Method: Interact
+        /// Includes the following:
+        /// if the zone includes "NoDoors" prevent the use of Doors in this area.
+        ///     Last Updated: 4/24/2021
+        ///     Status: 100% Working
+        /// </summary>
         [HarmonyPatch(typeof(Door), "Interact")]
         public static class Door_Patch
         {
@@ -226,13 +303,19 @@ namespace WorldofValheimZones
                 {
                     isInArea = true;
                     Util.DoAreaEffect(__instance.transform.position);
-                    MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is Private Area", 0, null);
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is a Private Area", 0, null);
                 }
                 return !isInArea;
             }
         }
 
-        // No Placing Pieces Access! (NoBuilding)
+        /// <summary>
+        /// Harmony Patch Type: Player Method: PlacePiece
+        /// Includes the following:
+        /// if the zone includes "NoBuilding" prevent building (with hammer) in this area.
+        ///     Last Updated: 4/24/2021
+        ///     Status: 100% Working
+        /// </summary>
         [HarmonyPatch(typeof(Player), "PlacePiece")]
         public static class NoBuild_Patch
         {
@@ -247,13 +330,19 @@ namespace WorldofValheimZones
                 {
                     isInArea = true;
                     Util.DoAreaEffect(__instance.m_placementGhost.transform.position);
-                    MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is Private Area", 0, null);
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is a Private Area", 0, null);
                 }
                 return !isInArea;
             }
         }
 
-        // No Removing Pieces Access! (NoBuilding)
+        /// <summary>
+        /// Harmony Patch Type: Player Method: RemovePiece
+        /// Includes the following:
+        /// if the zone includes "NoBuilding" prevent destroying buildings (with hammer) in this area.
+        ///     Last Updated: 4/24/2021
+        ///     Status: 100% Working
+        /// </summary>
         [HarmonyPatch(typeof(Player), "RemovePiece")]
         public static class NoBuild_Patch2
         {
@@ -268,35 +357,102 @@ namespace WorldofValheimZones
                 {
                     isInArea = true;
                     Util.DoAreaEffect(__instance.transform.position);
-                    MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is Private Area", 0, null);
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is a Private Area", 0, null);
 
                 }
                 return !isInArea;
             }
         }
 
-        // No Damaging Buildings (NoBuildDamage)
-        [HarmonyPatch(typeof(WearNTear), "RPC_Damage")]
-        public static class NoBuild_Damage_Patch
+        /// <summary>
+        /// Harmony Patch Type: WearNTear Method: RPC_Damage
+        /// Includes the following:
+        /// If the area is in a Ward Do the following checks:
+        ///     Is the attacker a player?
+        ///         Check player against the ward for permission.
+        ///     Is the attacker a non player?
+        ///         Deny permissions to the area.
+        /// if the zone includes "NoBuildDamage" prevent damaging buildings in this area.
+        ///     Last Updated: 4/24/2021
+        ///     Status: 100% Working
+        /// </summary>
+ 
+        /// <summary>
+        /// Harmony Patch Type: WearNTear Method: Damage
+        /// Includes the following:
+        /// If the area is in a Ward Do the following checks:
+        ///     Is the attacker a player?
+        ///         Check player against the ward for permission.
+        ///     Is the attacker a non player?
+        ///         Deny permissions to the area.
+        /// if the zone includes "NoBuildDamage" prevent damaging buildings in this area.
+        ///     Last Updated: 4/24/2021
+        ///     Status: 100% Working
+        /// </summary>
+        [HarmonyPatch(typeof(WearNTear), "Damage")]
+        public static class Building_Wear_N_Tear_Patch
         {
-            private static bool Prefix(WearNTear __instance)
+            private static bool Prefix(WearNTear __instance, HitData hit)
             {
                 if (WorldofValheimZones.ServerMode)
                 {
                     return true;
                 }
+
                 bool isInArea = false;
+
+                // Is the area we are searching in a Warded area.
+                if (Client.Ward.Damage && PrivateArea.CheckInPrivateArea(__instance.transform.position, false))
+                {
+                    ZDOID attacker = hit.m_attacker;
+                    bool isplayer = false;
+                    foreach (var character in Character.GetAllCharacters())
+                    {
+                        if (character.GetZDOID() == attacker)
+                        {
+                            if (character.GetComponent<Player>()) 
+                            { 
+                                isplayer = true;
+                            }
+                        }
+                    }
+                    // It's a player so lets see if it has access.
+                    if (isplayer)
+                    {
+                        if (!PrivateArea.CheckAccess(Player.m_localPlayer.transform.position, 0f, true, false))
+                        {
+                            Util.DoAreaEffectW(__instance.transform.position);
+                            MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is a Warded Area", 0, null);
+                            isInArea = true;
+                            return !isInArea;
+                        }
+                    }
+                    else
+                    {
+                        // It's not a player so lets send out a Ward notification and block the damage.
+                        PrivateArea.CheckInPrivateArea(__instance.transform.position, true);
+                        isInArea = true;
+                        return !isInArea;
+                    }
+                }
+                // Is the user restricted by NoBuildDamage?
                 if (Util.RestrictionCheck("nobuilddamage"))
                 {
                     isInArea = true;
                     Util.DoAreaEffect(__instance.transform.position + Vector3.up * 0.5f);
-                    MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is Private Area", 0, null);
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is a Private Area", 0, null);
                 }
                 return !isInArea;
             }
         }
-
-        // No Picking Up Items! (NoItemPickup)
+        /// <summary>
+        /// Harmony Patch Type: ItemDrop Method: Interact
+        /// Includes the following:
+        /// if the zone includes "NoItemPickup" prevent picking up items in this area.
+        /// If the area is in a ward prevent picking up items in this area.
+        ///     Last Updated: 4/24/2021
+        ///     Status: 100% Working
+        /// </summary>
         [HarmonyPatch(typeof(ItemDrop), "Interact")]
         public static class NoDropInteraction_Patch
         {
@@ -307,17 +463,35 @@ namespace WorldofValheimZones
                     return true;
                 }
                 bool isInArea = false;
+                // Ward Check
+                if (Client.Ward.Drop && PrivateArea.CheckInPrivateArea(Player.m_localPlayer.transform.position, false))
+                {
+                    if (!PrivateArea.CheckAccess(Player.m_localPlayer.transform.position, 0f, true, false))
+                    {
+                        Util.DoAreaEffectW(__instance.transform.position);
+                        MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is a Warded Area", 0, null);
+                        isInArea = true;
+                        return !isInArea;
+                    }
+                }
                 if (Util.RestrictionCheck("noitempickup"))
                 {
                     isInArea = true;
                     Util.DoAreaEffect(__instance.transform.position + Vector3.up * 0.5f);
-                    MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is Private Area", 0, null);
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is a Private Area", 0, null);
                 }
                 return !isInArea;
             }
         }
 
-        // No Picking up Items! (NoItemPickup)
+        /// <summary>
+        /// Harmony Patch Type: Player Method: AutoPickup
+        /// Includes the following:
+        /// if the zone includes "NoItemPickup" prevent auto picking up items in this area.
+        /// If the area is in a ward prevent picking up items in this area.
+        ///     Last Updated: 4/24/2021
+        ///     Status: 100% Working
+        /// </summary>
         [HarmonyPatch(typeof(Player), "AutoPickup")]
         public static class NoAutoPickup_Patch
         {
@@ -328,6 +502,16 @@ namespace WorldofValheimZones
                     return true;
                 }
                 bool isInArea = false;
+                Vector3 point = __instance.transform.position;
+                // Ward Check
+                if (Client.Ward.Pickup && PrivateArea.CheckInPrivateArea(Player.m_localPlayer.transform.position, false))
+                {
+                    if (!PrivateArea.CheckAccess(Player.m_localPlayer.transform.position, 0f, false, false))
+                    {
+                        isInArea = true;
+                        return !isInArea;
+                    }
+                }
                 if (Util.RestrictionCheck("noitempickup"))
                 {
                     isInArea = true;
@@ -335,33 +519,124 @@ namespace WorldofValheimZones
                 return !isInArea;
             }
         }
-        // Damage Multipliers! (DamageMultiplierToMobs(1), DamageMultiplierToPlayers(1))
+        /// <summary>
+        /// HarmonyPatch Type: InventoryGrid Method: OnLeftClick
+        /// This method includes:
+        ///     If in a warded area do not drop items.
+        ///     If in a zone with "NoItemDrop" configuration do not drop items.
+        ///     Last Updated: 4/24/2021
+        ///     Status: 100% Working
+        /// </summary>
+
+        [HarmonyPatch(typeof(InventoryGrid), "OnLeftClick")]
+        public static class No_Inventory_Ctrl_Left_Click
+        {
+            private static bool Prefix(InventoryGrid __instance)
+            {
+                if (WorldofValheimZones.ServerMode)
+                {
+                    return true;
+                }
+                bool isInArea = false;
+                // Ward Check
+                if (Player.m_localPlayer)
+                {
+                    if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+                    {
+                        if (Client.Ward.Drop && PrivateArea.CheckInPrivateArea(Player.m_localPlayer.transform.position, false))
+                        {
+                            if (!PrivateArea.CheckAccess(Player.m_localPlayer.transform.position, 0f, true, false))
+                            {
+                                Util.DoAreaEffectW(Player.m_localPlayer.transform.position);
+                                MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is a Warded Area", 0, null);
+                                isInArea = true;
+                                return !isInArea;
+                            }
+                        }
+                        if (Util.RestrictionCheck("noitemdrop"))
+                        {
+                            if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+                            {
+                                isInArea = true;
+                                Util.DoAreaEffect(Player.m_localPlayer.transform.position + Vector3.up * 0.5f);
+                                MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is a Private Area", 0, null);
+                            }
+                        }
+                    }
+                }
+                return !isInArea;
+            }
+        }
+
+        /// <summary>
+        /// HarmonyPatch Type: InventoryGui Method: OnDropOutside
+        /// This method includes:
+        ///     If in a warded area do not drop items.
+        ///     If in a zone with "NoItemDrop" configuration do not drop items.
+        ///     Last Updated: 4/24/2021
+        ///     Status: 100% Working
+        /// </summary>
+        [HarmonyPatch(typeof(InventoryGui), "OnDropOutside")]
+        public static class InventoryGui_No_Drop_Patch
+        {
+            private static bool Prefix(InventoryGui __instance)
+            {
+                if (WorldofValheimZones.ServerMode)
+                {
+                    return true;
+                }
+                bool isInArea = false;
+                // Ward Check
+                if (Client.Ward.Drop && PrivateArea.CheckInPrivateArea(Player.m_localPlayer.transform.position, false))
+                {
+                    if (!PrivateArea.CheckAccess(Player.m_localPlayer.transform.position, 0f, true, false))
+                    {
+                        bool test = PrivateArea.CheckAccess(Player.m_localPlayer.transform.position);
+                        long PlayerID = Player.m_localPlayer.GetPlayerID();
+                        Util.DoAreaEffectW(Player.m_localPlayer.transform.position);
+                        MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is a Warded Area", 0, null);
+                        isInArea = true;
+                        return !isInArea;
+                    }
+                }
+                if (Util.RestrictionCheck("noitemdrop"))
+                {
+                    if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+                    {
+                        isInArea = true;
+                        Util.DoAreaEffect(Player.m_localPlayer.transform.position + Vector3.up * 0.5f);
+                        MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is a Private Area", 0, null);
+                    }
+                }
+                return !isInArea;
+            }
+        }
+        /// <summary>
+        /// HarmonyPatch Type: Character Method: Damage
+        /// This method includes:
+        ///     If in a warded area do not drop items.
+        ///     If attacking a Monster
+        ///         If damagemultipliertomobs is enabled do (X)% damage to mobs
+        ///     if attacking a Player
+        ///         If damagemultipliertoplayers is enabled do (X)% damage to players
+        ///     Last Updated: 4/24/2021
+        ///     Status: 100% Working
+        /// </summary>
         [HarmonyPatch(typeof(Character), "Damage")]
         public static class Damage_Modifier
         {
-            
-            public static void Prefix(Character __instance, HitData hit)
+            public static void Prefix(Character __instance, HitData hit, ZNetView ___m_nview)
             {
-                long LocalPlayer = long.Parse("0000000");
-                if (Player.m_localPlayer)
-                    LocalPlayer = Player.m_localPlayer.GetZDOID().m_userID;
-                long RemotePlayer = __instance.GetZDOID().m_userID;
-#if DEBUG
-                Debug.Log($"Local UID: {LocalPlayer} Remote UID: {RemotePlayer}");
-#endif
-                if (LocalPlayer == RemotePlayer)
+                if (__instance.m_faction != Character.Faction.Players)
                 {
 #if DEBUG
-                    Debug.Log($"Checking Local Player against DamageMultiplierToPlayers");
+                        Debug.Log($"A monster is being attacked!");
 #endif
-                    if (Util.RestrictionCheck("damagemultipliertoplayers"))
+                    if (Util.RestrictionCheckNone(__instance, "damagemultipliertomobs") && (__instance.m_faction != Character.Faction.Players))
                     {
+                        float multiplier = Util.RestrictionCheckFloatReturnNone(__instance, "damagemultipliertomobs");
 #if DEBUG
-                        Debug.Log($Local Player is restricted! Lets modify data");
-#endif
-                        float multiplier = Util.RestrictionCheckFloatReturn("damagemultipliertoplayers");
-#if DEBUG
-                        Debug.Log($"The multiplier is: {multiplier}");
+                            Debug.Log($"Multiplier: {multiplier}");
 #endif
                         hit.m_damage.m_damage *= multiplier;
                         hit.m_damage.m_blunt *= multiplier;
@@ -377,65 +652,41 @@ namespace WorldofValheimZones
                         return;
                     }
                 }
-                else
+                else if (__instance.m_faction == Character.Faction.Players)
                 {
 #if DEBUG
-                    Debug.Log($"Instance is not a local player.  Lets see what it really is...");
+                        Debug.Log("A player is being Attacked!");
 #endif
-                    if (__instance.m_faction != Character.Faction.Players)
+                    if (Util.RestrictionCheckNone(__instance, "damagemultipliertoplayers"))
                     {
-#if DEBUG
-                        Debug.Log($"A monster is being attacked!");
-#endif
-                        if (Util.RestrictionCheckNone(__instance, "damagemultipliertomobs") && (__instance.m_faction != Character.Faction.Players))
-                        {
-                            float multiplier = Util.RestrictionCheckFloatReturnNone(__instance, "damagemultipliertomobs");
-#if DEBUG
-                            Debug.Log($"Multiplier: {multiplier}");
-#endif
-                            hit.m_damage.m_damage *= multiplier;
-                            hit.m_damage.m_blunt *= multiplier;
-                            hit.m_damage.m_slash *= multiplier;
-                            hit.m_damage.m_pierce *= multiplier;
-                            hit.m_damage.m_chop *= multiplier;
-                            hit.m_damage.m_pickaxe *= multiplier;
-                            hit.m_damage.m_fire *= multiplier;
-                            hit.m_damage.m_frost *= multiplier;
-                            hit.m_damage.m_lightning *= multiplier;
-                            hit.m_damage.m_poison *= multiplier;
-                            hit.m_damage.m_spirit *= multiplier;
-                            return;
-                        }
-                    }
-                    else if (__instance.m_faction == Character.Faction.Players)
-                    {
-#if DEBUG
-                        Debug.Log("A remote player is being targeted.");
-#endif
-                        if (Util.RestrictionCheckCharacter(__instance, "damagemultipliertoplayers"))
-                        {
-                            float multiplier = Util.RestrictionCheckFloatReturnCharacter(__instance, "damagemultipliertoplayers");
+                        float multiplier = Util.RestrictionCheckFloatReturnNone(__instance, "damagemultipliertoplayers");
 #if DEBUG
                             Debug.Log($"Mutliplier: {multiplier}");
 #endif
-                            hit.m_damage.m_damage *= multiplier;
-                            hit.m_damage.m_blunt *= multiplier;
-                            hit.m_damage.m_slash *= multiplier;
-                            hit.m_damage.m_pierce *= multiplier;
-                            hit.m_damage.m_chop *= multiplier;
-                            hit.m_damage.m_pickaxe *= multiplier;
-                            hit.m_damage.m_fire *= multiplier;
-                            hit.m_damage.m_frost *= multiplier;
-                            hit.m_damage.m_lightning *= multiplier;
-                            hit.m_damage.m_poison *= multiplier;
-                            hit.m_damage.m_spirit *= multiplier;
-                            return;
-                        }
+                        hit.m_damage.m_damage *= multiplier;
+                        hit.m_damage.m_blunt *= multiplier;
+                        hit.m_damage.m_slash *= multiplier;
+                        hit.m_damage.m_pierce *= multiplier;
+                        hit.m_damage.m_chop *= multiplier;
+                        hit.m_damage.m_pickaxe *= multiplier;
+                        hit.m_damage.m_fire *= multiplier;
+                        hit.m_damage.m_frost *= multiplier;
+                        hit.m_damage.m_lightning *= multiplier;
+                        hit.m_damage.m_poison *= multiplier;
+                        hit.m_damage.m_spirit *= multiplier;
+                        return;
                     }
                 }
+
             }
         }
-        // Damage Multipliers! (DamageMultiplierToTrees(1))
+        /// <summary>
+        /// HarmonyPatch Type: TreeBase Method: Damage
+        /// This method includes:
+        ///     If in a zone with "damagemultipliertotrees" configuration do (X) percent damage to trees.
+        ///     Last Updated: 4/24/2021
+        ///     Status: 100% Working
+        /// </summary>
         [HarmonyPatch(typeof(TreeBase), "Damage")]
         public static class TreeBase_Modifier
         {
@@ -462,7 +713,13 @@ namespace WorldofValheimZones
                 }
             }
         }
-        // Damage Multipliers! (DamageMultiplierToTrees(1))
+        /// <summary>
+        /// HarmonyPatch Type: TreeLog Method: Damage
+        /// This method includes:
+        ///     If in a zone with "damagemultipliertotrees" configuration do (X) percent damage to trees.
+        ///     Last Updated: 4/24/2021
+        ///     Status: 100% Working
+        /// </summary>
         [HarmonyPatch(typeof(TreeLog), "Damage")]
         public static class TreeLog_Modifier
         {
@@ -487,52 +744,6 @@ namespace WorldofValheimZones
                     hit.m_damage.m_poison *= multiplier;
                     hit.m_damage.m_spirit *= multiplier;
                 }
-            }
-        }
-
-
-        // No Dropping Items! (NoItemDrop)
-        [HarmonyPatch(typeof(InventoryGui), "OnDropOutside")]
-        public static class NoDrop_Patch
-        {
-            private static bool Prefix(InventoryGui __instance)
-            {
-                if (WorldofValheimZones.ServerMode)
-                {
-                    return true;
-                }
-                bool isInArea = false;
-                if (Util.RestrictionCheck("noitemdrop"))
-                {
-                    isInArea = true;
-                    Util.DoAreaEffect(Player.m_localPlayer.transform.position + Vector3.up * 0.5f);
-                    MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is Private Area", 0, null);
-                }
-                return !isInArea;
-            }
-        }
-
-        // No Dropping Items! (NoItemDrop)
-        [HarmonyPatch(typeof(InventoryGrid), "OnLeftClick")]
-        public static class NoDrop_Patch2
-        {
-            private static bool Prefix(InventoryGrid __instance)
-            {
-                if (WorldofValheimZones.ServerMode)
-                {
-                    return true;
-                }
-                bool isInArea = false;
-                if (Util.RestrictionCheck("noitemdrop"))
-                {
-                    if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
-                    {
-                        isInArea = true;
-                        Util.DoAreaEffect(Player.m_localPlayer.transform.position + Vector3.up * 0.5f);
-                        MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is Private Area", 0, null);
-                    }
-                }
-                return !isInArea;
             }
         }
     }

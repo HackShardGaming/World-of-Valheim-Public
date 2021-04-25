@@ -12,9 +12,12 @@
 ////  Config Options: Below is a list of available config options.                                      ////
 ////	NoChest: Prevent the user from accessing chests                                                 ////
 ////	NoDoors: Prevent the user from opening doors.                                                   ////
-////	NoBuilding: Prevent anyone / anything from damaging buildings.                                  ////
+////	NoBuilding: Prevent a user from building / destroying using the hammer.                         ////
+////	NoBuildDamage: Prevent anyone / anything from damaging buildings.				////
 ////	NoItemPickup: Prevent the user from picking up items.                                           ////
 ////	NoItemDrop: Prevent the user from dropping items.                                               ////
+////	NoTerrain: Prevent modification of Terrain.							////
+////	NoPickaxe: Prevent the Pickaxe from being used. (Note: NoTerrain will also prevent this)	////
 ////	PushAway: Prevent the user from entering the area. (Please not if your sprint is fast enough	////
 ////		you can still push in but it will push you away just like it does if you fall off the map)./
 ////	PeriodicDamage(int): Deals (INT) damage periodically to the user.                               ////

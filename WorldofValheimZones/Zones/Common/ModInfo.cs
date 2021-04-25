@@ -11,8 +11,8 @@ namespace WorldofValheimZones
         public const string Group = "HackShardGaming";
         public const string Guid = "HackShardGaming.WorldofValheimZones";
         // Version follow Semantic Versioning Scheme (https://semver.org/)
-        public const string Version = "0.5.9";
-        public const string buildDate = "2021-04-23";
+        public const string Version = "0.5.10";
+        public const string buildDate = "2021-04-24";
         // Nexus Plugin ID (Use to maintain updates with Nexus)
         public const int NexusID = 891;
         // Use GetBuildDate(Assembly.GetExecutingAssembly()); to get build date

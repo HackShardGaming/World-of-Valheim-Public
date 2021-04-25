@@ -143,22 +143,13 @@ namespace WorldofValheimZones
             Debug.Log("S2C ZoneHandler (SendPeerInfo)");
             ZoneHandler._debug();
 #endif
-
-            rpc.Invoke("ZoneHandler", new object[] { 
-                ZoneHandler.Serialize(rpc.GetSocket().GetHostName())
-            }) ;
-
-
+            Game.instance.StartCoroutine(Util.ZoneHandler2(rpc));
             // Syncing the Client State with the server defaults.
 #if DEBUG
             Debug.Log("S2C ClientState (SendPeerInfo)");
             Client._debug();
 #endif
-            rpc.Invoke("Client", new object[] {
-                Client.Serialize()
-            });
-
-
+            Game.instance.StartCoroutine(Util.Client2(rpc));
             Util.Connections.Add(new Util.ConnectionData
             {
                 rpc = rpc

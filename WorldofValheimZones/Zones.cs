@@ -26,6 +26,9 @@ namespace WorldofValheimZones
         public static ConfigEntry<string> PVPColor;
         public static ConfigEntry<string> PVEColor;
         public static ConfigEntry<string> NonEnforcedColor;
+        public static ConfigEntry<bool> WardProtectItemDrop;
+        public static ConfigEntry<bool> WardProtectItemPickup;
+        public static ConfigEntry<bool> WardProtectDamage;
         public const int AreaRange = 100;
         public static int HealTick = 0;
         public static int DamageTick = 0;
@@ -56,6 +59,13 @@ namespace WorldofValheimZones
                 Debug.Log("[Server Mode]");
                 WorldofValheimZones.ZonePath = base.Config.Bind<string>("WorldofValheimZones", "ZonePath", ZonesLocation, "SERVER ONLY: The file path to the zone file. If it does not exist, it will be created with a default zone.");
                 WorldofValheimZones.ZoneConfigurationPath = base.Config.Bind<string>("WorldofValheimZones", "ZoneConfigurationPath", ZoneConfiguration_Location, "SERVER ONLY: Location of the ZonesPermissions file.");
+                WorldofValheimZones.WardProtectDamage = base.Config.Bind<bool>("Ward", "Building_ProtectDamage", false, "SERVER ONLY: Protect buildings from being damaged inside Warded Areas?");
+                WorldofValheimZones.WardProtectItemPickup = base.Config.Bind<bool>("Ward", "Item_Pickup", false, "SERVER ONLY: Protect Picking up items in Warded Areas?");
+                WorldofValheimZones.WardProtectItemDrop = base.Config.Bind<bool>("Ward", "Item_Drop", false, "SERVER ONLY: Protect Dropping items in Warded Areas?");
+                Client.Ward.Damage = WorldofValheimZones.WardProtectDamage.Value;
+                Client.Ward.Pickup = WorldofValheimZones.WardProtectItemPickup.Value;
+                Client.Ward.Drop = WorldofValheimZones.WardProtectItemDrop.Value;
+
                 // Check if the Zones file and folder exist
                 string pathwithoutfile2 = Path.GetDirectoryName(WorldofValheimZones.ZonePath.Value);
                 if (!Directory.Exists(pathwithoutfile2))

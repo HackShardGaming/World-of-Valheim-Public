@@ -200,10 +200,7 @@ namespace WorldofValheimServerSideCharacters
                 return;
             }
             // Ok now that that's done. Lets gogogo Servers!
-            Debug.Log("Server->Client CharacterData");
-            rpc.Invoke("CharacterData", new object[] {
-                Util.Compress(Util.LoadOrMakeCharacter(rpc.GetSocket().GetHostName()))
-            });
+            Game.instance.StartCoroutine(Util.CharacterData(rpc));
             ServerState.Connections.Add(new ServerState.ConnectionData
             {
                 rpc = rpc

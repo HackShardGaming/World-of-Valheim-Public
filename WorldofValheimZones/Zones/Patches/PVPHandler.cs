@@ -33,7 +33,7 @@ namespace WorldofValheimZones
                         // The message at the end is in the format of (PVP) (NOPVP) (NON-ENFORCED)
                         Player.m_localPlayer.Message(MessageHud.MessageType.Center, Message,
                                 0, null);
-                        if (Client.EnforceZones && ztype.PVPEnforce && (ztype.PVP != Player.m_localPlayer.m_pvp) && (WorldofValheimZones.BiomePVPAnnouncement.Value = true))
+                        if (Client.EnforceZones && ztype.PVPEnforce && ztype.PVP != Player.m_localPlayer.m_pvp && WorldofValheimZones.BiomePVPAnnouncement.Value)
                             MessageHud.instance.ShowBiomeFoundMsg(BiomeMessage, true);
                     }
                     else
@@ -45,10 +45,9 @@ namespace WorldofValheimZones
                         // The message at the end is in the format of (PVP) (NOPVP) (NON-ENFORCED)
                         Player.m_localPlayer.Message(MessageHud.MessageType.Center, Message,
                                 0, null);
-                        if (Client.EnforceZones && ztype.PVPEnforce && (ztype.PVP != Player.m_localPlayer.m_pvp) && (WorldofValheimZones.BiomePVPAnnouncement.Value = true))
+                        if (Client.EnforceZones && ztype.PVPEnforce && ztype.PVP != Player.m_localPlayer.m_pvp && WorldofValheimZones.BiomePVPAnnouncement.Value)
                             MessageHud.instance.ShowBiomeFoundMsg(BiomeMessage, true);
                     }
-
                     // Zones are now being enforced?
                     if (Client.EnforceZones)
                     {

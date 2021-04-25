@@ -7,6 +7,9 @@ using UnityEngine.Rendering;
 using System.Linq;
 using Steamworks;
 using System.Globalization;
+using System.Collections;
+
+
 
 namespace WorldofValheimZones
 {
@@ -15,6 +18,20 @@ namespace WorldofValheimZones
     {
         public static List<Util.ConnectionData> Connections = new List<Util.ConnectionData>();
 
+        public static IEnumerator ZoneHandler2(ZRpc rpc)
+        {
+            rpc.Invoke("ZoneHandler", new object[] { 
+                ZoneHandler.Serialize(rpc.GetSocket().GetHostName())
+            }) ;
+            yield return new WaitForSeconds(2);
+        }
+        public static IEnumerator Client2(ZRpc rpc)
+        {
+            rpc.Invoke("Client", new object[] {
+                Client.Serialize()
+            });
+            yield return new WaitForSeconds(2);
+        }
         public class ConnectionData
         {
 
@@ -188,6 +205,37 @@ namespace WorldofValheimZones
             else
                 return false;
         }
+
+        public static bool RestrictionCheckTerrain(TerrainModifier __instance, string restriction)
+        {
+            TerrainModifier p = __instance;
+            // Are we in a zone? if so select that zone.
+            if (ZoneHandler.Zones.Count() == 0)
+            {
+                return false;
+            }
+            ZoneHandler.Zone z = new ZoneHandler.Zone();
+            ZoneHandler.ZoneTypes zt = new ZoneHandler.ZoneTypes();
+            List<ZoneHandler.Zone> zlist = ZoneHandler.ListOccupiedZones(p.transform.position);
+            if (zlist.Count == 0)
+            {
+                zt = ZoneHandler.FindZoneType("wilderness");
+            }
+            else
+            {
+                z = ZoneHandler.TopZone(zlist);
+                zt = ZoneHandler.FindZoneType(z.Type);
+            }
+            string key = "";
+            string admins = "";
+            // Lets set our admin list and keys...
+            admins = zt.Admins;
+            key = zt.Configurations;
+            if (key.ToLower().Contains(restriction))
+                return true;
+            else
+                return false;
+        }
         public static bool RestrictionCheckNone(Character __instance, string restriction)
         {
             Character p = __instance;
@@ -268,6 +316,26 @@ namespace WorldofValheimZones
                 worldTextInstance.m_textField.color = Color.cyan;
                 worldTextInstance.m_textField.fontSize = 24;
                 worldTextInstance.m_textField.text = "PRIVATE AREA";
+                worldTextInstance.m_timer = -2f;
+            }
+        }
+       
+
+        public static void DoAreaEffectW(Vector3 pos)
+        {
+            if (WorldofValheimZones.EffectTick <= 0)
+            {
+                WorldofValheimZones.EffectTick = 120;
+                GameObject znet = ZNetScene.instance.GetPrefab("vfx_lootspawn");
+                GameObject obj = UnityEngine.Object.Instantiate(znet, pos, Quaternion.identity);
+                DamageText.WorldTextInstance worldTextInstance = new DamageText.WorldTextInstance();
+                worldTextInstance.m_worldPos = pos;
+                worldTextInstance.m_gui = UnityEngine.Object.Instantiate<GameObject>(DamageText.instance.m_worldTextBase, DamageText.instance.transform);
+                worldTextInstance.m_textField = worldTextInstance.m_gui.GetComponent<Text>();
+                DamageText.instance.m_worldTexts.Add(worldTextInstance);
+                worldTextInstance.m_textField.color = Color.cyan;
+                worldTextInstance.m_textField.fontSize = 24;
+                worldTextInstance.m_textField.text = "WARDED AREA";
                 worldTextInstance.m_timer = -2f;
             }
         }

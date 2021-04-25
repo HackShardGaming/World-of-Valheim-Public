@@ -1,9 +1,22 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using UnityEngine;
+using System.Globalization;
+
 
 namespace WorldofValheimZones
 {
 
     public static class Client
     {
+        public struct Client_List
+        {
+            public ZDOID UID; // Users Character ID
+            public String SteamID; // Users SteamID
+        }
+        public static List<Client_List> CList = new List<Client_List>();
         // This flag tells the client to enforce the zones or ignore it.
         public static bool EnforceZones = false;
         // PVP Details
@@ -18,6 +31,12 @@ namespace WorldofValheimZones
         // Are we enforcing Position On (TRUE) or Off (FALSE)
         // Show our position on the map
         public static bool ShowPosition = false;
+        public static class Ward
+        {
+            public static bool Damage = false;
+            public static bool Pickup = false;
+            public static bool Drop = false;
+        }
         // Generic debug output
         // Do not change name to debug. Will break "debug()" function in class.
 #if DEBUG
@@ -48,6 +67,9 @@ namespace WorldofValheimZones
             zip.Write(Client.PVPMode);
             zip.Write(Client.PositionEnforce);
             zip.Write(Client.ShowPosition);
+            zip.Write(Client.Ward.Damage);
+            zip.Write(Client.Ward.Drop);
+            zip.Write(Client.Ward.Pickup);
             return zip;
         }
         // Extract the data from the zipped data
@@ -58,6 +80,9 @@ namespace WorldofValheimZones
             Client.PVPMode = data.ReadBool();
             Client.PositionEnforce = data.ReadBool();
             Client.ShowPosition = data.ReadBool();
+            Client.Ward.Damage = data.ReadBool();
+            Client.Ward.Drop = data.ReadBool();
+            Client.Ward.Pickup = data.ReadBool();
         }
         // RPC function class. This is the class that you register to receive rpc data.
         public static void RPC(ZRpc rpc, ZPackage data)

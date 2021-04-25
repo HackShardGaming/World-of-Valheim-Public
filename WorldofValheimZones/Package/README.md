@@ -40,7 +40,7 @@ Third split is the actual options you wish to implement.  Below is a list of act
 NoChest: Prevent the user from accessing chests
 NoDoors: Prevent the user from opening doors.
 NoBuilding: Prevent anyone / anything from damaging buildings.
-NoPickup: Prevent the user from picking up items.
+NoItemPickup: Prevent the user from picking up items.
 NoItemDrop: Prevent the user from dropping items.
 PushAway: Prevent the user from entering the area. (Please not if your sprint is fast enough you can still push in but it will push you away just like it does if you fall off the map).
 PeriodicDamage(int): Deals (INT) damage periodically to the user.
@@ -53,7 +53,7 @@ DamageMultiplierToTrees(int): Deals (INT) * 100 Percent damage to Trees! (This i
 
 
 Client Side Console Commands (F5 Screen)
-[/b][/size]
+
 WARNING: adding a zone the wrong way CAN and WILL break your zones file.  Make sure you know which "ZoneTypes" that you actually have!
 NOTE: We will be adding more checks into this in the future. For now it will write whatever you type there. SO.. if you type the wrong thing it WILL NOT load that zone and will have a dead line in your zones.txt!
 
@@ -78,9 +78,7 @@ All of the following commands requires the user to be an approved admin (adminli
 
 
 
-You must install this plugin on both the server & client in order to login to the server.
 Installation
-
 
 
 You must install this plugin on both the server & client in order to login to the server.
@@ -206,6 +204,15 @@ Example of a working Zone_Configuration.txt
 battle | 00000000000000000 | PeriodicDamage(lighting,1) NoItemDrop NoPickup NoBuilding NoBuildDamage NoDoors NoChest
 
 
+
+Please note: If you do not have the Zone Type: Wilderness it will cause an exception.  As a precaution we have added a default Wilderness that will get loaded in the instance of no Wilderness.
+
+Also note: If you do not have any ZONES themselves it will cause an exception.  As another precaution we have added a default zone that will spawn at 20000, 20000 if there is no existing zones in the zones file.
+
+However, if the zones_configuration file is empty that is perfectly fine.  It will just keep the defaults for the existing zones.
+The Defaults for the zones is:
+?Admins: null
+?Configuration: none
 
 
 
