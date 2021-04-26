@@ -598,12 +598,9 @@ namespace WorldofValheimZones
                 }
                 if (Util.RestrictionCheck("noitemdrop"))
                 {
-                    if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
-                    {
                         isInArea = true;
                         Util.DoAreaEffect(Player.m_localPlayer.transform.position + Vector3.up * 0.5f);
                         MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is a Private Area", 0, null);
-                    }
                 }
                 return !isInArea;
             }

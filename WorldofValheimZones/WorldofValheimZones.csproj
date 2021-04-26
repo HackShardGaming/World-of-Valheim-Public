@@ -136,9 +136,6 @@
   <ItemGroup>
     <None Include="Properties\Default_zones.txt" />
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="Properties\Default_Zone_Configurations.txt" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>call "$(SolutionDir)copyDll.bat" $(ProjectName) $(Configuration)</PostBuildEvent>
