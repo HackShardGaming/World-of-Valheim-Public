@@ -14,6 +14,7 @@ namespace ValheimPermissions
             ZNetPeer peer = ZNet.instance.GetPeer(sender);
             string peerSteamID = ((ZSteamSocket)peer.m_socket).GetPeerID().m_SteamID.ToString(); // Get the SteamID from peer.
             string[] results = text.Split(' ');
+            int i = 0;
             if (results[0].ToLower().StartsWith($"!"))
             {
                 Debug.Log($"User: {peerSteamID} is attempting to run the following command {text} ");
@@ -32,10 +33,22 @@ namespace ValheimPermissions
                         PermissionNode = PermissionNode + ".User.Add.Permission";
                         if (ValheimDB.CheckUserPermission(peerSteamID, PermissionNode))
                         {
+
+                            if (int.TryParse(results[3], out i))
+                            {
+                                Util.RoutedBroadcast(sender, $"Attempting to add the Permission Node: {results[4]} to the User: {results[3]}");
+                                Util.Dedicated_Commands.ClientSideCommands.AddUserPermission(sender, long.Parse(results[3]), results[4]);
+                                return;
+                            }
                             // Convert a Player Name back to the SteamID (put a / for spaces)
                             string User = Util.GetPeerSteamID(results[3]);
-                            Util.RoutedBroadcast(sender, $"Attempting to add the Permission Node: {results[4]} to the User: {User}");
-                            Util.Dedicated_Commands.ClientSideCommands.AddUserPermission(sender, long.Parse(User), results[4]);
+                            if (User != "00000000000000000")
+                            {
+                                Util.RoutedBroadcast(sender, $"Attempting to add the Permission Node: {results[4]} to the User: {User}");
+                                Util.Dedicated_Commands.ClientSideCommands.AddUserPermission(sender, long.Parse(User), results[4]);
+                                return;
+                            }
+                            Util.RoutedBroadcast(sender, $"ERROR: The User: {results[3]} is not online!");
                             return;
                         }
                         else
@@ -50,9 +63,20 @@ namespace ValheimPermissions
                     if (ValheimDB.CheckUserPermission(peerSteamID, PermissionNode))
                     {
                         // Convert a Player Name back to the SteamID (put a / for spaces)
+                        if (int.TryParse(results[2], out i))
+                        {
+                            Util.RoutedBroadcast(sender, $"Attempting to add the User: {results[2]} to the following Group: {results[3]}");
+                            Util.Dedicated_Commands.ClientSideCommands.AddUserToGroup(sender, long.Parse(results[2]), results[3]);
+                            return;
+                        }
                         string User = Util.GetPeerSteamID(results[2]);
-                        Util.RoutedBroadcast(sender, $"Attempting to add the User: {User} to the following Group: {results[3]}");
-                        Util.Dedicated_Commands.ClientSideCommands.AddUserToGroup(sender, long.Parse(User), results[3]);
+                        if (User != "00000000000000000")
+                        {
+                            Util.RoutedBroadcast(sender, $"Attempting to add the User: {User} to the following Group: {results[3]}");
+                            Util.Dedicated_Commands.ClientSideCommands.AddUserToGroup(sender, long.Parse(User), results[3]);
+                            return;
+                        }
+                        Util.RoutedBroadcast(sender, $"ERROR: The User: {results[2]} is not online!");
                         return;
                     }
                     else
@@ -69,10 +93,21 @@ namespace ValheimPermissions
                         PermissionNode = PermissionNode + ".User.Del.Permission";
                         if (ValheimDB.CheckUserPermission(peerSteamID, PermissionNode))
                         {
+                            if (int.TryParse(results[3], out i))
+                            {
+                                Util.RoutedBroadcast(sender, $"Attempting to delete the Permission Node: {results[4]} from the User: {results[3]}");
+                                Util.Dedicated_Commands.ClientSideCommands.DeleteUserPermission(sender, long.Parse(results[3]), results[4]);
+                                return;
+                            }
                             // Convert a Player Name back to the SteamID (put a / for spaces)
                             string User = Util.GetPeerSteamID(results[3]);
-                            Util.RoutedBroadcast(sender, $"Attempting to delete the Permission Node: {results[4]} from the User: {User}");
-                            Util.Dedicated_Commands.ClientSideCommands.DeleteUserPermission(sender, long.Parse(User), results[4]);
+                            if (User != "00000000000000000")
+                            {
+                                Util.RoutedBroadcast(sender, $"Attempting to delete the Permission Node: {results[4]} from the User: {User}");
+                                Util.Dedicated_Commands.ClientSideCommands.DeleteUserPermission(sender, long.Parse(User), results[4]);
+                                return;
+                            }
+                            Util.RoutedBroadcast(sender, $"ERROR: The User: {results[3]} is not online!");
                             return;
                         }
                         else
@@ -90,10 +125,20 @@ namespace ValheimPermissions
                         PermissionNode = PermissionNode + ".User.Check.Group";
                         if (ValheimDB.CheckUserPermission(peerSteamID, PermissionNode))
                         {
+                            if (int.TryParse(results[3], out i))
+                            {
+                                Util.RoutedBroadcast(sender, $"Requested the Group Name for the User: {results[3]}");
+                                Util.Dedicated_Commands.ClientSideCommands.CheckGroup(sender, long.Parse(results[3])); return;
+                            }
                             // Convert a Player Name back to the SteamID (put a / for spaces)
                             string User = Util.GetPeerSteamID(results[3]);
-                            Util.RoutedBroadcast(sender, $"Requested the Group Name for the User: {User}");
-                            Util.Dedicated_Commands.ClientSideCommands.CheckGroup(sender, long.Parse(User));
+                            if (User != "00000000000000000")
+                            {
+                                Util.RoutedBroadcast(sender, $"Requested the Group Name for the User: {User}");
+                                Util.Dedicated_Commands.ClientSideCommands.CheckGroup(sender, long.Parse(User));
+                                return;
+                            }
+                            Util.RoutedBroadcast(sender, $"ERROR: The User: {results[3]} is not online!");
                             return;
                         }
                         else
@@ -111,19 +156,41 @@ namespace ValheimPermissions
                             // If there is no permission requested show ALL permissions
                             if (results.Count() == 4)
                             {
+                                if (int.TryParse(results[3], out i))
+                                {
+                                    Util.RoutedBroadcast(sender, $"Attempting to lookup ALL permissions for the User: {results[3]}");
+                                    Util.Dedicated_Commands.ClientSideCommands.ShowUserPermissions(sender, long.Parse(results[3]));
+                                    return;
+                                }
                                 // Convert a Player Name back to the SteamID (put a / for spaces)
                                 string User = Util.GetPeerSteamID(results[3]);
-                                Util.RoutedBroadcast(sender, $"Attempting to lookup ALL permissions for the User: {User}");
-                                Util.Dedicated_Commands.ClientSideCommands.ShowUserPermissions(sender, long.Parse(User));
+                                if (User != "00000000000000000")
+                                {
+                                    Util.RoutedBroadcast(sender, $"Attempting to lookup ALL permissions for the User: {User}");
+                                    Util.Dedicated_Commands.ClientSideCommands.ShowUserPermissions(sender, long.Parse(User));
+                                    return;
+                                }
+                                Util.RoutedBroadcast(sender, $"ERROR: The User: {results[3]} is not online!");
                                 return;
                             }
                             // Show the requested permission
                             else
                             {
                                 // Convert a Player Name back to the SteamID (put a / for spaces)
+                                if (int.TryParse(results[3], out i))
+                                {
+                                    Util.RoutedBroadcast(sender, $"Attempting to check the User: {results[3]} against the Permission Node: {results[4]}");
+                                    Util.Dedicated_Commands.ClientSideCommands.CheckUserPermission(sender, long.Parse(results[3]), results[4]);
+                                    return;
+                                }
                                 string User = Util.GetPeerSteamID(results[3]);
-                                Util.RoutedBroadcast(sender, $"Attempting to check the User: {User} against the Permission Node: {results[4]}");
-                                Util.Dedicated_Commands.ClientSideCommands.CheckUserPermission(sender, long.Parse(User), results[4]);
+                                if (User != "00000000000000000")
+                                {
+                                    Util.RoutedBroadcast(sender, $"Attempting to check the User: {User} against the Permission Node: {results[4]}");
+                                    Util.Dedicated_Commands.ClientSideCommands.CheckUserPermission(sender, long.Parse(User), results[4]);
+                                    return;
+                                }
+                                Util.RoutedBroadcast(sender, $"ERROR: The User: {results[3]} is not online!");
                                 return;
                             }
                         }

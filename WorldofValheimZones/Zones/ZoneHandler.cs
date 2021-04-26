@@ -287,91 +287,10 @@ namespace WorldofValheimZones
             _debug();
 #endif
         }
-        /*
-        public static void AddZone(long sender, ZPackage pkg)
-        {
-            Debug.Log("C->S AddZone (RPC Call)");
-            string msg = pkg.ReadString(); // Read Message from client.
-            Debug.Assert(!ZNet.instance.IsServer());
-            if (pkg != null && pkg.Size() > 0)
-            { // Check that our Package is not null, and if it isn't check that it isn't empty.
-                ZNetPeer peer = ZNet.instance.GetPeer(sender); // Get the Peer from the sender, to later check the SteamID against our Adminlist.
-                if (peer != null)
-                { // Confirm the peer exists
-                    string peerSteamID = ((ZSteamSocket)peer.m_socket).GetPeerID().m_SteamID.ToString(); // Get the SteamID from peer.
-                    if (
-                        ZNet.instance.m_adminList != null &&
-                        ZNet.instance.m_adminList.Contains(peerSteamID)
-                    )
-                    { // Check that the SteamID is in our Admin List.
-                        Debug.Log($"User is an admin and sent: {msg}");
-                    }
-                }
-                else
-                {
-                    Debug.Log($"User is NOT an admin and sent: {msg}");
-                }
-            }
-        }
-        */
-        public static void LoadZoneConfigurationData(string path)
-        {
-            if (!File.Exists(path))
-            {
-                Debug.Log("Creating Zone Custom Configuration File at {path}");
-                string text = global::WorldofValheimZones.Properties.Resources.Default_Zone_Configurations;
-                //string text = "# format: name type x z radius\nDefaultSafeZone safe 1 0.0 0.0 5.0 true";
-                if (!Directory.Exists(Path.GetDirectoryName(WorldofValheimZones.ZoneConfigurationPath.Value)))
-                    Directory.CreateDirectory(Path.GetDirectoryName(WorldofValheimZones.ZoneConfigurationPath.Value));
-                File.WriteAllText(path, text);
-            }
-            else
-            {
-                Debug.Log($"Loading Zone Custom Configuration File: {path}");
-            }
-            foreach (string text2 in File.ReadAllLines(path))
-            {
-                if (!string.IsNullOrWhiteSpace(text2) && text2 != null && !text2.StartsWith("/") && !text2.StartsWith("#") && text2 != string.Empty)
-                {
-                    string[] array = text2.Replace(" ", "").Split('|');
-                    ZoneHandler.ZoneTypes zt = ZoneHandler.FindZoneType(array[0]);
-                    if (zt.Name.ToLower() != array[0].ToString().ToLower())
-                    {
-                        Debug.Log($"ERROR: While applying custom configuration for the Zone Type: {array[0]},");
-                        Debug.Log($"Zone Type: {array[0]} Does not exist in the {WorldofValheimZones.ZonePath.Value} file!");
-                        return;
-                    }
-                    else
-                    { 
-                        Debug.Log($"Loading Custom Configuration for the Zone Type {array[0]}");
-                        zt.Admins = array[1];
-                        zt.Configurations = array[2];
-                    }
-                }
-            }
-#if DEBUG
-            _debug();
-#endif
-        }
-        // WorldofValheimZones.ServerSafeZonePath.Value
+         // WorldofValheimZones.ServerSafeZonePath.Value
         public static void LoadZoneData(string ZonePath)
         {
-            
-
-            if (!File.Exists(ZonePath))
-            {
-                Debug.Log($"Creating zone file at {ZonePath}");
-                string text = global::WorldofValheimZones.Properties.Resources.Default_zones;
-                //string text = "# format: name type x z radius\nDefaultSafeZone safe 1 0.0 0.0 5.0 true";
-                if (!Directory.Exists(Path.GetDirectoryName(WorldofValheimZones.ZonePath.Value)))
-                    Directory.CreateDirectory(Path.GetDirectoryName(WorldofValheimZones.ZonePath.Value));
-                File.WriteAllText(ZonePath, text);
-            }
-            else
-            {
-                Debug.Log($"Loading zone file: {ZonePath}");
-            }
-
+            Debug.Log($"Loading zone file: {ZonePath}");
             // Clean up the old zone data
             ZoneT.Clear();
             Zones.Clear();
@@ -380,17 +299,16 @@ namespace WorldofValheimZones
             {
                 if (!string.IsNullOrWhiteSpace(text2) && text2[0] != '#')
                 {
-                    string[] array2 = text2.Split(Array.Empty<char>());
-
+                    string[] array2 = text2.Split(' ');
                     // Check if it is a type
                     if (array2[0].ToLower() == "type:")
                     {
                         Debug.Log($"Loading Type: {array2[1]}");
-                        ZoneTypes zt = new ZoneTypes {Name = array2[1]};
-                        
+                        ZoneTypes zt = new ZoneTypes { Name = array2[1] };
+
                         // Go through each argument to override defaults.
 
-                        if(array2.Length >= 3)
+                        if (array2.Length >= 3)
                             zt.PVP = bool.Parse(array2[2]);
 
                         if (array2.Length >= 4)
@@ -404,58 +322,50 @@ namespace WorldofValheimZones
 
                         ZoneT.Add(zt);
                     }
-                    else
+                    else if (array2[0].ToLower() == "configuration:")
                     {
-                        if (array2.Length != 7)
+                        string[] array = text2.Replace(":", "|").Replace(" ", "").Split('|');
+                        ZoneHandler.ZoneTypes zt = ZoneHandler.FindZoneType(array[1]);
+                        if (zt.Name.ToLower() != array[1].ToString().ToLower())
                         {
-                            Debug.Log($"Zone '{text2}' is not correctly formatted.");
+                            Debug.Log($"ERROR: While applying custom configuration for the Zone Type: {array[1]},");
+                            Debug.Log($"Zone Type: {array[1]} Does not exist in the {WorldofValheimZones.ZonePath.Value} file!");
+                            return;
                         }
                         else
                         {
+                            Debug.Log($"Loading Custom Configuration for the Zone Type {array[1]}");
+                            zt.Admins = array[2];
+                            zt.Configurations = array[3];
+                        }
+                    }
+                    else
+                    {
+                        if (array2.Length != 7)
+                            Debug.Log($"Zone {text2} is not correctly formated!");
+                        else
+                        {
                             Debug.Log($"Loading Zone: {array2[0]}");
-                            ///
-                            /// In this Vector3 Posi We have the following
-                            /// posi.x = the Vector2's X
-                            /// posi.y = the Vector2's Y
-                            /// posi.z = The Radius sent from the config.
-                            /// 
+                            Zone z = new Zone();
+                            z.Name = array2[0];
+                            z.Type = array2[1];
+                            z.Priority = int.Parse(array2[2]);
+                            z.Shape = array2[3];
+                            Vector2 posi = new Vector3();
                             CultureInfo info = new CultureInfo("en-US");
-                            Zone z = new Zone(pos, array2[0], array2[1], int.Parse(array2[2]), array2[3], new Vector2(Convert.ToSingle(array2[4], info), Convert.ToSingle(array2[5], info)), Convert.ToSingle(array2[7], info));
+                            z.Position = new Vector2(Convert.ToSingle(array2[4], info), Convert.ToSingle(array2[5], info));
+                            z.Radius = Convert.ToSingle(array2[6], info);
+                            //z.pvp = bool.Parse(array2[7]);
+                            z.ID = pos;
                             Zones.Add(z);
                             pos++;
                         }
                     }
                 }
             }
-            int contains2 = Zones.Count();
-            if (contains2 == 0)
-            {
-                Debug.Log("ERROR: You have no zones listed in your file! Creating you a blank one at 20000.0 0.0 20000.0");
-                Zone z = new Zone();
-                z.Name = "No-Zones";
-                z.Type = "wilderness";
-                z.Priority = 5;
-                z.Shape = "circle";
-                Vector3 posi = new Vector3(x: 20000f, y: 20000f, z: 0f);
-                z.Position.x = posi.x;
-                z.Position.y = posi.y;
-                z.Radius = posi.z;
-                Zones.Add(z);
-            }
-            bool contains = ZoneT.Any(b => b.Name == "wilderness");
-            if (!contains)
-            {
-                Debug.Log("ERROR: the ZoneType wilderness does not exist! Loading a default one with default variables..");
-                ZoneTypes zt = new ZoneTypes();
-                zt.Name = "wilderness";
-                zt.PVP = false;
-                zt.PVPEnforce = false;
-                zt.ShowPosition = false;
-                zt.PositionEnforce = false;
-                zt.Admins = "";
-                zt.Configurations = "";
-                ZoneT.Add(zt);
-            }
+#if DEBUG
+            _debug();
+#endif
         }
     }
 }

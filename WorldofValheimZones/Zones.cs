@@ -18,7 +18,6 @@ namespace WorldofValheimZones
     [BepInPlugin(ModInfo.Guid, ModInfo.Name, ModInfo.Version)]
     public class WorldofValheimZones : BaseUnityPlugin
     {
-        private static WorldofValheimZones context;
         public const string Name = ModInfo.Name;
         public const string Guid = ModInfo.Guid;
         public const string Version = ModInfo.Version;
@@ -58,14 +57,12 @@ namespace WorldofValheimZones
             {
                 Debug.Log("[Server Mode]");
                 WorldofValheimZones.ZonePath = base.Config.Bind<string>("WorldofValheimZones", "ZonePath", ZonesLocation, "SERVER ONLY: The file path to the zone file. If it does not exist, it will be created with a default zone.");
-                WorldofValheimZones.ZoneConfigurationPath = base.Config.Bind<string>("WorldofValheimZones", "ZoneConfigurationPath", ZoneConfiguration_Location, "SERVER ONLY: Location of the ZonesPermissions file.");
                 WorldofValheimZones.WardProtectDamage = base.Config.Bind<bool>("Ward", "Building_ProtectDamage", false, "SERVER ONLY: Protect buildings from being damaged inside Warded Areas?");
                 WorldofValheimZones.WardProtectItemPickup = base.Config.Bind<bool>("Ward", "Item_Pickup", false, "SERVER ONLY: Protect Picking up items in Warded Areas?");
                 WorldofValheimZones.WardProtectItemDrop = base.Config.Bind<bool>("Ward", "Item_Drop", false, "SERVER ONLY: Protect Dropping items in Warded Areas?");
                 Client.Ward.Damage = WorldofValheimZones.WardProtectDamage.Value;
                 Client.Ward.Pickup = WorldofValheimZones.WardProtectItemPickup.Value;
                 Client.Ward.Drop = WorldofValheimZones.WardProtectItemDrop.Value;
-
                 // Check if the Zones file and folder exist
                 string pathwithoutfile2 = Path.GetDirectoryName(WorldofValheimZones.ZonePath.Value);
                 if (!Directory.Exists(pathwithoutfile2))
@@ -83,26 +80,7 @@ namespace WorldofValheimZones
                 zonewatcher.Changed += OnChangedZONE;
                 zonewatcher.Filter = Path.GetFileName(WorldofValheimZones.ZonePath.Value);
                 zonewatcher.EnableRaisingEvents = true;
-                // Check if the Zone Configurations file and folder exist.
-                string pathwithoutfile = Path.GetDirectoryName(WorldofValheimZones.ZoneConfigurationPath.Value);
-                if (!Directory.Exists(pathwithoutfile))
-                    Directory.CreateDirectory(Path.GetDirectoryName(WorldofValheimZones.ZoneConfigurationPath.Value));
-                Debug.Log(Path.GetDirectoryName(WorldofValheimZones.ZoneConfigurationPath.Value));
-                if (!File.Exists(WorldofValheimZones.ZoneConfigurationPath.Value))
-                {
-                    Debug.Log($"Creating zone permissions file at {WorldofValheimZones.ZoneConfigurationPath.Value}");
-                    string text = global::WorldofValheimZones.Properties.Resources.Default_Zone_Configurations;
-                    File.WriteAllText(WorldofValheimZones.ZoneConfigurationPath.Value, text);
-                }
-                // Now lets watch Zone Configurations File for changes.
-                watcher = new FileSystemWatcher(Path.GetDirectoryName(WorldofValheimZones.ZoneConfigurationPath.Value));
-                watcher.IncludeSubdirectories = true;
-                Debug.Log("STARTED WATCHER AT " + Path.GetDirectoryName(WorldofValheimZones.ZoneConfigurationPath.Value));
-                watcher.Changed += OnChangedAREA;
-                watcher.Filter = Path.GetFileName(WorldofValheimZones.ZoneConfigurationPath.Value);
-                watcher.EnableRaisingEvents = true;
                 ZoneHandler.LoadZoneData(WorldofValheimZones.ZonePath.Value);
-                ZoneHandler.LoadZoneConfigurationData(WorldofValheimZones.ZoneConfigurationPath.Value);
             }
             else
             {
@@ -112,7 +90,6 @@ namespace WorldofValheimZones
                 WorldofValheimZones.PVEColor = base.Config.Bind<string>("Colors", "PVEColor", "White", "What color should our 'Now Entering' message be if the zone type has PVE off");
                 WorldofValheimZones.NonEnforcedColor = base.Config.Bind<string>("Colors", "NonEnforcedColor", "Yellow", "What color should our 'Now Entering' message be if the zone type has No PVP Enforcement");
             }
-            context = this;
             Debug.Log("Haz awoke!!?!");
 #if DEBUG
             Debug.Log("Development Version Activated!!!");
@@ -143,22 +120,6 @@ namespace WorldofValheimZones
             ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.Everybody, "ZoneHandler", new object[] {
                         ZoneHandler.Serialize(null)
                     });
-        }
-        private static FileSystemWatcher watcher;
-        private static void OnChangedAREA(object sender, FileSystemEventArgs e)
-        {
-            if (e.ChangeType != WatcherChangeTypes.Changed)
-            {
-                return;
-            }
-            ZLog.Log("AREA FILE CHANGED");
-            if (ZNet.instance.IsServer() && ZNet.instance.IsDedicated())
-            {
-                ZoneHandler.LoadZoneConfigurationData(WorldofValheimZones.ZoneConfigurationPath.Value);
-                ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.Everybody, "ZoneHandler", new object[] {
-                        ZoneHandler.Serialize(null)
-                    });
-            }
         }
     }
 }

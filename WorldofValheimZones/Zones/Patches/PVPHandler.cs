@@ -20,6 +20,7 @@ namespace WorldofValheimZones
 
                 ZoneHandler.Zone zone;
                 ZoneHandler.ZoneTypes ztype;
+                string Message = "";
                 bool changed;
                 bool zonedDetected = ZoneHandler.Detect(Player.m_localPlayer.transform.position, out changed, out zone, out ztype);
                 if (changed)
@@ -28,7 +29,7 @@ namespace WorldofValheimZones
                     {
                         var color = (ztype.PVPEnforce ? (ztype.PVP ? WorldofValheimZones.PVPColor.Value : WorldofValheimZones.PVEColor.Value) : WorldofValheimZones.NonEnforcedColor.Value);
                         string Name = zone.Name.Replace("_", " ");
-                        string Message = $"<color={color}>Now entering <b>{Name}</b>.</color>";
+                        Message = $"<color={color}>Now entering <b>{Name}</b>.</color>";
                         string BiomeMessage = (ztype.PVPEnforce ? ztype.PVP ? "PVP Enabled" : "PVP Disabled" : String.Empty);
                         // The message at the end is in the format of (PVP) (NOPVP) (NON-ENFORCED)
                         Player.m_localPlayer.Message(MessageHud.MessageType.Center, Message,
@@ -40,11 +41,10 @@ namespace WorldofValheimZones
                     {
                         var color = (ztype.PVPEnforce ? (ztype.PVP ? WorldofValheimZones.PVPColor.Value : WorldofValheimZones.PVEColor.Value) : WorldofValheimZones.NonEnforcedColor.Value);
                         string Name = "The Wilderness";
-                        string Message = $"<color={color}>Now entering <b>{Name}</b>.</color>";
+                        Message = $"<color={color}>Now entering <b>{Name}</b>.</color>";
                         string BiomeMessage = (ztype.PVPEnforce ? ztype.PVP ? "PVP Enabled" : "PVP Disabled" : String.Empty);
                         // The message at the end is in the format of (PVP) (NOPVP) (NON-ENFORCED)
-                        Player.m_localPlayer.Message(MessageHud.MessageType.Center, Message,
-                                0, null);
+
                         if (Client.EnforceZones && ztype.PVPEnforce && ztype.PVP != Player.m_localPlayer.m_pvp && WorldofValheimZones.BiomePVPAnnouncement.Value)
                             MessageHud.instance.ShowBiomeFoundMsg(BiomeMessage, true);
                     }
@@ -64,6 +64,8 @@ namespace WorldofValheimZones
                         Player.m_localPlayer.SetPVP(Client.PVPMode);
                         InventoryGui.instance.m_pvp.isOn = Client.PVPMode;
                         InventoryGui.instance.m_pvp.interactable = !Client.PVPEnforced;
+                        Player.m_localPlayer.Message(MessageHud.MessageType.Center, Message,
+        0, null);
                         ZNet.instance.SetPublicReferencePosition(Client.ShowPosition);
                         // Other settings are scattered among the wind to other functions
                         // (Use Client class for the current state)

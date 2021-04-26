@@ -384,7 +384,6 @@ namespace WorldofValheimZones
                 if (PlayerPermission)
                 {
                     ZoneHandler.LoadZoneData(WorldofValheimZones.ZonePath.Value);
-                    ZoneHandler.LoadZoneConfigurationData(WorldofValheimZones.ZoneConfigurationPath.Value);
                     Util.Broadcast("Reloading Zone");
                     Debug.Log("S2C ZoneHandler (SendPeerInfo)");
                     ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.Everybody, "ZoneHandler", new object[] {
@@ -435,22 +434,23 @@ namespace WorldofValheimZones
                             Util.RoutedBroadcast(sender, msg);
                             return;
                         }
+                        Single i = new float();
                         string X = results[4];
-                        if (!X.Contains("."))
+                        if (!Single.TryParse(X, out i))
                         {
                             msg = $"ERROR: The requested X {X} is incorrectly formated! (Correct Format is 0.0)!";
                             Util.RoutedBroadcast(sender, msg);
                             return;
                         }
                         string Y = results[5];
-                        if (!Y.Contains("."))
+                        if (!Single.TryParse(Y, out i))
                         {
                             msg = $"ERROR: The requested Y {Y} is incorrectly formated! (Correct Format is 0.0)!";
                             Util.RoutedBroadcast(sender, msg);
                             return;
                         }
                         string R = results[6];
-                        if (!R.Contains("."))
+                        if (!Single.TryParse(R, out i))
                         {
                             msg = $"ERROR: The requested Radius {R} is incorrectly formated! (Correct Format is 0.0)!";
                             Util.RoutedBroadcast(sender, msg);

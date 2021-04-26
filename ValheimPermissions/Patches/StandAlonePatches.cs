@@ -74,9 +74,9 @@ namespace ValheimPermissions
                     string command = text.Remove(0, 20);
                     Traverse.Create(__instance).Method("AddString", new object[] { $"{ModInfo.Title}: Sending command {command} to the server check your chat message for a reply" }).GetValue();
                     ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "ClientSideCommands", command);
-                    return true;
+                    return false;
                 }
-                return false;
+                return true;
             }
         }
     }
