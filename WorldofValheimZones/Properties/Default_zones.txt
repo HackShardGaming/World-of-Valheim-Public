@@ -16,6 +16,35 @@ Type: safe false true true true
 Type: battle true true false true
 
 
+# [Configuration]
+# ZoneType: Name of the Zone Type we are attaching to
+# Admins: List of all steamID's seperated by spaces that you want to be (Owners) of the zone type .
+# Configuration: Config options for that zone seperated by spaces. Refer to the list below for available options (Note: Damage mods will not be disabled to admins in a zone)
+#	NoChest: Prevent the user from accessing chests 
+#	NoDoors: Prevent the user from opening doors. 
+#	NoBuilding: Prevent a user from buildingdestroying using the hammer. 
+#	NoBuildDamage: Prevent anyoneanything from damaging buildings.				
+#	NoItemPickup: Prevent the user from picking up items. 
+#	NoItemDrop: Prevent the user from dropping items. 
+#	NoTerrain: Prevent modification of Terrain.							
+#	NoPickaxe: Prevent the Pickaxe from being used. (Note: NoTerrain will also prevent this)	
+#	PushAway: Prevent the user from entering the area. (Please not if your sprint is fast enough	
+#		you can still push in but it will push you away just like it does if you fall off the map).
+#	PeriodicDamage(int): Deals (INT) damage periodically to the user. 
+#	PeriodicDamage(type,int) Deals (INT) damage of the damage type: (type) periodically to the user.
+#		Damage types include: Fire, Frost, Lightning, Poison, Pierce, Blunt,, Slash, and Damage 
+#	PeriodicHeal(int) Heals the user for (INT) Periodically 
+#	DamageMultiplierToMobs(int): Deals (INT) * 100 Percent damage to Mobs (Includes Mob 
+#		on Mob!) (1 = 100%) 
+#	DamageMultiplierToPlayers(int): Deals (INT) * 100 Percent damage to Players (This currently 
+#		does not work in PVP) (1 = 100%)
+#	DamageMultiplierToTrees(int): Deals (INT) * 100 Percent damage to Trees! (This includes 
+#		trees falling on trees!) (1 = 100%) 
+# Configuration: [ZoneType] | [Admins] | [Configuration]
+Configuration: wilderness | null | null
+Configuration: safe | null | null
+Configuration: battle | null | null
+
 # [Zones]
 # Name: Name for the area.
 # ZoneType : Name the zonetype for the zone

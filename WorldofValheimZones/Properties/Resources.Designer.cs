@@ -61,19 +61,6 @@ namespace WorldofValheimZones.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        /////// This is a demonstration section for the Zone Configurations.                                       ////
-        /////// This file will be formated in the following way                                                    ////
-        /////// ZONETYPE | STEAMIDS | CONFIG OPTIONS                                                               ////
-        ///////                                                                     [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string Default_Zone_Configurations {
-            get {
-                return ResourceManager.GetString("Default_Zone_Configurations", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to # Zone Configuration File
         ///# Here you will specify the zone types and zones they occupy.
         ///
