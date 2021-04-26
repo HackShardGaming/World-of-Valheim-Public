@@ -48,6 +48,8 @@ namespace WorldofValheimServerSideCharacters
         {
             private static void Prefix()
             {
+                Debug.Log("New Connection! Reseting Connection Count to 0");
+                ServerState.ConnectionCount = 0;
                 ZRoutedRpc.instance.Register("ShutdownServer", new Action<long, ZPackage>(RPC.ShutdownServer)); // Server Shutdown Registering
                 ZRoutedRpc.instance.Register("SaveAll", new Action<long, ZPackage>(RPC.SaveAll)); // Save all online users
                 ZRoutedRpc.instance.Register("ReloadDefault", new Action<long, ZPackage>(RPC.ReloadDefault)); // Save all online users
@@ -56,6 +58,7 @@ namespace WorldofValheimServerSideCharacters
 
         // Patches assembly_valheim::FejdStartup::Update
         // Note: Main class for the game
+        /*
         [HarmonyPostfix]
         [HarmonyPatch(typeof(FejdStartup), "Update")]
         private static void FejdStartup__Update(GameObject ___m_startGamePanel, Button ___m_worldStart)
@@ -72,7 +75,7 @@ namespace WorldofValheimServerSideCharacters
                         Text componentInChildren = gameObject.GetComponentInChildren<Text>();
                         if (componentInChildren != null)
                         {
-                            componentInChildren.text = "Start (WARNING MANY CONSOLE ERRORS)";
+                            componentInChildren.text = "Start";
                         }
                     }
                     ___m_worldStart.interactable = true;
@@ -92,6 +95,7 @@ namespace WorldofValheimServerSideCharacters
                 }
             }
         }
+        */
 
         //
         // This is the class that controls allowing logout or quit
@@ -148,6 +152,7 @@ namespace WorldofValheimServerSideCharacters
         [HarmonyPatch(typeof(ZNet), "OnNewConnection")]
         private static void ZNet__OnNewConnection(ZNet __instance, ZNetPeer peer)
         {
+            Debug.Log("Checking connection?");
             // Are we the Client?
             if (!__instance.IsServer())
             {
@@ -218,12 +223,21 @@ namespace WorldofValheimServerSideCharacters
             }
             StandalonePatches.m_quitting = true;
             Debug.Assert(!ZNet.instance.IsServer());
-            Debug.Log("Quitting: sending ExitServer and waiting.");
-            Util.GetServer().rpc.Invoke("ExitServer", new object[]
+            Debug.Log($"Connection Count {ServerState.Connections.Count}");
+            ServerState.ConnectionCount = ServerState.Connections.Count;
+            if (ServerState.Connections.Count > 0)
             {
+                Debug.Log("Quitting: sending ExitServer and waiting.");
+                Util.GetServer().rpc.Invoke("ExitServer", new object[]
+                {
                 Util.Compress(Game.instance.GetPlayerProfile().Serialize(Player.m_localPlayer, true))
-            });
-            return false;
+                });
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
 
         [HarmonyPrefix]
@@ -245,12 +259,21 @@ namespace WorldofValheimServerSideCharacters
             else
             {
                 Debug.Assert(!ZNet.instance.IsServer());
-                Debug.Log("Quitting: sending ExitServer and waiting.");
-                Util.GetServer().rpc.Invoke("ExitServer", new object[]
+                Debug.Log($"Connection Count {ServerState.Connections.Count}");
+                ServerState.ConnectionCount = ServerState.Connections.Count;
+                if (ServerState.Connections.Count > 0)
                 {
-                    Util.Compress(Game.instance.GetPlayerProfile().Serialize(Player.m_localPlayer, true))
-                });
-                return false;
+                    Debug.Log("Quitting: sending ExitServer and waiting.");
+                    Util.GetServer().rpc.Invoke("ExitServer", new object[]
+                    {
+                Util.Compress(Game.instance.GetPlayerProfile().Serialize(Player.m_localPlayer, true))
+                    });
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
             }
         }
 
@@ -266,12 +289,21 @@ namespace WorldofValheimServerSideCharacters
             }
             StandalonePatches.m_logging = true;
             Debug.Assert(!ZNet.instance.IsServer());
-            Debug.Log("Logging out: sending ExitServer and waiting.");
-            Util.GetServer().rpc.Invoke("ExitServer", new object[]
+            Debug.Log($"Connection Count {ServerState.Connections.Count}");
+            ServerState.ConnectionCount = ServerState.Connections.Count;
+            if (ServerState.Connections.Count > 0)
             {
+                Debug.Log("Logging out: sending ExitServer and waiting.");
+                Util.GetServer().rpc.Invoke("ExitServer", new object[]
+                {
                 Util.Compress(Game.instance.GetPlayerProfile().Serialize(Player.m_localPlayer, true))
-            });
-            return false;
+                });
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
 
         public static bool m_quitting;

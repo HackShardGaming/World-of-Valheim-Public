@@ -12,6 +12,12 @@ Core Features:
 
 Server-Side Characters: When a client connects to the server, the server will look and see if it has an existing character file stored for this player.  If it does not it will then create a brand new character file for the client.  It will then send the character file to the client and ask periodically for updates about that character.  If the user leaves the server the character file on the server will be updated, however, the clients character on the client will not.
 
+*NEW IN 0.5.0*
+New Feature: Single player has been reintroduced! You can now properly play single player without any problems from this plugin.  As a side note, if you enable ExportCharacter you can make a duplicate of your server side character on your local computer.  This can be useful for saving your character. 
+
+Config Option AllowSinglePlayer has been removed as it is no longer required.
+
+
 *NEW IN 0.4.0*
 New Feature: Plugin now has a Permissions system.  And thus requires another mod in order to run now! Please download: Valheim Permissions
 
@@ -44,10 +50,7 @@ All of the following commands requires the user to be an approved admin (adminli
 
 Client Side Config Variables:
 
-?>> AllowCharacterSave: This option is purely for preserving character files.  It will add the ability for the client to save there character upon logout locally as well as on the server.  However, this will NOT allow the user to modify the character data and log back into the server and have it update the server.  You will still download your character file upon every single login.
-
-
->> AllowSinglePlayer:  This option will allow a player to play single player again.  Note: If you log into a server using your single player character file it will overwrite this file.
+?>> ExportCharacter: Export character from server for single player use and/or retain character. (WARNING: LOCAL CHARACTER FILE WILL BE OVERWRITEN!!)
 
 
 Server Side Config Variables:

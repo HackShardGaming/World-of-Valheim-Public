@@ -23,7 +23,7 @@ namespace WorldofValheimServerSideCharacters
         public static ConfigEntry<int> NexusID;
         public static ConfigEntry<bool> AllowMultipleCharacters;
         public static ConfigEntry<bool> ExportCharacter;
-        public static ConfigEntry<bool> AllowSinglePlayer;
+        //public static ConfigEntry<bool> AllowSinglePlayer;
         public static ConfigEntry<int> ShutdownDelay;
         public static bool ServerMode = Util.isServer();
 
@@ -68,7 +68,7 @@ namespace WorldofValheimServerSideCharacters
             {
                 Debug.Log("[Client Mode]");
                 WorldofValheimServerSideCharacters.ExportCharacter = base.Config.Bind<bool>("WorldofValheimServerSideCharacters", "ExportCharacter", false, "CLIENT ONLY: Export character from server for single player use and/or retain character. Previously AllowCharacterSave (WARNING: THIS WILL OVERWRITE YOUR LOCAL CHARACTER FILE!! PLEASE USE A BLANK CHARACTER FILE!)");
-                WorldofValheimServerSideCharacters.AllowSinglePlayer = base.Config.Bind<bool>("WorldofValheimServerSideCharacters", "AllowSinglePlayer", false, "CLIENT ONLY: Should we allow the client to play Single Player?  (WARNING: LOTS OF CONSOLE ERRORS RIGHT NOW BUT WORKS!)");
+                //WorldofValheimServerSideCharacters.AllowSinglePlayer = base.Config.Bind<bool>("WorldofValheimServerSideCharacters", "AllowSinglePlayer", false, "CLIENT ONLY: Should we allow the client to play Single Player?  (WARNING: LOTS OF CONSOLE ERRORS RIGHT NOW BUT WORKS!)");
                 // Leave the client state configuration default (Will grab from the server)
             }
 

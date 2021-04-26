@@ -23,15 +23,26 @@ namespace WorldofValheimServerSideCharacters
         [HarmonyPatch(typeof(PlayerProfile), "SavePlayerToDisk")]
         private static bool PlayerProfile__SavePlayerToDisk()
         {
-            // Should we allow saving? Yes or no.
-            // WARNING: If ExportCharacter is true it will overwrite there existing client side character file upon exiting game.
-            if (WorldofValheimServerSideCharacters.ExportCharacter.Value)
+            Debug.Log($"Connections: {ServerState.Connections.Count}");
+            // Is there a connection to a server?
+            if (ServerState.ConnectionCount > 0)
             {
-                return true;
+                // Are we allowed to export our characters?
+                if (WorldofValheimServerSideCharacters.ExportCharacter.Value)
+                {
+                    Debug.Log($"Your WoV-SSC Character file has been locally saved!");
+                    return true;
+                }
+                // if not return false.
+                else
+                {
+                    return false;
+                }
             }
+            // No connection to a server so lets save the character!
             else
             {
-                return DisableSave.m_allow_save;
+                return true;
             }
         }
         public static bool m_allow_save;

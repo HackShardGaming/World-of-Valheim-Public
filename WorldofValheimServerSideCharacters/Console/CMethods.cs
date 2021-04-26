@@ -24,7 +24,7 @@ namespace WorldofValheimServerSideCharacters
                 {
                     Util.Compress(Game.instance.GetPlayerProfile().Serialize(Player.m_localPlayer, true))
                 });
-                Traverse.Create(__instance).Method("AddString", new object[] { $"{ModInfo.Title}: Clinet->Server CharacterUpdate" }).GetValue();
+                Traverse.Create(__instance).Method("AddString", new object[] { $"{ModInfo.Title}: Client->Server CharacterUpdate" }).GetValue();
             }
         }
         // Request that the server shuts itself down

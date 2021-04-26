@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
+using System.Text.RegularExpressions;
 using System.Globalization;
 
 namespace WorldofValheimServerSideCharacters
@@ -19,6 +20,8 @@ namespace WorldofValheimServerSideCharacters
             ServerState.ClientLoadingData = data;
             if (!ZNet.instance.IsServer())
             {
+                Debug.Log("Connection to server established! Changing ConnectionCount!");
+                ServerState.ConnectionCount = 1;
                 Debug.Log("Clearing all RPC connections");
                 ServerState.Connections = new List<ServerState.ConnectionData>();
             }
@@ -27,6 +30,7 @@ namespace WorldofValheimServerSideCharacters
             {
                 rpc = rpc
             });
+            
         }
         public static void SaveAll(long sender, ZPackage pkg)
         {
