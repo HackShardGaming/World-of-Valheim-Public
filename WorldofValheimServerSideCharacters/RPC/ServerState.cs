@@ -5,7 +5,7 @@ namespace WorldofValheimServerSideCharacters
 
     public static class ServerState
     {
-
+        public static int ConnectionCount = 0;
         public static ZPackage ClientLoadingData = null;
 
         public static bool ClientCanDC = false;
