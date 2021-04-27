@@ -1,14 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Threading;
-using BepInEx;
-using BepInEx.Configuration;
-using HarmonyLib;
-using UnityEngine;
-
 
 namespace WorldofValheimServerSideCharacters
 {
@@ -29,7 +22,7 @@ namespace WorldofValheimServerSideCharacters
 		}
 		public static void BackupScanner()
 		{
-			Debug.Log("Starting Initial backup!");
+			Debug.Log("Backup: Backup thread has been started. Initiating backup sequence.");
 			Backup_Characters(DateTime.Now.ToString("yyyy-MM-dd_HH-mm"));
 			while (true)
 			{
@@ -42,14 +35,14 @@ namespace WorldofValheimServerSideCharacters
 		{
 			var SavePath = WorldofValheimServerSideCharacters.CharacterSavePath.Value;
 			var BackupPath = Path.Combine(SavePath + ".bak", CurrentTime);
-			Debug.Log("Attempting to backup all WoV-SSC Character files!");
+			Debug.Log("Backup: Attempting to backup all Server-Side Characters..");
 			IOrderedEnumerable<FileSystemInfo> BackupDirectory = new DirectoryInfo(SavePath + ".bak").GetFileSystemInfos().OrderByDescending(fi => fi.CreationTime);
 			if (BackupDirectory.Count() > WorldofValheimServerSideCharacters.MaxBackups.Value - 1)
 			{
 				Directory.Delete(BackupDirectory.Last().FullName, true);
 			}
 			CopyCharacters(SavePath, BackupPath);
-			Debug.Log("WoV-SSC Character files have been backed up!");
+			Debug.Log("Backup: All Server-Side Characters have been backed up.");
 		}
     }
 }
