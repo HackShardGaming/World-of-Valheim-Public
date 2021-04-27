@@ -3,6 +3,8 @@ using BepInEx;
 using BepInEx.Configuration;
 using HarmonyLib;
 using ValheimPermissions;
+using System.Threading;
+
 //using WorldofValheimServerSideCharacters.Console;
 
 
@@ -25,6 +27,9 @@ namespace WorldofValheimServerSideCharacters
         public static ConfigEntry<bool> ExportCharacter;
         //public static ConfigEntry<bool> AllowSinglePlayer;
         public static ConfigEntry<int> ShutdownDelay;
+        public static ConfigEntry<int> MaxBackups;
+        public static ConfigEntry<int> BackupInterval;
+
         public static bool ServerMode = Util.isServer();
 
         //private static Console.Console console;
@@ -32,22 +37,15 @@ namespace WorldofValheimServerSideCharacters
 
         public void Awake()
         {
-            Debug.Log("Haz awoke!!?!");
-
 #if DEBUG
             Debug.Log("Development Version Activated!!!");
             Debug.Log("Warning: This may break your game (90% stable)");
             Debug.Log("***Do Not Release To Public***");
 #endif
-
-
             // Process through the configurations
 
             // Nexus ID For Nexus Update
             WorldofValheimServerSideCharacters.NexusID = base.Config.Bind<int>("WorldofValheimServerSideCharacters", "NexusID", ModInfo.NexusID, "Nexus ID to make Nexus Update Happy!");
-
-
-
             if (ServerMode)
             {
                 Debug.Log("[Server Mode]");
@@ -59,6 +57,11 @@ namespace WorldofValheimServerSideCharacters
                 WorldofValheimServerSideCharacters.DefaultCharacterPath = base.Config.Bind<string>("WorldofValheimServerSideCharacters", "DefaultCharacterPath", Path.Combine(testpath, "default_character.fch"), "SERVER ONLY: The file path to the default character file. If it does not exist, it will be created with a default character file.");
                 WorldofValheimServerSideCharacters.SaveInterval = base.Config.Bind<int>("WorldofValheimServerSideCharacters", "SaveInterval", 120, "SERVER ONLY: How often, in seconds, to save a copy of each character. Too low may result in performance issues. Too high may result in lost data in the event of a server crash.");
                 WorldofValheimServerSideCharacters.ShutdownDelay = base.Config.Bind<int>("WorldofValheimServerSideCharacters", "ShutdownDelay", 15, "SERVER ONLY: How long should we delay after !shutdown has been typed before actually shutting down.");
+                WorldofValheimServerSideCharacters.MaxBackups = base.Config.Bind<int>("Backups", "MaxBackups", 5, "SERVER ONLY: How many backups maximum would you like to store on the server? (Default is: 5) (Set to 0 to disable backups!)");
+                WorldofValheimServerSideCharacters.BackupInterval = base.Config.Bind<int>("Backups", "BackupInterval", 30, "SERVER ONLY: How often (in minutes) should we make a backup of all characters? (Default is 30 minutes)");
+                Util.LoadOrMakeDefaultCharacter();
+                Debug.Log("Backup: Creating Backup Thread!");
+                Character_Backup.BackupCharacter = new Thread(Character_Backup.BackupScanner);
                 if (!Directory.Exists(Path.GetDirectoryName(WorldofValheimServerSideCharacters.CharacterSavePath.Value)))
                     Directory.CreateDirectory(Path.GetDirectoryName(WorldofValheimServerSideCharacters.CharacterSavePath.Value));
                 if (!Directory.Exists(Path.GetDirectoryName(WorldofValheimServerSideCharacters.DefaultCharacterPath.Value)))
@@ -74,19 +77,8 @@ namespace WorldofValheimServerSideCharacters
 
             // Run the grand patch all and hope everything works (This is fine...)
             new Harmony(ModInfo.Guid).PatchAll();
+            Debug.Log("Haz awoke!!?!");
 
-            // Process through the server data needed
-            if (ServerMode)
-            {
-                Debug.Log("[Server Mode]");
-
-                /*
-                 * Setup default character file for server to use.
-                 */
-                Util.LoadOrMakeDefaultCharacter();
-
-
-            }
         }
         /* still broke...
         public async void Start()

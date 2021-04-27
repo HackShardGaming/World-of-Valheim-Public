@@ -48,11 +48,23 @@ namespace WorldofValheimServerSideCharacters
         {
             private static void Prefix()
             {
-                Debug.Log("New Connection! Reseting Connection Count to 0");
-                ServerState.ConnectionCount = 0;
+
                 ZRoutedRpc.instance.Register("ShutdownServer", new Action<long, ZPackage>(RPC.ShutdownServer)); // Server Shutdown Registering
                 ZRoutedRpc.instance.Register("SaveAll", new Action<long, ZPackage>(RPC.SaveAll)); // Save all online users
                 ZRoutedRpc.instance.Register("ReloadDefault", new Action<long, ZPackage>(RPC.ReloadDefault)); // Save all online users
+                if (WorldofValheimServerSideCharacters.ServerMode)
+                {
+                    if (WorldofValheimServerSideCharacters.MaxBackups.Value > 0)
+                    {
+                        Debug.Log("Starting Backup Thread!");
+                        Character_Backup.BackupCharacter.Start();
+                    }
+                }
+                else
+                {
+                    Debug.Log("New Connection! Reseting Connection Count to 0");
+                    ServerState.ConnectionCount = 0;
+                }
             }
         }
 
