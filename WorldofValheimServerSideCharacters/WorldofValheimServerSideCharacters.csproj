@@ -113,6 +113,7 @@
     <Compile Include="Console\CUtils.cs" />
     <Compile Include="Debug.cs" />
     <Compile Include="ModInfo.cs" />
+    <Compile Include="Patches\Character_Backup.cs" />
     <Compile Include="Patches\LoadCharacter.cs" />
     <Compile Include="Patches\StandalonePatches.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
