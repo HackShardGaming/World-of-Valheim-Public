@@ -681,6 +681,57 @@ namespace WorldofValheimZones
         ///     Last Updated: 4/24/2021
         ///     Status: 100% Working
         /// </summary>
+        [HarmonyPatch(typeof(Destructible), "Damage")]
+        public static class Destructible_Modifier
+        {
+            public static void Prefix(Destructible __instance, HitData hit)
+            {
+                if (WorldofValheimZones.ServerMode)
+                {
+                    return;
+                }
+                if (Util.RestrictionCheck("nodamagetotrees"))
+                {
+                    float multiplier = 0f;
+                    hit.m_damage.m_damage *= multiplier;
+                    hit.m_damage.m_blunt *= multiplier;
+                    hit.m_damage.m_slash *= multiplier;
+                    hit.m_damage.m_pierce *= multiplier;
+                    hit.m_damage.m_chop *= multiplier;
+                    hit.m_damage.m_pickaxe *= multiplier;
+                    hit.m_damage.m_fire *= multiplier;
+                    hit.m_damage.m_frost *= multiplier;
+                    hit.m_damage.m_lightning *= multiplier;
+                    hit.m_damage.m_poison *= multiplier;
+                    hit.m_damage.m_spirit *= multiplier;
+                    Util.DoAreaEffect(Player.m_localPlayer.transform.position + Vector3.up * 0.5f);
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is a Private Area", 0, null);
+                }
+                else if (Util.RestrictionCheck("damagemultipliertotrees"))
+                {
+                    float multiplier = Util.RestrictionCheckFloatReturn("damagemultipliertotrees");
+                    hit.m_damage.m_damage *= multiplier;
+                    hit.m_damage.m_blunt *= multiplier;
+                    hit.m_damage.m_slash *= multiplier;
+                    hit.m_damage.m_pierce *= multiplier;
+                    hit.m_damage.m_chop *= multiplier;
+                    hit.m_damage.m_pickaxe *= multiplier;
+                    hit.m_damage.m_fire *= multiplier;
+                    hit.m_damage.m_frost *= multiplier;
+                    hit.m_damage.m_lightning *= multiplier;
+                    hit.m_damage.m_poison *= multiplier;
+                    hit.m_damage.m_spirit *= multiplier;
+                }
+            }
+        }
+
+        /// <summary>
+        /// HarmonyPatch Type: TreeBase Method: Damage
+        /// This method includes:
+        ///     If in a zone with "damagemultipliertotrees" configuration do (X) percent damage to trees.
+        ///     Last Updated: 4/24/2021
+        ///     Status: 100% Working
+        /// </summary>
         [HarmonyPatch(typeof(TreeBase), "Damage")]
         public static class TreeBase_Modifier
         {
@@ -690,7 +741,24 @@ namespace WorldofValheimZones
                 {
                     return;
                 }
-                if (Util.RestrictionCheck("damagemultipliertotrees"))
+                if (Util.RestrictionCheck("nodamagetotrees"))
+                {
+                    float multiplier = 0f;
+                    hit.m_damage.m_damage *= multiplier;
+                    hit.m_damage.m_blunt *= multiplier;
+                    hit.m_damage.m_slash *= multiplier;
+                    hit.m_damage.m_pierce *= multiplier;
+                    hit.m_damage.m_chop *= multiplier;
+                    hit.m_damage.m_pickaxe *= multiplier;
+                    hit.m_damage.m_fire *= multiplier;
+                    hit.m_damage.m_frost *= multiplier;
+                    hit.m_damage.m_lightning *= multiplier;
+                    hit.m_damage.m_poison *= multiplier;
+                    hit.m_damage.m_spirit *= multiplier;
+                    Util.DoAreaEffect(Player.m_localPlayer.transform.position + Vector3.up * 0.5f);
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is a Private Area", 0, null);
+                }
+                else if (Util.RestrictionCheck("damagemultipliertotrees"))
                 {
                     float multiplier = Util.RestrictionCheckFloatReturn("damagemultipliertotrees");
                     hit.m_damage.m_damage *= multiplier;
@@ -723,7 +791,24 @@ namespace WorldofValheimZones
                 {
                     return;
                 }
-                if (Util.RestrictionCheck("damagemultipliertotrees"))
+                if (Util.RestrictionCheck("nodamagetotrees"))
+                {
+                    float multiplier = 0f;
+                    hit.m_damage.m_damage *= multiplier;
+                    hit.m_damage.m_blunt *= multiplier;
+                    hit.m_damage.m_slash *= multiplier;
+                    hit.m_damage.m_pierce *= multiplier;
+                    hit.m_damage.m_chop *= multiplier;
+                    hit.m_damage.m_pickaxe *= multiplier;
+                    hit.m_damage.m_fire *= multiplier;
+                    hit.m_damage.m_frost *= multiplier;
+                    hit.m_damage.m_lightning *= multiplier;
+                    hit.m_damage.m_poison *= multiplier;
+                    hit.m_damage.m_spirit *= multiplier;
+                    Util.DoAreaEffect(Player.m_localPlayer.transform.position + Vector3.up * 0.5f);
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is a Private Area", 0, null);
+                }
+                else if (Util.RestrictionCheck("damagemultipliertotrees"))
                 {
                     float multiplier = Util.RestrictionCheckFloatReturn("damagemultipliertotrees");
                     hit.m_damage.m_damage *= multiplier;
