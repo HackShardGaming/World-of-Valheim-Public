@@ -9,12 +9,17 @@ namespace ValheimPermissions
 {
     public static class RPC
     {
+        public static void ProcessClientSideCommand_RPC(long sender, string text)
+        {
+
+        }
         public static void ProcessClientSideCommand(long sender, string text)
         {
             ZNetPeer peer = ZNet.instance.GetPeer(sender);
             string peerSteamID = ((ZSteamSocket)peer.m_socket).GetPeerID().m_SteamID.ToString(); // Get the SteamID from peer.
             string[] results = text.Split(' ');
-            int i = 0;
+            long l = 0;
+            /// Did we receive a !? Lets process!
             if (results[0].ToLower().StartsWith($"!"))
             {
                 Debug.Log($"User: {peerSteamID} is attempting to run the following command {text} ");
@@ -34,7 +39,7 @@ namespace ValheimPermissions
                         if (ValheimDB.CheckUserPermission(peerSteamID, PermissionNode))
                         {
 
-                            if (int.TryParse(results[3], out i))
+                            if (long.TryParse(results[3], out l))
                             {
                                 Util.RoutedBroadcast(sender, $"Attempting to add the Permission Node: {results[4]} to the User: {results[3]}");
                                 Util.Dedicated_Commands.ClientSideCommands.AddUserPermission(sender, long.Parse(results[3]), results[4]);
@@ -63,7 +68,7 @@ namespace ValheimPermissions
                     if (ValheimDB.CheckUserPermission(peerSteamID, PermissionNode))
                     {
                         // Convert a Player Name back to the SteamID (put a / for spaces)
-                        if (int.TryParse(results[2], out i))
+                        if (long.TryParse(results[2], out l))
                         {
                             Util.RoutedBroadcast(sender, $"Attempting to add the User: {results[2]} to the following Group: {results[3]}");
                             Util.Dedicated_Commands.ClientSideCommands.AddUserToGroup(sender, long.Parse(results[2]), results[3]);
@@ -93,7 +98,7 @@ namespace ValheimPermissions
                         PermissionNode = PermissionNode + ".User.Del.Permission";
                         if (ValheimDB.CheckUserPermission(peerSteamID, PermissionNode))
                         {
-                            if (int.TryParse(results[3], out i))
+                            if (long.TryParse(results[3], out l))
                             {
                                 Util.RoutedBroadcast(sender, $"Attempting to delete the Permission Node: {results[4]} from the User: {results[3]}");
                                 Util.Dedicated_Commands.ClientSideCommands.DeleteUserPermission(sender, long.Parse(results[3]), results[4]);
@@ -125,10 +130,11 @@ namespace ValheimPermissions
                         PermissionNode = PermissionNode + ".User.Check.Group";
                         if (ValheimDB.CheckUserPermission(peerSteamID, PermissionNode))
                         {
-                            if (int.TryParse(results[3], out i))
+                            if (long.TryParse(results[3], out l))
                             {
                                 Util.RoutedBroadcast(sender, $"Requested the Group Name for the User: {results[3]}");
-                                Util.Dedicated_Commands.ClientSideCommands.CheckGroup(sender, long.Parse(results[3])); return;
+                                Util.Dedicated_Commands.ClientSideCommands.CheckGroup(sender, long.Parse(results[3])); 
+                                return;
                             }
                             // Convert a Player Name back to the SteamID (put a / for spaces)
                             string User = Util.GetPeerSteamID(results[3]);
@@ -153,10 +159,11 @@ namespace ValheimPermissions
                         PermissionNode = PermissionNode + ".User.Check.Permission";
                         if (ValheimDB.CheckUserPermission(peerSteamID, PermissionNode))
                         {
+                            
                             // If there is no permission requested show ALL permissions
                             if (results.Count() == 4)
                             {
-                                if (int.TryParse(results[3], out i))
+                                if (long.TryParse(results[3], out l))
                                 {
                                     Util.RoutedBroadcast(sender, $"Attempting to lookup ALL permissions for the User: {results[3]}");
                                     Util.Dedicated_Commands.ClientSideCommands.ShowUserPermissions(sender, long.Parse(results[3]));
@@ -177,7 +184,7 @@ namespace ValheimPermissions
                             else
                             {
                                 // Convert a Player Name back to the SteamID (put a / for spaces)
-                                if (int.TryParse(results[3], out i))
+                                if (long.TryParse(results[3], out l))
                                 {
                                     Util.RoutedBroadcast(sender, $"Attempting to check the User: {results[3]} against the Permission Node: {results[4]}");
                                     Util.Dedicated_Commands.ClientSideCommands.CheckUserPermission(sender, long.Parse(results[3]), results[4]);

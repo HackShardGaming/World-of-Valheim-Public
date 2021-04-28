@@ -22,7 +22,7 @@ namespace ValheimPermissions
 
 
         public static ConfigEntry<int> NexusID;
-        public static bool ServerMode = Util.isServer();
+        public static bool ServerMode = Util.IsServer();
 
         //private static Console.Console console;
 

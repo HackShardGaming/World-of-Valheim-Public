@@ -45,7 +45,7 @@ namespace ValheimPermissions
             string Updated = ID.Replace("/", " ");
             List<ZNet.PlayerInfo> OnlinePlayers = ZNet.instance.GetPlayerList();
             bool PlayerExists = false;
-            string CurrentPlayer = "";
+            string CurrentPlayer = string.Empty;
             for (int i = 0; i < OnlinePlayers.Count; i++)
             {
                 CurrentPlayer = OnlinePlayers[i].m_name;
@@ -71,22 +71,9 @@ namespace ValheimPermissions
             }
             return "00000000000000000";
         }
-        public static bool isAdmin(long sender)
+        public static bool IsAdmin(long sender)
         {
-            ZNetPeer peer = ZNet.instance.GetPeer(sender);
             string SteamID = sender.ToString();
-            if (
-                ZNet.instance.m_adminList != null &&
-                ZNet.instance.m_adminList.Contains(SteamID)
-            )
-                return true;
-            else
-            {
-                return false;
-            }
-        }
-        public static bool isSteamIDAdmin(string SteamID)
-        {
             if (
                 ZNet.instance.m_adminList != null &&
                 ZNet.instance.m_adminList.Contains(SteamID)
@@ -110,7 +97,7 @@ namespace ValheimPermissions
                     while (i < count)
                     {
                         Util.RoutedBroadcast(sender, results[i]);
-                        i = i + 1;
+                        i++;
                     }
                     string Group_Name = ValheimDB.GetGroup(SteamID.ToString());
                     if (Group_Name != null)
@@ -239,7 +226,7 @@ namespace ValheimPermissions
                     while (i < count)
                     {
                         Debug.Log(results[i]);
-                        i = i + 1;
+                        i++;
                     }
                     string Group_Name = ValheimDB.GetGroup(SteamID.ToString());
                     if (Group_Name != null)
@@ -257,7 +244,7 @@ namespace ValheimPermissions
                     while (i < count)
                     {
                         Debug.Log(results[i]);
-                        i = i + 1;
+                        i++;
                     }
                 }
                 public static void AddGroup(string parse)
@@ -357,7 +344,7 @@ namespace ValheimPermissions
                 }
             }
         }
-        public static bool isServer()
+        public static bool IsServer()
         {
             return SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
         }

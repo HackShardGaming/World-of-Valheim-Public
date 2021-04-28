@@ -172,7 +172,7 @@ namespace ValheimPermissions
                 var pexists = permissions.FindOne(Query.And(Query.EQ("SteamID", SteamID), Query.EQ("permission", permission)));
                 if (pexists != null)
                 {
-                    var result = db.Execute($"DELETE User_Permission WHERE SteamID='{SteamID}' and permission='{permission}'");
+                    db.Execute($"DELETE User_Permission WHERE SteamID='{SteamID}' and permission='{permission}'");
                     return true;
                 }
                 return false;
@@ -223,7 +223,7 @@ namespace ValheimPermissions
                     {
                         return false;
                     }
-                    i = i + 1;
+                    i++;
                 }
             }
             return false;
@@ -242,11 +242,12 @@ namespace ValheimPermissions
                 var count = Permissions.Count(Query.EQ("SteamID", SteamID));
                 string[] returnme = new string[0];
                 int i = 0;
-                if (Util.isSteamIDAdmin(SteamID))
+                int b = 0;
+                if (Util.IsAdmin(long.Parse(SteamID)))
                 {
                     returnme = new string[count+1];
                     returnme[0] = "*";
-                    i = 1;
+                    b = 1;
                 }
                 else
                 {
@@ -257,11 +258,11 @@ namespace ValheimPermissions
                 {
                     returnme[i++] = item.permission;
                 }
-                if (count > 0)
+                if ((count > 0) || (returnme.Length > 0))
                 {
                     return returnme;
                 }
-                return nullresult;
+                    return nullresult;
             }
         }
 
@@ -304,7 +305,7 @@ namespace ValheimPermissions
                 var Permissions = db.GetCollection<User_Permission>("User_Permission");
                 int i = 0;
                 string lookuppermission = "";
-                if (Util.isSteamIDAdmin(SteamID))
+                if (Util.IsAdmin(long.Parse(SteamID)))
                 {
                     return true;
                 }
@@ -341,7 +342,7 @@ namespace ValheimPermissions
                     {
                         return false;
                     }
-                    i = i + 1;
+                    i++;
                 }
             }
             return false;
