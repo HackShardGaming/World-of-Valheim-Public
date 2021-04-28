@@ -30,7 +30,7 @@ namespace WorldofValheimServerSideCharacters
         public static ConfigEntry<int> MaxBackups;
         public static ConfigEntry<int> BackupInterval;
 
-        public static bool ServerMode = Util.isServer();
+        public static bool ServerMode = Util.IsServer();
 
         //private static Console.Console console;
         public bool runConsole = true;

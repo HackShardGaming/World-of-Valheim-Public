@@ -12,7 +12,6 @@ namespace WorldofValheimServerSideCharacters
         // Here is the CopyFolder
         public static void CopyCharacters(string SavePath, string BackupPath)
         {
-            Debug.Log(BackupPath);
             if (!Directory.Exists(BackupPath))
                 Directory.CreateDirectory(BackupPath);
             string[] folders = Directory.GetDirectories(SavePath);
@@ -35,13 +34,12 @@ namespace WorldofValheimServerSideCharacters
         public static void Backup_Characters(string CurrentTime)
         {
             var SavePath = WorldofValheimServerSideCharacters.CharacterSavePath.Value;
-            var BackupLocation = Path.Combine(SavePath + ".bak");
+            var BackupLocation = Path.Combine(SavePath + "-bak");
             var BackupPath = Path.Combine(BackupLocation, CurrentTime);
-            Debug.Log(SavePath + BackupPath);
             Debug.Log("Backup: Attempting to backup all Server-Side Characters..");
             if (!Directory.Exists(BackupLocation))
                 Directory.CreateDirectory(BackupLocation);
-            IOrderedEnumerable<FileSystemInfo> BackupDirectory = new DirectoryInfo(SavePath + ".bak").GetFileSystemInfos().OrderByDescending(fi => fi.CreationTime);
+            IOrderedEnumerable<FileSystemInfo> BackupDirectory = new DirectoryInfo(SavePath + "-bak").GetFileSystemInfos().OrderByDescending(fi => fi.CreationTime);
             if (BackupDirectory.Count() > WorldofValheimServerSideCharacters.MaxBackups.Value - 1)
             {
                 Directory.Delete(BackupDirectory.Last().FullName, true);

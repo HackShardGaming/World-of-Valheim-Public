@@ -24,7 +24,7 @@ namespace WorldofValheimServerSideCharacters
             });
             yield return new WaitForSeconds(2);
         }
-        public static bool isServer()
+        public static bool IsServer()
         {
             return SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
         }
@@ -204,9 +204,8 @@ namespace WorldofValheimServerSideCharacters
 
             Debug.Log($"Loaded default character file (Size: {ServerState.default_character.Length})");
         }
-        public static bool isAdmin(long sender)
+        public static bool IsAdmin(long sender)
         {
-            ZNetPeer peer = ZNet.instance.GetPeer(sender);
             string SteamID = sender.ToString();
             if (
                 ZNet.instance.m_adminList != null &&
@@ -222,7 +221,7 @@ namespace WorldofValheimServerSideCharacters
         {
             ZNetPeer peer = ZNet.instance.GetPeerByHostName(steamid);
             string PlayerNameRaw = peer.m_playerName;
-            string PlayerName = "";
+            string PlayerName = String.Empty;
             if (WorldofValheimServerSideCharacters.AllowMultipleCharacters.Value)
                 PlayerName = Regex.Replace(PlayerNameRaw, @"<[^>]*>", String.Empty);
             else 
@@ -316,7 +315,7 @@ namespace WorldofValheimServerSideCharacters
                 }
             }
         }
-        public static ZNet.PlayerInfo getBasicPlayerInfoFromPlayer(Player player) => new ZNet.PlayerInfo
+        public static ZNet.PlayerInfo GetBasicPlayerInfoFromPlayer(Player player) => new ZNet.PlayerInfo
         {
             m_characterID = player.GetZDOID(),
             m_name = player.GetPlayerName(),
