@@ -14,6 +14,11 @@ namespace WorldofValheimServerSideCharacters
         {
             if (!Directory.Exists(BackupPath))
                 Directory.CreateDirectory(BackupPath);
+            string[] files = Directory.GetFiles(SavePath);
+            foreach (string file in files)
+            {
+                File.Copy(file, Path.Combine(BackupPath, Path.GetFileName(file)));
+            }
             string[] folders = Directory.GetDirectories(SavePath);
             foreach (string folder in folders)
             {
