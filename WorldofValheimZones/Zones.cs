@@ -37,6 +37,8 @@ namespace WorldofValheimZones
         public static ConfigEntry<string> ZoneConfigurationPath;
         public static ConfigEntry<int> NexusID;
         public static ConfigEntry<bool> BiomePVPAnnouncement;
+        public static ConfigEntry<bool> NoItemLoss;
+        public static ConfigEntry<Single> RespawnTimer;
         public static string MySteamID = "";
         // Apparently if this is called in a async then we crash. So there is a variable dedicated to check if we are the server.
         public static bool ServerMode = Util.isServer();
@@ -56,6 +58,8 @@ namespace WorldofValheimZones
             if (SERVER)
             {
                 Debug.Log("[Server Mode]");
+                WorldofValheimZones.NoItemLoss = base.Config.Bind<bool>("Death", "NoItemLoss", false, "SERVER ONLY: Should we prevent a user from losing items/skills on death globally?");
+                WorldofValheimZones.RespawnTimer = base.Config.Bind<Single>("Death", "RespawnTimer", 10, "SERVER ONLY: How fast should the clients respawn?");
                 WorldofValheimZones.ZonePath = base.Config.Bind<string>("WorldofValheimZones", "ZonePath", ZonesLocation, "SERVER ONLY: The file path to the zone file. If it does not exist, it will be created with a default zone.");
                 WorldofValheimZones.WardProtectDamage = base.Config.Bind<bool>("Ward", "Building_ProtectDamage", false, "SERVER ONLY: Protect buildings from being damaged inside Warded Areas?");
                 WorldofValheimZones.WardProtectItemPickup = base.Config.Bind<bool>("Ward", "Item_Pickup", false, "SERVER ONLY: Protect Picking up items in Warded Areas?");
@@ -63,6 +67,8 @@ namespace WorldofValheimZones
                 Client.Ward.Damage = WorldofValheimZones.WardProtectDamage.Value;
                 Client.Ward.Pickup = WorldofValheimZones.WardProtectItemPickup.Value;
                 Client.Ward.Drop = WorldofValheimZones.WardProtectItemDrop.Value;
+                Client.NoItemLoss = WorldofValheimZones.NoItemLoss.Value;
+                Client.RespawnTimer = WorldofValheimZones.RespawnTimer.Value;
                 // Check if the Zones file and folder exist
                 string pathwithoutfile2 = Path.GetDirectoryName(WorldofValheimZones.ZonePath.Value);
                 if (!Directory.Exists(pathwithoutfile2))

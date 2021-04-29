@@ -31,6 +31,8 @@ namespace WorldofValheimZones
         // Are we enforcing Position On (TRUE) or Off (FALSE)
         // Show our position on the map
         public static bool ShowPosition = false;
+        public static bool NoItemLoss = false;
+        public static Single RespawnTimer = 10;
         public static class Ward
         {
             public static bool Damage = false;
@@ -70,6 +72,8 @@ namespace WorldofValheimZones
             zip.Write(Client.Ward.Damage);
             zip.Write(Client.Ward.Drop);
             zip.Write(Client.Ward.Pickup);
+            zip.Write(Client.NoItemLoss);
+            zip.Write(Client.RespawnTimer);
             return zip;
         }
         // Extract the data from the zipped data
@@ -83,6 +87,8 @@ namespace WorldofValheimZones
             Client.Ward.Damage = data.ReadBool();
             Client.Ward.Drop = data.ReadBool();
             Client.Ward.Pickup = data.ReadBool();
+            Client.NoItemLoss = data.ReadBool();
+            Client.RespawnTimer = data.ReadSingle();
         }
         // RPC function class. This is the class that you register to receive rpc data.
         public static void RPC(ZRpc rpc, ZPackage data)
