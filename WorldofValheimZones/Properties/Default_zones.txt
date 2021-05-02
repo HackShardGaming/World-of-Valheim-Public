@@ -26,6 +26,7 @@ Type: battle true true false true
 #	NoBuildDamage: Prevent anyoneanything from damaging buildings.				
 #	NoItemPickup: Prevent the user from picking up items. 
 #	NoItemDrop: Prevent the user from dropping items. 
+#   NoItemLoss: Prevent the user from losing there items (TombStome) on death.
 #	NoTerrain: Prevent modification of Terrain.							
 #	NoPickaxe: Prevent the Pickaxe from being used. (Note: NoTerrain will also prevent this)	
 #	PushAway: Prevent the user from entering the area. (Please not if your sprint is fast enough	
