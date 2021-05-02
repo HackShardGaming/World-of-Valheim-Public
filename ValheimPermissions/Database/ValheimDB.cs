@@ -242,12 +242,10 @@ namespace ValheimPermissions
                 var count = Permissions.Count(Query.EQ("SteamID", SteamID));
                 string[] returnme = new string[0];
                 int i = 0;
-                int b = 0;
                 if (Util.IsAdmin(long.Parse(SteamID)))
                 {
                     returnme = new string[count+1];
                     returnme[0] = "*";
-                    b = 1;
                 }
                 else
                 {
