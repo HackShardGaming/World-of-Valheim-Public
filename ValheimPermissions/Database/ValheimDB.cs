@@ -182,6 +182,24 @@ namespace ValheimPermissions
         // Results: Will return true if the group has permission to that node or higher.
         // Or: will return false if the group does not have permission to that node
         // NOTE: Results will be returned to you in BOOL format (true/false)
+        public static bool AbsolutePermissionScanGroup(string group, string permission)
+        {
+            permission = permission.ToLower();
+
+            using (var db = new LiteDatabase(DatabaseLocation))
+            {
+                var Permissions = db.GetCollection<User_Permission>("Group_Permission");
+                var pexists = Permissions.FindOne(Query.And(Query.EQ("Group_Name", group), Query.EQ("permission", permission)));
+                if (pexists != null)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
         public static bool PermissionScanGroup(string group, string permission)
         {
             permission = permission.ToLower();
@@ -289,6 +307,28 @@ namespace ValheimPermissions
                 return nullresult;
             }
         }
+        // Execution ValheimPermissions.ValheimDB.AbsoluteScanUserPermission(SteamID, PERMISSION_NODE)
+        // Important Note: You need to send the SteamID in STRING format instead of the default LONG format. use SteamID.ToString() before sending.
+        // Results: Will ONLY return true if the user has THIS exact permission node!.
+        // NOTE: Results will be returned to you in BOOL format (true/false)
+        public static bool AbsoluteScanUserPermission(string SteamID, string permission)
+        {
+            permission = permission.ToLower();
+            
+            using (var db = new LiteDatabase(DatabaseLocation))
+            {
+                var Permissions = db.GetCollection<User_Permission>("User_Permission");
+                var pexists = Permissions.FindOne(Query.And(Query.EQ("SteamID", SteamID.ToString()), Query.EQ("permission", permission)));
+                if (pexists != null)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
         // Execution ValheimPermissions.ValheimDB.ScanUserPermission(SteamID, PERMISSION_NODE)
         // Important Note: You need to send the SteamID in STRING format instead of the default LONG format. use SteamID.ToString() before sending.
         // Results: Will return true if the user has permission to that node or higher.
@@ -382,6 +422,19 @@ namespace ValheimPermissions
                 if (ScanUserPermission(SteamID, permission))
                     return true;
                 else 
+                    return false;
+            }
+        }
+        public static bool CheckUserAbsolutePermission(string SteamID, string permission)
+        {
+            permission = permission.ToLower();
+            if (AbsolutePermissionScanGroup(GetGroup(SteamID), permission))
+                return true;
+            else
+            {
+                if (AbsoluteScanUserPermission(SteamID, permission))
+                    return true;
+                else
                     return false;
             }
         }

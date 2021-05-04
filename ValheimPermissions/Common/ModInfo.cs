@@ -11,7 +11,7 @@ namespace ValheimPermissions
         public const string Group = "HackShardGaming";
         public const string Guid = "HackShardGaming.ValheimPermissions";
         // Version follow Semantic Versioning Scheme (https://semver.org/)
-        public const string Version = "1.1.0";
+        public const string Version = "1.1.1";
         public const string buildDate = "2021-04-26";
 
         // Nexus Plugin ID (Use to maintain updates with Nexus)
