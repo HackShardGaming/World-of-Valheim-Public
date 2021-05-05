@@ -94,15 +94,7 @@ namespace WorldofValheimZones
             }
             ZoneHandler.CurrentZoneID = -2;
         }
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(Player), "OnDeath")]
-        private static void Player__OnDeath(Player __instance)
-        {
-            if (ZNet.instance.IsServer())
-                return;
-            if (__instance == Player.m_localPlayer)
-                ZoneHandler.CurrentZoneID = -2;
-        }
+
         // Patch ZNet::OnNewConnection
         // This is where a client setup a connection to the server (vice versa)
         // Put any RPC register here to sync between server/client.

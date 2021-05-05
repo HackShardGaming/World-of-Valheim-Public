@@ -23,14 +23,18 @@ namespace WorldofValheimZones
             rpc.Invoke("ZoneHandler", new object[] { 
                 ZoneHandler.Serialize(rpc.GetSocket().GetHostName())
             }) ;
-            yield return new WaitForSeconds(2);
+            yield return new WaitForSeconds(1);
         }
         public static IEnumerator Client2(ZRpc rpc)
         {
             rpc.Invoke("Client", new object[] {
-                Client.Serialize()
+                Client.Serialize(rpc.GetSocket().GetHostName())
             });
-            yield return new WaitForSeconds(2);
+            yield return new WaitForSeconds(1);
+        }
+        public static void InsertChatMessage(string Message)
+        {
+            Chat.instance.AddString($"<color=grey><b>[{ModInfo.Title}]</b></color> {Message}");
         }
         public class ConnectionData
         {
@@ -386,9 +390,13 @@ namespace WorldofValheimZones
                     ZoneHandler.LoadZoneData(WorldofValheimZones.ZonePath.Value);
                     Util.Broadcast("Reloading Zone");
                     Debug.Log("S2C ZoneHandler (SendPeerInfo)");
-                    ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.Everybody, "ZoneHandler", new object[] {
-                        ZoneHandler.Serialize(peerSteamID)
-                    }) ;
+                    foreach (var p in ZNet.instance.m_peers)
+                    {
+                        string SteamID = p.m_socket.GetHostName();
+                        ZRoutedRpc.instance.InvokeRoutedRPC(p.m_uid, "ZoneHandler", new object[] {
+                        ZoneHandler.Serialize(SteamID)
+                    });
+                    }
                 }
                 else
                 {
