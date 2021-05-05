@@ -53,7 +53,7 @@ namespace WorldofValheimZones
         }
 #endif
         // Compress the data into a zip (compressed) stream (serial)
-        public static ZPackage Serialize()
+        public static ZPackage Serialize(string SteamID)
         {
             var zip = new ZPackage();
             if (Client.PVPEnforced)// && Client.PVPisEnabled)
@@ -69,9 +69,18 @@ namespace WorldofValheimZones
             zip.Write(Client.PVPMode);
             zip.Write(Client.PositionEnforce);
             zip.Write(Client.ShowPosition);
-            zip.Write(Client.Ward.Damage);
-            zip.Write(Client.Ward.Drop);
-            zip.Write(Client.Ward.Pickup);
+            if (ValheimPermissions.ValheimDB.CheckUserAbsolutePermission(SteamID, "HackShardGaming.WoV-Zones.Wards.Override"))
+            {
+                zip.Write(false);
+                zip.Write(false);
+                zip.Write(false);
+            }
+            else
+            {
+                zip.Write(Client.Ward.Damage);
+                zip.Write(Client.Ward.Drop);
+                zip.Write(Client.Ward.Pickup);
+            }
             zip.Write(Client.NoItemLoss);
             zip.Write(Client.RespawnTimer);
             return zip;

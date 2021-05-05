@@ -207,6 +207,17 @@ namespace WorldofValheimZones
                 zip.Write(zt.PVPEnforce);
                 zip.Write(zt.ShowPosition);
                 zip.Write(zt.PositionEnforce);
+                if (ValheimPermissions.ValheimDB.CheckUserAbsolutePermission(SteamID, "HackShardGaming.WoV-Zones.Override." + zt.Name))
+                {
+                    if (zt.Admins == "null")
+                    {
+                        zt.Admins = SteamID;
+                    }
+                    else
+                    {
+                        zt.Admins = SteamID + " " + zt.Admins;
+                    }
+                }
                 zip.Write(zt.Admins);
                 zip.Write(zt.Configurations);
             }
@@ -324,7 +335,8 @@ namespace WorldofValheimZones
                     }
                     else if (array2[0].ToLower() == "configuration:")
                     {
-                        string[] array = text2.Replace(":", "|").Replace(" ", "").Split('|');
+                        string texttosend = text2.Replace(": ", "|");
+                        string[] array = texttosend.Replace(" | ", "|").Split('|');
                         ZoneHandler.ZoneTypes zt = ZoneHandler.FindZoneType(array[1]);
                         if (zt.Name.ToLower() != array[1].ToString().ToLower())
                         {
@@ -334,7 +346,7 @@ namespace WorldofValheimZones
                         }
                         else
                         {
-                            Debug.Log($"Loading Custom Configuration for the Zone Type {array[1]}");
+                            Debug.Log($"Loading Custom Configuration for the Zone Type: {array[1]} with an Overridable Permission Node of: 'HackShardGaming.WoV-Zones.Override.{array[1]}'");
                             zt.Admins = array[2];
                             zt.Configurations = array[3];
                         }

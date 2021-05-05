@@ -148,11 +148,13 @@ namespace WorldofValheimZones
         ///     Last Updated: 4/29/2021
         ///     Status: 100% Working
         /// </summary>
+        /// 
         [HarmonyPatch(typeof(Player), "OnDeath")]
         public static class Death_Patch
         {
             private static bool Prefix(Player __instance)
             {
+
                 if (Util.RestrictionCheck("noitemloss") || Client.NoItemLoss)
                 {
                     __instance.m_nview.GetZDO().Set("dead", true);
@@ -161,33 +163,13 @@ namespace WorldofValheimZones
                     Game.instance.RequestRespawn(Client.RespawnTimer);
                     __instance.m_timeSinceDeath = 0f;
                     __instance.Message(MessageHud.MessageType.TopLeft, "WoV-SSC: You're items have been preserved!", 0, null);
+                    ZoneHandler.CurrentZoneID = -2;
                     return false;
                 }
                 else
                 {
-                    bool flag = __instance.HardDeath();
-                    __instance.m_nview.GetZDO().Set("dead", true);
-                    __instance.m_nview.InvokeRPC(ZNetView.Everybody, "OnDeath", Array.Empty<object>());
-                    Game.instance.GetPlayerProfile().m_playerStats.m_deaths++;
-                    Game.instance.GetPlayerProfile().SetDeathPoint(Player.m_localPlayer.transform.position);
-                    __instance.CreateDeathEffects();
-                    __instance.CreateTombStone();
-                    __instance.m_foods.Clear();
-                    if (flag)
-                    {
-                        __instance.m_skills.OnDeath();
-                    }
-                    Game.instance.RequestRespawn(Client.RespawnTimer);
-                    __instance.m_timeSinceDeath = 0f;
-                    if (!flag)
-                    {
-                        __instance.Message(MessageHud.MessageType.TopLeft, "$msg_softdeath", 0, null);
-                    }
-                    __instance.Message(MessageHud.MessageType.Center, "$msg_youdied", 0, null);
-                    __instance.ShowTutorial("death", false);
-                    string eventLabel = "biome:" + __instance.GetCurrentBiome().ToString();
-                    Gogan.LogEvent("Game", "Death", eventLabel, 0L);
-                    return false;
+                    ZoneHandler.CurrentZoneID = -2;
+                    return true;
                 }
             }
         }
