@@ -123,9 +123,13 @@ namespace WorldofValheimZones
             Debug.Log("ZONES FILE CHANGED!");
             ZoneHandler.LoadZoneData(WorldofValheimZones.ZonePath.Value);
             Util.Broadcast("Reloading Zone");
-            ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.Everybody, "ZoneHandler", new object[] {
-                        ZoneHandler.Serialize(null)
+            foreach (var p in ZNet.instance.m_peers)
+            {
+                string SteamID = p.m_socket.GetHostName();
+                ZRoutedRpc.instance.InvokeRoutedRPC(p.m_uid, "ZoneHandler", new object[] {
+                        ZoneHandler.Serialize(SteamID)
                     });
+            }
         }
     }
 }
