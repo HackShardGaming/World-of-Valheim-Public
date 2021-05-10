@@ -103,7 +103,7 @@ namespace WorldofValheimServerSideCharacters
                     PlayerName = "Single_Character_Mode";
                 string CharacterLocation = Util.GetCharacterPath(hostName, PlayerName);
                 Debug.Log($"Saving character from SteamID {hostName}.");
-                Util.WriteCharacter(CharacterLocation, Util.Decompress(data).GetArray());
+                Game.instance.StartCoroutine(Util.WriteCharacter(CharacterLocation, data));
                 return;
             }
             // Are we the client? Send our character.
@@ -117,25 +117,16 @@ namespace WorldofValheimServerSideCharacters
                 return;
             }
         }
-
         public static void ExitServer(ZRpc rpc, ZPackage data)
         {
             if (ZNet.instance.IsServer())
             {
-                Debug.Log("Client->Server ExitServer");
-                RPC.CharacterUpdate(rpc, data);
-                rpc.Invoke("ExitServer", new object[]
-                {
-                    new ZPackage()
-                });
-                Debug.Log($"Removing Client {rpc.GetSocket()} from our list");
-                ServerState.Connections.RemoveAll((ServerState.ConnectionData conn) => conn.rpc.GetSocket() == rpc.GetSocket());
-                Debug.Log("Connections " + ServerState.Connections.Count.ToString());
+                Game.instance.StartCoroutine(Util.ExitServerScript(rpc, data));
                 return;
             }
-            Debug.Log("Server->Client ExitServer");
             ServerState.Connections.RemoveAll((ServerState.ConnectionData conn) => conn.rpc.GetSocket() == rpc.GetSocket());
             ServerState.ClientCanDC = true;
+            return;
         }
     }
 }

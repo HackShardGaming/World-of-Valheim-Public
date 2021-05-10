@@ -275,6 +275,7 @@ namespace WorldofValheimServerSideCharacters
                 if (ServerState.Connections.Count > 0)
                 {
                     Debug.Log("Quitting: sending ExitServer and waiting.");
+                    Chat.instance.AddString($"{ModInfo.Title}: Sending CharacterData to server and waiting on the server to repond!");
                     Util.GetServer().rpc.Invoke("ExitServer", new object[]
                     {
                 Util.Compress(Game.instance.GetPlayerProfile().Serialize(Player.m_localPlayer, true))
@@ -305,6 +306,7 @@ namespace WorldofValheimServerSideCharacters
             if (ServerState.Connections.Count > 0)
             {
                 Debug.Log("Logging out: sending ExitServer and waiting.");
+                Chat.instance.AddString($"{ModInfo.Title}: Sending CharacterData to server and waiting on the server to repond!");
                 Util.GetServer().rpc.Invoke("ExitServer", new object[]
                 {
                 Util.Compress(Game.instance.GetPlayerProfile().Serialize(Player.m_localPlayer, true))

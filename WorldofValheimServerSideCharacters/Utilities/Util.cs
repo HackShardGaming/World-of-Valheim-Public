@@ -5,6 +5,8 @@ using System.IO;
 using System.IO.Compression;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Timers;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -41,20 +43,36 @@ namespace WorldofValheimServerSideCharacters
             });
         }
 
-        public static void WriteCharacter(string path, byte[] data)
+        public static IEnumerator WriteCharacter(string path, ZPackage data)
         {
+            byte[] data2 = Util.Decompress(data).GetArray();
             Debug.Log($"Writing character to {path}.");
             Directory.CreateDirectory(Path.GetDirectoryName(path));
             using (FileStream fileStream = File.OpenWrite(path))
             {
                 using (BinaryWriter binaryWriter = new BinaryWriter(fileStream))
                 {
-                    binaryWriter.Write(data.Length);
-                    binaryWriter.Write(data);
+                    binaryWriter.Write(data2.Length);
+                    binaryWriter.Write(data2);
                 }
             }
+            yield return new WaitForSeconds(1);
         }
-
+        public static IEnumerator ExitServerScript(ZRpc rpc, ZPackage data)
+        {
+            Debug.Log("Client->Server ExitServer");
+            Debug.Log("Initializing Character Update Script and waiting 3 seconds");
+            RPC.CharacterUpdate(rpc, data);
+            yield return new WaitForSeconds(3);
+            Debug.Log($"Instructing Client {rpc.GetSocket().GetHostName()} to disconnect.");
+            rpc.Invoke("ExitServer", new object[]
+            {
+                    new ZPackage()
+            });
+            Debug.Log($"Removing Client {rpc.GetSocket().GetHostName()} from our list");
+            ServerState.Connections.RemoveAll((ServerState.ConnectionData conn) => conn.rpc.GetSocket() == rpc.GetSocket());
+            Debug.Log("Connections " + ServerState.Connections.Count.ToString());
+        }
         public static string GetCharacterPath(string id, string playerName)
         {
             // This is where we would put an update to change character files depending on what character name they are using client side. Need to send it through the RPC though...
