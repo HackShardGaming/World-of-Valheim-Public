@@ -390,13 +390,7 @@ namespace WorldofValheimZones
                     ZoneHandler.LoadZoneData(WorldofValheimZones.ZonePath.Value);
                     Util.Broadcast("Reloading Zone");
                     Debug.Log("S2C ZoneHandler (SendPeerInfo)");
-                    foreach (var p in ZNet.instance.m_peers)
-                    {
-                        string SteamID = p.m_socket.GetHostName();
-                        ZRoutedRpc.instance.InvokeRoutedRPC(p.m_uid, "ZoneHandler", new object[] {
-                        ZoneHandler.Serialize(SteamID)
-                    });
-                    }
+                    Game.instance.StartCoroutine(Util.SendAllUpdate());
                 }
                 else
                 {
@@ -404,8 +398,20 @@ namespace WorldofValheimZones
                 }
             }
         }
-        public static void AddZone(long sender, ZPackage pkg)
+        public static IEnumerator SendAllUpdate()
         {
+            foreach (var p in ZNet.instance.m_peers)
+            {
+                string SteamID = p.m_socket.GetHostName();
+                ZRoutedRpc.instance.InvokeRoutedRPC(p.m_uid, "ZoneHandler", new object[] {
+                        ZoneHandler.Serialize(SteamID)
+                    });
+            }
+            yield return new WaitForSeconds(1);
+        }
+
+        public static void AddZone(long sender, ZPackage pkg)
+        { 
             if (pkg != null && pkg.Size() > 0)
             { // Check that our Package is not null, and if it isn't check that it isn't empty.
                 ZNetPeer peer = ZNet.instance.GetPeer(sender); // Get the Peer from the sender, to later check the SteamID against our Adminlist.
