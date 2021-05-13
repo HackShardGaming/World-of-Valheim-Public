@@ -7,7 +7,7 @@ namespace WorldofValheimServerSideCharacters
         public static void RunCommand(string text)
         {
             if (text.ToLower().Equals($"!shutdown-server"))
-                {
+            {
                 Debug.Log($"{ModInfo.Title}: Initiating server shutdown now!");
                 Game.instance.StartCoroutine(Util.ShutdownServer());
                 return;

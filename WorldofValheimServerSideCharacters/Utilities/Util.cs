@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Collections;
 using System.IO;
 using System.IO.Compression;
 using System.Reflection;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Timers;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.Rendering;
+using System.Text.RegularExpressions;
 
 namespace WorldofValheimServerSideCharacters
 {
@@ -17,20 +15,38 @@ namespace WorldofValheimServerSideCharacters
 
     public static class Util
     {
-        public static IEnumerator CharacterData(ZRpc rpc)
-        {
-            Debug.Log("Server->Client CharacterData");
-            rpc.Invoke("CharacterData", new object[]
-            {
-                Util.Compress(Util.LoadOrMakeCharacter(rpc.GetSocket().GetHostName()))
-            });
-            yield return new WaitForSeconds(2);
-        }
-        public static bool IsServer()
+        public static bool isServer()
         {
             return SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
         }
+        public static void LoadOrMakeDefaultCharacter()
+        {
+            if (!File.Exists(WorldofValheimServerSideCharacters.DefaultCharacterPath.Value))
+            {
+                Debug.Log($"Creating default character file at {WorldofValheimServerSideCharacters.DefaultCharacterPath.Value}");
+                Debug.Log("That character does not exist! Loading them up a fresh default!");
+                Directory.CreateDirectory(Path.GetDirectoryName(WorldofValheimServerSideCharacters.DefaultCharacterPath.Value));
+                File.WriteAllBytes(WorldofValheimServerSideCharacters.DefaultCharacterPath.Value,
+                    global::WorldofValheimServerSideCharacters.Properties.Resources._default_character);
+            }
+            else
+            {
+                Debug.Log($"Loading default character file from {WorldofValheimServerSideCharacters.DefaultCharacterPath.Value}");
+                ServerState.default_character = File.ReadAllBytes(WorldofValheimServerSideCharacters.DefaultCharacterPath.Value);
+            }
 
+            Debug.Log($"Loaded default character file (Size: {ServerState.default_character.Length})");
+        }
+        public static void RoutedBroadcast(long peer, string text, string username = ModInfo.Title)
+        {
+            ZRoutedRpc.instance.InvokeRoutedRPC(peer, "ChatMessage", new object[]
+            {
+                new Vector3(0,100,0),
+                2,
+                username,
+                text
+            });
+        }
         public static void Broadcast(string text, string username = ModInfo.Title)
         {
             Debug.Log($"Broadcasting {text}");
@@ -43,36 +59,20 @@ namespace WorldofValheimServerSideCharacters
             });
         }
 
-        public static IEnumerator WriteCharacter(string path, ZPackage data)
+        public static void WriteCharacter(string path, byte[] data)
         {
-            byte[] data2 = Util.Decompress(data).GetArray();
             Debug.Log($"Writing character to {path}.");
             Directory.CreateDirectory(Path.GetDirectoryName(path));
             using (FileStream fileStream = File.OpenWrite(path))
             {
                 using (BinaryWriter binaryWriter = new BinaryWriter(fileStream))
                 {
-                    binaryWriter.Write(data2.Length);
-                    binaryWriter.Write(data2);
+                    binaryWriter.Write(data.Length);
+                    binaryWriter.Write(data);
                 }
             }
-            yield return new WaitForSeconds(1);
         }
-        public static IEnumerator ExitServerScript(ZRpc rpc, ZPackage data)
-        {
-            Debug.Log("Client->Server ExitServer");
-            Debug.Log("Initializing Character Update Script and waiting 3 seconds");
-            RPC.CharacterUpdate(rpc, data);
-            yield return new WaitForSeconds(3);
-            Debug.Log($"Instructing Client {rpc.GetSocket().GetHostName()} to disconnect.");
-            rpc.Invoke("ExitServer", new object[]
-            {
-                    new ZPackage()
-            });
-            Debug.Log($"Removing Client {rpc.GetSocket().GetHostName()} from our list");
-            ServerState.Connections.RemoveAll((ServerState.ConnectionData conn) => conn.rpc.GetSocket() == rpc.GetSocket());
-            Debug.Log("Connections " + ServerState.Connections.Count.ToString());
-        }
+
         public static string GetCharacterPath(string id, string playerName)
         {
             // This is where we would put an update to change character files depending on what character name they are using client side. Need to send it through the RPC though...
@@ -115,55 +115,51 @@ namespace WorldofValheimServerSideCharacters
 
         public static ZPackage Serialize(this PlayerProfile profile, Player player, bool logout_point = true)
         {
-            if (Player.m_localPlayer)
+            if (logout_point)
             {
-                if (logout_point)
-                {
-                    profile.SetLogoutPoint(player.transform.position);
-                }
-                if (profile.m_playerID != 0L)
-                {
-                    profile.SetMapData(Minimap.instance.GetMapData());
-                }
-                profile.SavePlayerData(player);
-                ZPackage zpackage = new ZPackage();
-                zpackage.Write(Version.m_playerVersion);
-                zpackage.Write(profile.m_playerStats.m_kills);
-                zpackage.Write(profile.m_playerStats.m_deaths);
-                zpackage.Write(profile.m_playerStats.m_crafts);
-                zpackage.Write(profile.m_playerStats.m_builds);
-                zpackage.Write(profile.m_worldData.Count);
-                foreach (KeyValuePair<long, PlayerProfile.WorldPlayerData> keyValuePair in profile.m_worldData)
-                {
-                    zpackage.Write(keyValuePair.Key);
-                    zpackage.Write(keyValuePair.Value.m_haveCustomSpawnPoint);
-                    zpackage.Write(keyValuePair.Value.m_spawnPoint);
-                    zpackage.Write(keyValuePair.Value.m_haveLogoutPoint);
-                    zpackage.Write(keyValuePair.Value.m_logoutPoint);
-                    zpackage.Write(keyValuePair.Value.m_haveDeathPoint);
-                    zpackage.Write(keyValuePair.Value.m_deathPoint);
-                    zpackage.Write(keyValuePair.Value.m_homePoint);
-                    zpackage.Write(keyValuePair.Value.m_mapData != null);
-                    if (keyValuePair.Value.m_mapData != null)
-                    {
-                        zpackage.Write(keyValuePair.Value.m_mapData);
-                    }
-                }
-                zpackage.Write("");
-                zpackage.Write(profile.m_playerID);
-                zpackage.Write("");
-                if (profile.m_playerData != null)
-                {
-                    zpackage.Write(true);
-                    zpackage.Write(profile.m_playerData);
-                }
-                else
-                {
-                    zpackage.Write(false);
-                }
-                return zpackage;
+                profile.SetLogoutPoint(player.transform.position);
             }
-            return new ZPackage();
+            if (profile.m_playerID != 0L)
+            {
+                profile.SetMapData(Minimap.instance.GetMapData());
+            }
+            profile.SavePlayerData(player);
+            ZPackage zpackage = new ZPackage();
+            zpackage.Write(Version.m_playerVersion);
+            zpackage.Write(profile.m_playerStats.m_kills);
+            zpackage.Write(profile.m_playerStats.m_deaths);
+            zpackage.Write(profile.m_playerStats.m_crafts);
+            zpackage.Write(profile.m_playerStats.m_builds);
+            zpackage.Write(profile.m_worldData.Count);
+            foreach (KeyValuePair<long, PlayerProfile.WorldPlayerData> keyValuePair in profile.m_worldData)
+            {
+                zpackage.Write(keyValuePair.Key);
+                zpackage.Write(keyValuePair.Value.m_haveCustomSpawnPoint);
+                zpackage.Write(keyValuePair.Value.m_spawnPoint);
+                zpackage.Write(keyValuePair.Value.m_haveLogoutPoint);
+                zpackage.Write(keyValuePair.Value.m_logoutPoint);
+                zpackage.Write(keyValuePair.Value.m_haveDeathPoint);
+                zpackage.Write(keyValuePair.Value.m_deathPoint);
+                zpackage.Write(keyValuePair.Value.m_homePoint);
+                zpackage.Write(keyValuePair.Value.m_mapData != null);
+                if (keyValuePair.Value.m_mapData != null)
+                {
+                    zpackage.Write(keyValuePair.Value.m_mapData);
+                }
+            }
+            zpackage.Write("");
+            zpackage.Write(profile.m_playerID);
+            zpackage.Write("");
+            if (profile.m_playerData != null)
+            {
+                zpackage.Write(true);
+                zpackage.Write(profile.m_playerData);
+            }
+            else
+            {
+                zpackage.Write(false);
+            }
+            return zpackage;
         }
 
         public static void Deserialize(this PlayerProfile profile, ZPackage data)
@@ -204,37 +200,7 @@ namespace WorldofValheimServerSideCharacters
                 profile.m_playerData = data.ReadByteArray();
             }
         }
-        public static void LoadOrMakeDefaultCharacter()
-        {
-            if (!File.Exists(WorldofValheimServerSideCharacters.DefaultCharacterPath.Value))
-            {
-                Debug.Log($"Creating default character file at {WorldofValheimServerSideCharacters.DefaultCharacterPath.Value}");
-                Debug.Log("That character does not exist! Loading them up a fresh default!");
-                Directory.CreateDirectory(Path.GetDirectoryName(WorldofValheimServerSideCharacters.DefaultCharacterPath.Value));
-                File.WriteAllBytes(WorldofValheimServerSideCharacters.DefaultCharacterPath.Value,
-                    global::WorldofValheimServerSideCharacters.Properties.Resources._default_character);
-            }
-            else
-            {
-                Debug.Log($"Loading default character file from {WorldofValheimServerSideCharacters.DefaultCharacterPath.Value}");
-                ServerState.default_character = File.ReadAllBytes(WorldofValheimServerSideCharacters.DefaultCharacterPath.Value);
-            }
 
-            Debug.Log($"Loaded default character file (Size: {ServerState.default_character.Length})");
-        }
-        public static bool IsAdmin(long sender)
-        {
-            string SteamID = sender.ToString();
-            if (
-                ZNet.instance.m_adminList != null &&
-                ZNet.instance.m_adminList.Contains(SteamID)
-            )
-                return true;
-            else
-            {
-                return false;
-            }
-        }
         public static ZPackage LoadOrMakeCharacter(string steamid)
         {
             ZNetPeer peer = ZNet.instance.GetPeerByHostName(steamid);
@@ -242,29 +208,8 @@ namespace WorldofValheimServerSideCharacters
             string PlayerName = String.Empty;
             if (WorldofValheimServerSideCharacters.AllowMultipleCharacters.Value)
                 PlayerName = Regex.Replace(PlayerNameRaw, @"<[^>]*>", String.Empty);
-            else 
-                PlayerName = "Single_Character_Mode";
-            /*
-            if (results.Length > 1)
-            {
-                for (int i = 0; i < results.Length; i++)
-                {
-                    if (i == 1)
-                    {
-                        PlayerName = Regex.Replace(results[i], "[^a-zA-Z0-9]", String.Empty);
-                    }
-                    else
-                    {
-                        PlayerName = PlayerName + " " + Regex.Replace(results[i], "[^a-zA-Z0-9]", String.Empty);
-                    }
-                }
-            }
             else
-            {
-            PlayerName = Regex.Replace(PlayerNameRaw, "[^a-zA-Z0-9]", String.Empty);
-            }
-            */
-
+                PlayerName = "Single_Character_Mode";
             string CharacterLocation = Util.GetCharacterPath(steamid, PlayerName);
             // For backwards compatability lets see if a current.voc currently exists! if so lets rename it!
             string OldCharacter = Util.GetCharacterPath(steamid, "current");
@@ -312,16 +257,7 @@ namespace WorldofValheimServerSideCharacters
                 }
             }
         }
-        public static void RoutedBroadcast(long peer, string text, string username = ModInfo.Title)
-        {
-            ZRoutedRpc.instance.InvokeRoutedRPC(peer, "ChatMessage", new object[]
-            {
-                new Vector3(0,100,0),
-                2,
-                username,
-                text
-            });
-        }
+
         public static void DisconnectAll()
         {
             using (List<ServerState.ConnectionData>.Enumerator enumerator = ServerState.Connections.GetEnumerator())
@@ -333,7 +269,7 @@ namespace WorldofValheimServerSideCharacters
                 }
             }
         }
-        public static ZNet.PlayerInfo GetBasicPlayerInfoFromPlayer(Player player) => new ZNet.PlayerInfo
+        public static ZNet.PlayerInfo getBasicPlayerInfoFromPlayer(Player player) => new ZNet.PlayerInfo
         {
             m_characterID = player.GetZDOID(),
             m_name = player.GetPlayerName(),

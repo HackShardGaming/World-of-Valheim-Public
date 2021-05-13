@@ -46,32 +46,14 @@
     <Reference Include="0Harmony">
       <HintPath>..\libs\0Harmony.dll</HintPath>
     </Reference>
-    <Reference Include="assembly_googleanalytics_publicized">
-      <HintPath>..\..\publicized_assemblies\assembly_googleanalytics_publicized.dll</HintPath>
-    </Reference>
-    <Reference Include="assembly_guiutils_publicized">
-      <HintPath>..\..\publicized_assemblies\assembly_guiutils_publicized.dll</HintPath>
-    </Reference>
-    <Reference Include="assembly_lux_publicized">
-      <HintPath>..\..\publicized_assemblies\assembly_lux_publicized.dll</HintPath>
-    </Reference>
-    <Reference Include="assembly_postprocessing_publicized">
-      <HintPath>..\..\publicized_assemblies\assembly_postprocessing_publicized.dll</HintPath>
-    </Reference>
-    <Reference Include="assembly_simplemeshcombine_publicized">
-      <HintPath>..\..\publicized_assemblies\assembly_simplemeshcombine_publicized.dll</HintPath>
-    </Reference>
     <Reference Include="assembly_steamworks_publicized">
       <HintPath>..\..\publicized_assemblies\assembly_steamworks_publicized.dll</HintPath>
     </Reference>
-    <Reference Include="assembly_sunshafts_publicized">
-      <HintPath>..\..\publicized_assemblies\assembly_sunshafts_publicized.dll</HintPath>
+    <Reference Include="assembly_utils">
+      <HintPath>..\libs\assembly_utils.dll</HintPath>
     </Reference>
-    <Reference Include="assembly_utils_publicized">
-      <HintPath>..\..\publicized_assemblies\assembly_utils_publicized.dll</HintPath>
-    </Reference>
-    <Reference Include="assembly_valheim_publicized">
-      <HintPath>..\..\publicized_assemblies\assembly_valheim_publicized.dll</HintPath>
+    <Reference Include="assembly_valheim">
+      <HintPath>..\libs_pub\assembly_valheim.dll</HintPath>
     </Reference>
     <Reference Include="BepInEx">
       <HintPath>..\libs\BepInEx.dll</HintPath>
@@ -79,16 +61,12 @@
     <Reference Include="BepInEx.Harmony">
       <HintPath>..\libs\BepInEx.Harmony.dll</HintPath>
     </Reference>
-    <Reference Include="LiteDB, Version=5.0.10.0, Culture=neutral, PublicKeyToken=4ee40123013c9f27, processorArchitecture=MSIL">
-      <HintPath>..\packages\LiteDB.5.0.10\lib\net45\LiteDB.dll</HintPath>
-    </Reference>
     <Reference Include="System">
       <HintPath>..\libs\System.dll</HintPath>
     </Reference>
     <Reference Include="System.Core">
       <HintPath>..\libs\System.Core.dll</HintPath>
     </Reference>
-    <Reference Include="System.Runtime" />
     <Reference Include="UnityEngine">
       <HintPath>..\libs\UnityEngine.dll</HintPath>
     </Reference>
@@ -98,19 +76,17 @@
     <Reference Include="UnityEngine.UI">
       <HintPath>..\libs\UnityEngine.UI.dll</HintPath>
     </Reference>
-    <Reference Include="ValheimPermissions, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="ValheimPermissions, Version=1.1.1.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\ValheimPermissions\bin\Release\ValheimPermissions.dll</HintPath>
+      <HintPath>..\..\world-of-valheim\ValheimPermissions\bin\Release\ValheimPermissions.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Console\Console.cs" />
     <Compile Include="Console\Command.cs" />
     <Compile Include="Console\CMethods.cs" />
-    <Compile Include="Console\CUtils.cs" />
     <Compile Include="Debug.cs" />
     <Compile Include="ModInfo.cs" />
     <Compile Include="Patches\Character_Backup.cs" />
@@ -136,7 +112,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
     <None Include="Properties\default_character.fch" />
   </ItemGroup>
   <ItemGroup>
