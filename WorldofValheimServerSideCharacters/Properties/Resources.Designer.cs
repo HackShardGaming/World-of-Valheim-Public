@@ -69,27 +69,5 @@ namespace WorldofValheimServerSideCharacters.Properties {
                 return ((byte[])(obj));
             }
         }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to # Zone Configuration File
-        ///# Here you will specify the zone types and zones they occupy.
-        ///
-        ///# [ZoneType]
-        ///# ZoneTypeName: Unique name for the zone type (zones will use)
-        ///# PVP_Mode: PVP state for the Zone.
-        ///# PVP_Enforce: Force PVP mode on the users.
-        ///# Position_Show: Should we show our position in the zone?
-        ///# Position_Enforce: Force position on the users.
-        ///#
-        ///# Type: [ZoneTypeName] [PVP_Mode] [PVP_Enforce] [Position_Show] [Position_Enforce]
-        ///
-        ///# wilderness is the default zone for everywhere
-        ///Type: wildern [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string Default_zones {
-            get {
-                return ResourceManager.GetString("Default_zones", resourceCulture);
-            }
-        }
     }
 }

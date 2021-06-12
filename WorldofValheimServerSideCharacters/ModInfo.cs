@@ -6,13 +6,14 @@ namespace WorldofValheimServerSideCharacters
 {
     public static class ModInfo
     {
-        public const string Name = "WorldofValheimServerSideCharacters";
-        public const string Title = "WoV - SSC";
-        public const string Group = "HackShardGaming";
-        public const string Guid = "HackShardGaming.WorldofValheimServerSideCharacters";
+        public const string Name = "ServerSideCharacters";
+        public const string Title = "ServerSideCharacters";
+        public const string Group = "FixItFelix";
+        public const string Guid = "FixItFelix.ServerSideCharacters";
         // Version follow Semantic Versioning Scheme (https://semver.org/)
-        public const string Version = "0.7.1";
-        public const string buildDate = "2021-05-12";
+        public const string Version = "0.0.1";
+        public const string buildDate = "2021-06-12";
+        // TODO new id
         public const int NexusID = 892;
         // Use GetBuildDate(Assembly.GetExecutingAssembly()); to get build date
         private static DateTime m_GetBuildDate(Assembly assembly)

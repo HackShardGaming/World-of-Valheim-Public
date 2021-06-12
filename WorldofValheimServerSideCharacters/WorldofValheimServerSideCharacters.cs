@@ -5,8 +5,6 @@ using System.Threading;
 using BepInEx;
 using BepInEx.Configuration;
 using HarmonyLib;
-//using WorldofValheimServerSideCharacters.Console;
-
 
 namespace WorldofValheimServerSideCharacters
 {
@@ -27,9 +25,6 @@ namespace WorldofValheimServerSideCharacters
         public static ConfigEntry<int> MaxBackups;
         public static ConfigEntry<int> BackupInterval;
         public static bool ServerMode = Util.isServer();
-
-        //private static Console.Console console;
-        public bool runConsole = true;
 
         public void Awake()
         {

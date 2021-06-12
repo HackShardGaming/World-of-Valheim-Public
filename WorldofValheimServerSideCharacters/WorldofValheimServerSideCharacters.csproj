@@ -250,17 +250,11 @@
     <Reference Include="UnityEngine.XRModule">
       <HintPath>..\..\..\..\AppData\Roaming\Thunderstore Mod Manager\DataFolder\Valheim\profiles\test\unstripped_corlib\UnityEngine.XRModule.dll</HintPath>
     </Reference>
-    <Reference Include="ValheimPermissions, Version=1.1.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\ValheimPermissions\bin\Debug\ValheimPermissions.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Console\Command.cs" />
-    <Compile Include="Console\CMethods.cs" />
     <Compile Include="Debug.cs" />
     <Compile Include="ModInfo.cs" />
     <Compile Include="Patches\Character_Backup.cs" />
@@ -287,9 +281,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Properties\default_character.fch" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Properties\Default_zones.txt" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />

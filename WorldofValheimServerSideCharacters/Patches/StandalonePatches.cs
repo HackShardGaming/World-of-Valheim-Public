@@ -33,9 +33,6 @@ namespace WorldofValheimServerSideCharacters
         {
             private static void Prefix()
             {
-                ZRoutedRpc.instance.Register("ShutdownServer", new Action<long, ZPackage>(RPC.ShutdownServer)); // Server Shutdown Registering
-                ZRoutedRpc.instance.Register("SaveAll", new Action<long, ZPackage>(RPC.SaveAll)); // Save all online users
-                ZRoutedRpc.instance.Register("ReloadDefault", new Action<long, ZPackage>(RPC.ReloadDefault)); // Save all online users
                 if (WorldofValheimServerSideCharacters.ServerMode)
                 {
                     if (WorldofValheimServerSideCharacters.MaxBackups.Value > 0)
