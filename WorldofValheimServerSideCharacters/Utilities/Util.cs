@@ -9,10 +9,8 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using System.Text.RegularExpressions;
 
-namespace WorldofValheimServerSideCharacters
+namespace ServerSideCharacters
 {
-
-
     public static class Util
     {
         public static bool isServer()
@@ -21,18 +19,18 @@ namespace WorldofValheimServerSideCharacters
         }
         public static void LoadOrMakeDefaultCharacter()
         {
-            if (!File.Exists(WorldofValheimServerSideCharacters.DefaultCharacterPath.Value))
+            if (!File.Exists(ServerSideCharacters.DefaultCharacterPath.Value))
             {
-                Debug.Log($"Creating default character file at {WorldofValheimServerSideCharacters.DefaultCharacterPath.Value}");
+                Debug.Log($"Creating default character file at {ServerSideCharacters.DefaultCharacterPath.Value}");
                 Debug.Log("That character does not exist! Loading them up a fresh default!");
-                Directory.CreateDirectory(Path.GetDirectoryName(WorldofValheimServerSideCharacters.DefaultCharacterPath.Value));
-                File.WriteAllBytes(WorldofValheimServerSideCharacters.DefaultCharacterPath.Value,
-                    global::WorldofValheimServerSideCharacters.Properties.Resources._default_character);
+                Directory.CreateDirectory(Path.GetDirectoryName(ServerSideCharacters.DefaultCharacterPath.Value));
+                File.WriteAllBytes(ServerSideCharacters.DefaultCharacterPath.Value,
+                    global::ServerSideCharacters.Properties.Resources._default_character);
             }
             else
             {
-                Debug.Log($"Loading default character file from {WorldofValheimServerSideCharacters.DefaultCharacterPath.Value}");
-                ServerState.default_character = File.ReadAllBytes(WorldofValheimServerSideCharacters.DefaultCharacterPath.Value);
+                Debug.Log($"Loading default character file from {ServerSideCharacters.DefaultCharacterPath.Value}");
+                ServerState.default_character = File.ReadAllBytes(ServerSideCharacters.DefaultCharacterPath.Value);
             }
 
             Debug.Log($"Loaded default character file (Size: {ServerState.default_character.Length})");
@@ -78,9 +76,9 @@ namespace WorldofValheimServerSideCharacters
             // This is where we would put an update to change character files depending on what character name they are using client side. Need to send it through the RPC though...
             if (playerName == "current")
             {
-                return Path.Combine(WorldofValheimServerSideCharacters.CharacterSavePath.Value, id, playerName + ".voc");
+                return Path.Combine(ServerSideCharacters.CharacterSavePath.Value, id, playerName + ".voc");
             }
-            return Path.Combine(WorldofValheimServerSideCharacters.CharacterSavePath.Value, id, playerName + ".wov");
+            return Path.Combine(ServerSideCharacters.CharacterSavePath.Value, id, playerName + ".wov");
         }
 
         // Compress (zip) the data
@@ -206,7 +204,7 @@ namespace WorldofValheimServerSideCharacters
             ZNetPeer peer = ZNet.instance.GetPeerByHostName(steamid);
             string PlayerNameRaw = peer.m_playerName;
             string PlayerName = String.Empty;
-            if (WorldofValheimServerSideCharacters.AllowMultipleCharacters.Value)
+            if (ServerSideCharacters.AllowMultipleCharacters.Value)
                 PlayerName = Regex.Replace(PlayerNameRaw, @"<[^>]*>", String.Empty);
             else
                 PlayerName = "Single_Character_Mode";
@@ -277,9 +275,9 @@ namespace WorldofValheimServerSideCharacters
         };
         public static IEnumerator ShutdownServer()
         {
-            if (WorldofValheimServerSideCharacters.ServerMode)
+            if (ServerSideCharacters.ServerMode)
             {
-                int i = WorldofValheimServerSideCharacters.ShutdownDelay.Value - 5;
+                int i = ServerSideCharacters.ShutdownDelay.Value - 5;
                 int i2 = 5;
                 Broadcast($"Server is being shutdown in {i} seconds by Remote Command! Please disconnect your client now.!!");
                 SaveAll();

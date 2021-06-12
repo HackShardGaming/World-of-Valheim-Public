@@ -1,10 +1,6 @@
-﻿using BepInEx;
-using BepInEx.Configuration;
-using HarmonyLib;
-using UnityEngine;
+﻿using HarmonyLib;
 
-
-namespace WorldofValheimServerSideCharacters
+namespace ServerSideCharacters
 {
 	// Debug Patch Class
 	[HarmonyPatch]

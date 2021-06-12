@@ -4,7 +4,7 @@ using HarmonyLib;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace WorldofValheimServerSideCharacters
+namespace ServerSideCharacters
 {
 
     [HarmonyPatch]
@@ -33,9 +33,9 @@ namespace WorldofValheimServerSideCharacters
         {
             private static void Prefix()
             {
-                if (WorldofValheimServerSideCharacters.ServerMode)
+                if (ServerSideCharacters.ServerMode)
                 {
-                    if (WorldofValheimServerSideCharacters.MaxBackups.Value > 0)
+                    if (ServerSideCharacters.MaxBackups.Value > 0)
                     {
                         Debug.Log("Starting Backup Thread!");
                         Character_Backup.BackupCharacter.Start();
@@ -65,7 +65,7 @@ namespace WorldofValheimServerSideCharacters
                     while (enumerator.MoveNext())
                     {
                         ServerState.ConnectionData connectionData = enumerator.Current;
-                        if (realtimeSinceStartup - connectionData.LastTimeSaved >= (float)WorldofValheimServerSideCharacters.SaveInterval.Value)
+                        if (realtimeSinceStartup - connectionData.LastTimeSaved >= (float)ServerSideCharacters.SaveInterval.Value)
                         {
                             connectionData.rpc.Invoke("CharacterUpdate", new object[]
                             {

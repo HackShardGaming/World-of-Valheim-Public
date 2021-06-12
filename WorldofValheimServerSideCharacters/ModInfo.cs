@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Globalization;
 
-namespace WorldofValheimServerSideCharacters
+namespace ServerSideCharacters
 {
     public static class ModInfo
     {
@@ -40,9 +40,9 @@ namespace WorldofValheimServerSideCharacters
 
         public static String GetBuildDate()
         {
-            return ModInfo.buildDate;
-            //DateTime buildDate = m_GetBuildDate(Assembly.GetExecutingAssembly());
-            //return buildDate.ToString("yyyy-MM-dd");
+            //return ModInfo.buildDate;
+            DateTime buildDate = m_GetBuildDate(Assembly.GetExecutingAssembly());
+            return buildDate.ToString("yyyy-MM-dd");
         }
     }
 }

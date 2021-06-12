@@ -9,8 +9,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{3F9226EC-16A9-4413-A461-8103BF35935B}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>WorldofValheimServerSideCharacters</RootNamespace>
-    <AssemblyName>WorldofValheimServerSideCharacters</AssemblyName>
+    <RootNamespace>ServerSideCharacters</RootNamespace>
+    <AssemblyName>ServerSideCharacters</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -270,7 +270,7 @@
     <Compile Include="RPC\ServerState.cs" />
     <Compile Include="Utilities\DisableSave.cs" />
     <Compile Include="Utilities\Util.cs" />
-    <Compile Include="WorldofValheimServerSideCharacters.cs" />
+    <Compile Include="ServerSideCharacters.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">

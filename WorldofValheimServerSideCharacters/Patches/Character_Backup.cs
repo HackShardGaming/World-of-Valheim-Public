@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 
-namespace WorldofValheimServerSideCharacters
+namespace ServerSideCharacters
 {
     public class Character_Backup
     {
@@ -32,20 +32,20 @@ namespace WorldofValheimServerSideCharacters
             while (true)
             {
                 // Sleep the thread for (X) minutes.
-                Thread.Sleep(WorldofValheimServerSideCharacters.BackupInterval.Value * 60 * 1000);
+                Thread.Sleep(ServerSideCharacters.BackupInterval.Value * 60 * 1000);
                 Backup_Characters(DateTime.Now.ToString("yyyy-MM-dd_HH"));
             }
         }
         public static void Backup_Characters(string CurrentTime)
         {
-            var SavePath = WorldofValheimServerSideCharacters.CharacterSavePath.Value;
+            var SavePath = ServerSideCharacters.CharacterSavePath.Value;
             var BackupLocation = Path.Combine(SavePath + "-bak");
             var BackupPath = Path.Combine(BackupLocation, CurrentTime);
             Debug.Log("Backup: Attempting to backup all Server-Side Characters..");
             if (!Directory.Exists(BackupLocation))
                 Directory.CreateDirectory(BackupLocation);
             IOrderedEnumerable<FileSystemInfo> BackupDirectory = new DirectoryInfo(SavePath + "-bak").GetFileSystemInfos().OrderByDescending(fi => fi.CreationTime);
-            if (BackupDirectory.Count() > WorldofValheimServerSideCharacters.MaxBackups.Value - 1)
+            if (BackupDirectory.Count() > ServerSideCharacters.MaxBackups.Value - 1)
             {
                 Directory.Delete(BackupDirectory.Last().FullName, true);
             }

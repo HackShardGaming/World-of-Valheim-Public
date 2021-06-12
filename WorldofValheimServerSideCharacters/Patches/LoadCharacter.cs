@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using UnityEngine;
 
-namespace WorldofValheimServerSideCharacters
+namespace ServerSideCharacters
 {
 	[HarmonyPatch]
 	public static class LoadCharacter

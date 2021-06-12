@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace WorldofValheimServerSideCharacters
+namespace ServerSideCharacters
 {
 
 	public static class ServerState
@@ -12,7 +12,7 @@ namespace WorldofValheimServerSideCharacters
 		public static bool ClientCanDC = false;
 
 
-        public static byte[] default_character = global::WorldofValheimServerSideCharacters.Properties.Resources._default_character;
+        public static byte[] default_character = global::ServerSideCharacters.Properties.Resources._default_character;
 
 		public static List<ServerState.ConnectionData> Connections = new List<ServerState.ConnectionData>();
 

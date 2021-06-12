@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System;
 using System.Text.RegularExpressions;
 
-namespace WorldofValheimServerSideCharacters
+namespace ServerSideCharacters
 {
 
 	public static class RPC
@@ -39,7 +39,7 @@ namespace WorldofValheimServerSideCharacters
 				ZNetPeer peer = ZNet.instance.GetPeerByHostName(hostName);
 				string PlayerNameRaw = peer.m_playerName;
 				string PlayerName = "";
-				if (WorldofValheimServerSideCharacters.AllowMultipleCharacters.Value)
+				if (ServerSideCharacters.AllowMultipleCharacters.Value)
 					PlayerName = Regex.Replace(PlayerNameRaw, @"<[^>]*>", String.Empty);
 				else
 					PlayerName = "Single_Character_Mode";

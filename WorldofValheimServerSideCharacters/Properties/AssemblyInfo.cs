@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Permissions;
-using WorldofValheimServerSideCharacters;
+using ServerSideCharacters;
 
 [assembly: AssemblyVersion(ModInfo.Version)]
 [assembly: AssemblyTitle(ModInfo.Title)]

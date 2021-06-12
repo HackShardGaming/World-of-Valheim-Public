@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
 
-namespace WorldofValheimServerSideCharacters
+namespace ServerSideCharacters
 {
     [HarmonyPatch]
     public static class DisableSave
@@ -28,7 +28,7 @@ namespace WorldofValheimServerSideCharacters
             if (ServerState.ConnectionCount > 0)
             {
                 // Are we allowed to export our characters?
-                if (WorldofValheimServerSideCharacters.ExportCharacter.Value)
+                if (ServerSideCharacters.ExportCharacter.Value)
                 {
                     Debug.Log($"Your WoV-SSC Character file has been locally saved!");
                     return true;
