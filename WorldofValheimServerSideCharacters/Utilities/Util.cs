@@ -254,14 +254,14 @@ namespace ServerSideCharacters
         };
         public static IEnumerator ShutdownServer()
         {
-            if (ServerSideCharacters.ServerMode)
+            if (ServerSideCharacters.RunningOnServer)
             {
                 Broadcast("Server is being shutdown! Saving all characters now!");
                 SaveAll();
                 StandalonePatches.m_quitting = true;
                 ZNet.instance.Save(true);
                 DisconnectAll();
-                yield return new WaitForSeconds(5);
+                yield return new WaitForSeconds(10);
                 Application.Quit();
                 System.Console.Out.Close();
             }
