@@ -22,7 +22,7 @@ namespace ServerSideCharacters
         public static ConfigEntry<int> ShutdownDelay;
         public static ConfigEntry<int> MaxBackups;
         public static ConfigEntry<int> BackupInterval;
-        public static bool ServerMode = Util.isServer();
+        public static bool RunningOnServer = Util.isServer();
 
         public void Awake()
         {
@@ -31,9 +31,8 @@ namespace ServerSideCharacters
             Debug.Log("***Do Not Release To Public***");
 #endif
             // Process through the configurations
-            // Nexus ID For Nexus Update
             ServerSideCharacters.NexusID = base.Config.Bind<int>(Name, "NexusID", ModInfo.NexusID, "Nexus ID to make Nexus Update Happy!");
-			if (ServerMode)
+			if (RunningOnServer)
 			{
                 string NameServer = $"{Name}Server";
                 string ConfigPath = BepInEx.Paths.ConfigPath;
