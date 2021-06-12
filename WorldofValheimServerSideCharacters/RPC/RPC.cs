@@ -11,13 +11,13 @@ namespace ServerSideCharacters
 
 		public static void CharacterData(ZRpc rpc, ZPackage data)
 		{
-			Debug.Log("Server->Client CharacterData");
+			Debug.Log("Sending CharacterData from server to client");
 			Debug.Assert(!ZNet.instance.IsServer());
 			Debug.Assert(ServerState.ClientLoadingData == null);
 			ServerState.ClientLoadingData = data;
 			if (!ZNet.instance.IsServer())
 			{
-				Debug.Log("Connection to server established! Changing ConnectionCount!");
+				Debug.Log("Connection to server established!");
 				ServerState.ConnectionCount = 1;
 				Debug.Log("Clearing all RPC connections");
 				ServerState.Connections = new List<ServerState.ConnectionData>();
@@ -34,29 +34,25 @@ namespace ServerSideCharacters
 			// Are we the server? Update the character.
 			if (ZNet.instance.IsServer())
 			{
-				Debug.Log("Client->Server CharacterUpdate");
-				string hostName = rpc.GetSocket().GetHostName();
-				ZNetPeer peer = ZNet.instance.GetPeerByHostName(hostName);
-				string PlayerNameRaw = peer.m_playerName;
-				string PlayerName = "";
+				Debug.Log("Received CharacterUpdate from client");
+				string steamId = rpc.GetSocket().GetHostName();
+				ZNetPeer client = ZNet.instance.GetPeerByHostName(steamId);
+				string PlayerName = "Single_Character_Mode";
 				if (ServerSideCharacters.AllowMultipleCharacters.Value)
-					PlayerName = Regex.Replace(PlayerNameRaw, @"<[^>]*>", String.Empty);
-				else
-					PlayerName = "Single_Character_Mode";
-				string CharacterLocation = Util.GetCharacterPath(hostName, PlayerName);
-				Debug.Log($"Saving character from SteamID {hostName}.");
+					PlayerName = Regex.Replace(client.m_playerName, @"<[^>]*>", String.Empty);
+				string CharacterLocation = Util.GetCharacterPath(steamId, PlayerName);
+				Debug.Log($"Saving character from SteamID {steamId}.");
 				Util.WriteCharacter(CharacterLocation, Util.Decompress(data).GetArray());
-				return;
 			}
+
 			// Are we the client? Send our character.
-			Debug.Log("Server->Client CharacterUpdate");
 			if (Player.m_localPlayer != null)
 			{
+				Debug.Log("Sending CharacterUpdate to server");
 				rpc.Invoke("CharacterUpdate", new object[]
 				{
 					Util.Compress(Game.instance.GetPlayerProfile().Serialize(Player.m_localPlayer, true))
 				});
-				return;
 			}
 		}
 
