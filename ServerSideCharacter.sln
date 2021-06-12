@@ -5,10 +5,7 @@ VisualStudioVersion = 16.0.28729.10
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utilities", "Utilities", "{8B35FA93-A7E7-447F-BEB5-15A9F73DD1FE}"
 	ProjectSection(SolutionItems) = preProject
-		copyDll.bat = copyDll.bat
 		README.md = README.md
-		TestGame.bat = TestGame.bat
-		TODO.md = TODO.md
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerSideCharacters", "WorldofValheimServerSideCharacters\ServerSideCharacters.csproj", "{3F9226EC-16A9-4413-A461-8103BF35935B}"
