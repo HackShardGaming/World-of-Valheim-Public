@@ -13,9 +13,7 @@ namespace ServerSideCharacters
         // Version follow Semantic Versioning Scheme (https://semver.org/)
         public const string Version = "0.0.1";
         public const string buildDate = "2021-06-12";
-        // TODO new id
-        public const int NexusID = 892;
-        // Use GetBuildDate(Assembly.GetExecutingAssembly()); to get build date
+        public const int NexusID = 1297;
         private static DateTime m_GetBuildDate(Assembly assembly)
         {
             const string BuildVersionMetadataPrefix = "+build";
