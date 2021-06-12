@@ -30,7 +30,7 @@ namespace ServerSideCharacters
                 // Are we allowed to export our characters?
                 if (ServerSideCharacters.ExportCharacter.Value)
                 {
-                    Debug.Log($"Your WoV-SSC Character file has been locally saved!");
+                    Debug.Log($"Your character file has been locally saved!");
                     return true;
                 }
                 // if not return false.

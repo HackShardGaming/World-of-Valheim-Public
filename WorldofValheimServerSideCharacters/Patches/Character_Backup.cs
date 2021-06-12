@@ -9,7 +9,7 @@ namespace ServerSideCharacters
     {
         // Lets create the BackupCharacter Thread!
         public static Thread BackupCharacter;
-        // Here is the CopyFolder
+
         public static void CopyCharacters(string SavePath, string BackupPath)
         {
             if (!Directory.Exists(BackupPath))
@@ -25,9 +25,10 @@ namespace ServerSideCharacters
                 CopyCharacters(folder, Path.Combine(BackupPath, Path.GetFileName(folder)));
             }
         }
+
         public static void BackupScanner()
         {
-            Debug.Log("Backup: Backup thread has been started. Initiating backup sequence.");
+            Debug.Log("Backup thread has been started. Initiating backup sequence.");
             Backup_Characters(DateTime.Now.ToString("yyyy-MM-dd_HH-mm"));
             while (true)
             {
@@ -36,6 +37,7 @@ namespace ServerSideCharacters
                 Backup_Characters(DateTime.Now.ToString("yyyy-MM-dd_HH"));
             }
         }
+
         public static void Backup_Characters(string CurrentTime)
         {
             var SavePath = ServerSideCharacters.CharacterSavePath.Value;
@@ -44,7 +46,9 @@ namespace ServerSideCharacters
             Debug.Log("Backup: Attempting to backup all Server-Side Characters..");
             if (!Directory.Exists(BackupLocation))
                 Directory.CreateDirectory(BackupLocation);
-            IOrderedEnumerable<FileSystemInfo> BackupDirectory = new DirectoryInfo(SavePath + "-bak").GetFileSystemInfos().OrderByDescending(fi => fi.CreationTime);
+            IOrderedEnumerable<FileSystemInfo> BackupDirectory = new DirectoryInfo(SavePath + "-bak")
+                .GetFileSystemInfos()
+                .OrderByDescending(file => file.CreationTime);
             if (BackupDirectory.Count() > ServerSideCharacters.MaxBackups.Value - 1)
             {
                 Directory.Delete(BackupDirectory.Last().FullName, true);

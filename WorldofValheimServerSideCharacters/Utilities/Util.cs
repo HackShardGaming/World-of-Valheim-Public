@@ -17,12 +17,12 @@ namespace ServerSideCharacters
         {
             return SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
         }
+
         public static void LoadOrMakeDefaultCharacter()
         {
             if (!File.Exists(ServerSideCharacters.DefaultCharacterPath.Value))
             {
-                Debug.Log($"Creating default character file at {ServerSideCharacters.DefaultCharacterPath.Value}");
-                Debug.Log("That character does not exist! Loading them up a fresh default!");
+                Debug.Log($"Default character file doesn't exist, creating file at {ServerSideCharacters.DefaultCharacterPath.Value}");
                 Directory.CreateDirectory(Path.GetDirectoryName(ServerSideCharacters.DefaultCharacterPath.Value));
                 File.WriteAllBytes(ServerSideCharacters.DefaultCharacterPath.Value,
                     global::ServerSideCharacters.Properties.Resources._default_character);
@@ -35,16 +35,7 @@ namespace ServerSideCharacters
 
             Debug.Log($"Loaded default character file (Size: {ServerState.default_character.Length})");
         }
-        public static void RoutedBroadcast(long peer, string text, string username = ModInfo.Title)
-        {
-            ZRoutedRpc.instance.InvokeRoutedRPC(peer, "ChatMessage", new object[]
-            {
-                new Vector3(0,100,0),
-                2,
-                username,
-                text
-            });
-        }
+
         public static void Broadcast(string text, string username = ModInfo.Title)
         {
             Debug.Log($"Broadcasting {text}");
@@ -73,15 +64,10 @@ namespace ServerSideCharacters
 
         public static string GetCharacterPath(string id, string playerName)
         {
-            // This is where we would put an update to change character files depending on what character name they are using client side. Need to send it through the RPC though...
-            if (playerName == "current")
-            {
-                return Path.Combine(ServerSideCharacters.CharacterSavePath.Value, id, playerName + ".voc");
-            }
+            // This is where we would put an update to change character files depending on what character name they are using client side.
             return Path.Combine(ServerSideCharacters.CharacterSavePath.Value, id, playerName + ".wov");
         }
 
-        // Compress (zip) the data
         public static ZPackage Compress(ZPackage package)
         {
             byte[] array = package.GetArray();
@@ -92,13 +78,12 @@ namespace ServerSideCharacters
             memoryStream.Position = 0L;
             byte[] array2 = new byte[memoryStream.Length];
             memoryStream.Read(array2, 0, array2.Length);
-            byte[] array3 = new byte[array2.Length + 4];
-            Buffer.BlockCopy(array2, 0, array3, 4, array2.Length);
-            Buffer.BlockCopy(BitConverter.GetBytes(array.Length), 0, array3, 0, 4);
-            return new ZPackage(array3);
+            byte[] result = new byte[array2.Length + 4];
+            Buffer.BlockCopy(array2, 0, result, 4, array2.Length);
+            Buffer.BlockCopy(BitConverter.GetBytes(array.Length), 0, result, 0, 4);
+            return new ZPackage(result);
         }
 
-        // Decompress (zip) the data
         public static ZPackage Decompress(ZPackage package)
         {
             byte[] array = package.GetArray();
@@ -172,7 +157,8 @@ namespace ServerSideCharacters
             for (int i = 0; i < num; i++)
             {
                 long key = data.ReadLong();
-                PlayerProfile.WorldPlayerData worldPlayerData = (PlayerProfile.WorldPlayerData)Activator.CreateInstance(typeof(PlayerProfile.WorldPlayerData), true);
+                PlayerProfile.WorldPlayerData worldPlayerData = (PlayerProfile.WorldPlayerData)Activator
+                    .CreateInstance(typeof(PlayerProfile.WorldPlayerData), true);
                 worldPlayerData.m_haveCustomSpawnPoint = data.ReadBool();
                 worldPlayerData.m_spawnPoint = data.ReadVector3();
                 worldPlayerData.m_haveLogoutPoint = data.ReadBool();
@@ -209,13 +195,6 @@ namespace ServerSideCharacters
             else
                 PlayerName = "Single_Character_Mode";
             string CharacterLocation = Util.GetCharacterPath(steamid, PlayerName);
-            // For backwards compatability lets see if a current.voc currently exists! if so lets rename it!
-            string OldCharacter = Util.GetCharacterPath(steamid, "current");
-            if (File.Exists(OldCharacter))
-            {
-                Debug.Log($"An older SSC Character save named current.voc has been located for the SteamID: {steamid} and has been renamed to {PlayerName}.wov");
-                File.Move(OldCharacter, CharacterLocation);
-            }
             Debug.Log($"Attempting to load the character for SteamID.CharacterName: {steamid}.{PlayerName}");
             if (!File.Exists(CharacterLocation))
             {
@@ -277,16 +256,12 @@ namespace ServerSideCharacters
         {
             if (ServerSideCharacters.ServerMode)
             {
-                int i = ServerSideCharacters.ShutdownDelay.Value - 5;
-                int i2 = 5;
-                Broadcast($"Server is being shutdown in {i} seconds by Remote Command! Please disconnect your client now.!!");
+                Broadcast("Server is being shutdown! Saving all characters now!");
                 SaveAll();
-                yield return new WaitForSeconds(i);
-                Broadcast("Server is shutting down 5 Seconds! Goodbye!");
                 StandalonePatches.m_quitting = true;
                 ZNet.instance.Save(true);
                 DisconnectAll();
-                yield return new WaitForSeconds(i2);
+                yield return new WaitForSeconds(5);
                 Application.Quit();
                 System.Console.Out.Close();
             }

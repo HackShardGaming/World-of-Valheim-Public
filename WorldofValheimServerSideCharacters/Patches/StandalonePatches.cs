@@ -11,7 +11,6 @@ namespace ServerSideCharacters
     public static class StandalonePatches
     {
 
-
         // Patches assembly_valheim::Version::GetVersionString
         // Links in our version detail to override games original one to maintain compatibility
         [HarmonyPatch(typeof(Version), "GetVersionString")]
