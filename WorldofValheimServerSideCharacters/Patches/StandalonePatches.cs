@@ -27,12 +27,13 @@ namespace ServerSideCharacters
 #endif
             }
         }
+
         [HarmonyPatch(typeof(Game), "Start")]
         public static class GameStartPatch
         {
             private static void Prefix()
             {
-                if (ServerSideCharacters.ServerMode)
+                if (ServerSideCharacters.RunningOnServer)
                 {
                     if (ServerSideCharacters.MaxBackups.Value > 0)
                     {
@@ -42,7 +43,7 @@ namespace ServerSideCharacters
                 }
                 else
                 {
-                    Debug.Log("New Connection! Reseting Connection Count to 0");
+                    Debug.Log("Reseting Connection Count to 0");
                     ServerState.ConnectionCount = 0;
                 }
             }
@@ -103,10 +104,9 @@ namespace ServerSideCharacters
         [HarmonyPatch(typeof(ZNet), "OnNewConnection")]
         private static void ZNet__OnNewConnection(ZNet __instance, ZNetPeer peer)
         {
-            // Are we the Client?
             if (!__instance.IsServer())
             {
-                // Good here is the client specifics.
+                // requesting character data from server
                 peer.m_rpc.Register<ZPackage>("CharacterData", new Action<ZRpc, ZPackage>(RPC.CharacterData));
 
                 // Reset the state of the server if we DC and reconnect.
@@ -141,21 +141,12 @@ namespace ServerSideCharacters
             }
         }
 
-        // Patch ZNet::SendPeerInfo
-        // During connection, use to send info to the peer.
-        // Great point to send to client.
-
         [HarmonyPostfix]
         [HarmonyPatch(typeof(ZNet), "SendPeerInfo")]
         private static void ZNet__SendPeerInfo(ZNet __instance, ZRpc rpc)
         {
-            // Are we the client? Then get out!
-            if (!__instance.IsServer())
-            {
-                return;
-            }
-            // Ok now that that's done. Lets gogogo Servers!
-            Debug.Log("Server->Client CharacterData");
+            if (!__instance.IsServer()) return;
+            Debug.Log("Sending CharacterData to client");
             rpc.Invoke("CharacterData", new object[] {
                 Util.Compress(Util.LoadOrMakeCharacter(rpc.GetSocket().GetHostName()))
             });
@@ -210,7 +201,6 @@ namespace ServerSideCharacters
             }
             else
             {
-                Debug.Assert(!ZNet.instance.IsServer());
                 if (ServerState.Connections.Count > 0)
                 {
                     Debug.Log("Quitting: sending ExitServer and waiting.");
