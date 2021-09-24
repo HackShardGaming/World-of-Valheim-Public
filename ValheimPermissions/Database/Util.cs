@@ -348,7 +348,7 @@ namespace ValheimPermissions
         {
             return SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
         }
-        public static void ClientMessage(Console __instance, string message)
+        public static void ClientMessage(Terminal __instance, string message)
         {
             Traverse.Create(__instance).Method("AddString", new object[] { $"{ModInfo.Title}: {message}" }).GetValue();
         }

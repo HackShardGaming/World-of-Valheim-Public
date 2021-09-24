@@ -11,8 +11,8 @@ namespace WorldofValheimServerSideCharacters
         public const string Group = "HackShardGaming";
         public const string Guid = "HackShardGaming.WorldofValheimServerSideCharacters";
         // Version follow Semantic Versioning Scheme (https://semver.org/)
-        public const string Version = "0.7.1";
-        public const string buildDate = "2021-05-12";
+        public const string Version = "0.7.2";
+        public const string buildDate = "2021-09-23";
         public const int NexusID = 892;
         // Use GetBuildDate(Assembly.GetExecutingAssembly()); to get build date
         private static DateTime m_GetBuildDate(Assembly assembly)

@@ -8,7 +8,7 @@ namespace WorldofValheimZones
     class CMethods
     {
         // Display our Help Menu
-        public static void Help(Console __instance)
+        public static void Help(Terminal __instance)
         {
             Traverse.Create(__instance).Method("AddString", new object[] { $"{ModInfo.Title}: !getcoords (Show your current X and Y coords!)" }).GetValue();
             Traverse.Create(__instance).Method("AddString", new object[] { $"{ModInfo.Title}: !addzone [Name] [ZoneType] [Priority] [Shape(circle/square)] [x] [y] [r] (Add a zone to server **ADMIN COMMAND**)" }).GetValue();
@@ -16,7 +16,7 @@ namespace WorldofValheimZones
             Traverse.Create(__instance).Method("AddString", new object[] { $"{ModInfo.Title}: !reload-zones (Reload all zones and update all users that are connected **ADMIN COMMAND**)" }).GetValue();
         }
         // Give the user their current coordinates (X Y).
-        public static void GetCoords(Console __instance)
+        public static void GetCoords(Terminal __instance)
         {
             Vector3 point = Player.m_localPlayer.transform.position;
             Vector2 a = new Vector2(point.x, point.z);
@@ -34,7 +34,7 @@ namespace WorldofValheimZones
             return;
         }
         // Ask the server to add a new zone to the server **ADMIN ONLY**
-        public static void AddZone(Console __instance, string text)
+        public static void AddZone(Terminal __instance, string text)
         {
             string[] results = text.Split(' ');
             if (results.Count() == 6)

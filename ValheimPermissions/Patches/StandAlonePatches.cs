@@ -50,10 +50,10 @@ namespace ValheimPermissions
             }
         }
         //Note this is client side only console commands.
-        [HarmonyPatch(typeof(Console), "InputText")]
+        [HarmonyPatch(typeof(Terminal), "InputText")]
         static class InputText_Patch
         {
-            static bool Prefix(Console __instance)
+            static bool Prefix(Terminal __instance)
             {
                 string text = __instance.m_input.text;
                 // Lets check the version!

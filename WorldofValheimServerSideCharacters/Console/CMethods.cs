@@ -9,14 +9,14 @@ namespace WorldofValheimServerSideCharacters
     class CMethods
     {
         // Help Menu
-        public static void Help(Console __instance)
+        public static void Help(Terminal __instance)
         {
             Traverse.Create(__instance).Method("AddString", new object[] { $"{ModInfo.Title}: !save (Saves your character (server side))" }).GetValue();
             Traverse.Create(__instance).Method("AddString", new object[] { $"{ModInfo.Title}: !save-all (Request the server to save all clients **ADMIN COMMAND**)" }).GetValue();
             Traverse.Create(__instance).Method("AddString", new object[] { $"{ModInfo.Title}: !server-shutdown (Shuts the server down **ADMIN COMMAND**)" }).GetValue();
         }
         // Save my character
-        public static void Save(Console __instance)
+        public static void Save(Terminal __instance)
         {
             if (Player.m_localPlayer != null)
             {

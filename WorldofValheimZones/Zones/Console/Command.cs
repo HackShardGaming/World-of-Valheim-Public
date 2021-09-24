@@ -3,10 +3,10 @@
 namespace WorldofValheimZones
 {
     //Note this is client side only console commands.
-    [HarmonyPatch(typeof(Console), "InputText")]
+    [HarmonyPatch(typeof(Terminal), "InputText")]
     static class F5Console
     {
-        static bool Prefix(Console __instance)
+        static bool Prefix(Terminal __instance)
         {
             string text = __instance.m_input.text;
 
@@ -82,7 +82,7 @@ namespace WorldofValheimZones
     [HarmonyPatch(typeof(Chat), "InputText")]
     static class ChatWindow
     {
-        static bool Prefix(Console __instance)
+        static bool Prefix(Terminal __instance)
         {
             string text = __instance.m_input.text;
 
