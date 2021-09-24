@@ -1,3 +1,7 @@
+Hearth and Home updates where provided by: Klugemonkey https://github.com/klugemonkey/World-of-Valheim-Public
+
+I appreciate all the help and I hope you all continue to enjoy these plugins!
+
 Welcome to the World of Valheim mod collection. 
 
 [Valheim Permissions](ValheimPermissions): Adds Permissions capability into the server.
