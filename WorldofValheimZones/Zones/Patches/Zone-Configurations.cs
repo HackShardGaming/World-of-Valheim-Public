@@ -1,10 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using HarmonyLib;
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using HarmonyLib;
 using UnityEngine;
-using System.Text;
-using UnityEngine.UI;
 
 
 namespace WorldofValheimZones
@@ -28,7 +26,7 @@ namespace WorldofValheimZones
             Player p = Player.m_localPlayer;
             if (p != null)
             {
-                 // Are we in a zone? if so select that zone.
+                // Are we in a zone? if so select that zone.
                 ZoneHandler.Zone z = new ZoneHandler.Zone();
                 ZoneHandler.ZoneTypes zt = new ZoneHandler.ZoneTypes();
                 List<ZoneHandler.Zone> zlist = ZoneHandler.ListOccupiedZones(p.transform.position);
@@ -408,7 +406,7 @@ namespace WorldofValheimZones
         ///     Last Updated: 4/24/2021
         ///     Status: 100% Working
         /// </summary>
- 
+
         /// <summary>
         /// Harmony Patch Type: WearNTear Method: Damage
         /// Includes the following:
@@ -431,10 +429,22 @@ namespace WorldofValheimZones
                     return true;
                 }
 
+                bool isWardedArea = false;
                 bool isInArea = false;
 
                 // Is the area we are searching in a Warded area.
-                if (Client.Ward.Damage && PrivateArea.CheckInPrivateArea(__instance.transform.position, false))
+                using (List<PrivateArea>.Enumerator enumerator = PrivateArea.m_allAreas.GetEnumerator())
+                {
+                    while (enumerator.MoveNext() || isWardedArea)
+                    {
+                        PrivateArea privateArea = enumerator.Current;
+                        if (privateArea.IsEnabled() && privateArea.IsInside(__instance.transform.position, 0))
+                        {
+                            isWardedArea = true;
+                        }
+                    }
+                }
+                if (Client.Ward.Damage && isWardedArea)
                 {
                     ZDOID attacker = hit.m_attacker;
                     bool isplayer = false;
@@ -442,8 +452,8 @@ namespace WorldofValheimZones
                     {
                         if (character.GetZDOID() == attacker)
                         {
-                            if (character.GetComponent<Player>()) 
-                            { 
+                            if (character.GetComponent<Player>())
+                            {
                                 isplayer = true;
                             }
                         }
@@ -462,7 +472,7 @@ namespace WorldofValheimZones
                     else
                     {
                         // It's not a player so lets send out a Ward notification and block the damage.
-                        PrivateArea.CheckInPrivateArea(__instance.transform.position, true);
+                        PrivateArea.CheckAccess(__instance.transform.position);
                         isInArea = true;
                         return !isInArea;
                     }
@@ -496,7 +506,7 @@ namespace WorldofValheimZones
                 }
                 bool isInArea = false;
                 // Ward Check
-                if (Client.Ward.Drop && PrivateArea.CheckInPrivateArea(Player.m_localPlayer.transform.position, false))
+                if (Client.Ward.Drop && PrivateArea.CheckAccess(Player.m_localPlayer.transform.position))
                 {
                     if (!PrivateArea.CheckAccess(Player.m_localPlayer.transform.position, 0f, true, false))
                     {
@@ -536,7 +546,7 @@ namespace WorldofValheimZones
                 bool isInArea = false;
                 Vector3 point = __instance.transform.position;
                 // Ward Check
-                if (Client.Ward.Pickup && PrivateArea.CheckInPrivateArea(Player.m_localPlayer.transform.position, false))
+                if (Client.Ward.Pickup && PrivateArea.CheckAccess(Player.m_localPlayer.transform.position))
                 {
                     if (!PrivateArea.CheckAccess(Player.m_localPlayer.transform.position, 0f, false, false))
                     {
@@ -575,7 +585,7 @@ namespace WorldofValheimZones
                 {
                     if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
                     {
-                        if (Client.Ward.Drop && PrivateArea.CheckInPrivateArea(Player.m_localPlayer.transform.position, false))
+                        if (Client.Ward.Drop && PrivateArea.CheckAccess(Player.m_localPlayer.transform.position))
                         {
                             if (!PrivateArea.CheckAccess(Player.m_localPlayer.transform.position, 0f, true, false))
                             {
@@ -619,7 +629,7 @@ namespace WorldofValheimZones
                 }
                 bool isInArea = false;
                 // Ward Check
-                if (Client.Ward.Drop && PrivateArea.CheckInPrivateArea(Player.m_localPlayer.transform.position, false))
+                if (Client.Ward.Drop && PrivateArea.CheckAccess(Player.m_localPlayer.transform.position))
                 {
                     if (!PrivateArea.CheckAccess(Player.m_localPlayer.transform.position, 0f, true, false))
                     {
@@ -633,9 +643,9 @@ namespace WorldofValheimZones
                 }
                 if (Util.RestrictionCheck("noitemdrop"))
                 {
-                        isInArea = true;
-                        Util.DoAreaEffect(Player.m_localPlayer.transform.position + Vector3.up * 0.5f);
-                        MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is a Private Area", 0, null);
+                    isInArea = true;
+                    Util.DoAreaEffect(Player.m_localPlayer.transform.position + Vector3.up * 0.5f);
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This is a Private Area", 0, null);
                 }
                 return !isInArea;
             }
@@ -659,13 +669,13 @@ namespace WorldofValheimZones
                 if (__instance.m_faction != Character.Faction.Players)
                 {
 #if DEBUG
-                        Debug.Log($"A monster is being attacked!");
+                    Debug.Log($"A monster is being attacked!");
 #endif
                     if (Util.RestrictionCheckNone(__instance, "damagemultipliertomobs") && (__instance.m_faction != Character.Faction.Players))
                     {
                         float multiplier = Util.RestrictionCheckFloatReturnNone(__instance, "damagemultipliertomobs");
 #if DEBUG
-                            Debug.Log($"Multiplier: {multiplier}");
+                        Debug.Log($"Multiplier: {multiplier}");
 #endif
                         hit.m_damage.m_damage *= multiplier;
                         hit.m_damage.m_blunt *= multiplier;
@@ -684,13 +694,13 @@ namespace WorldofValheimZones
                 else if (__instance.m_faction == Character.Faction.Players)
                 {
 #if DEBUG
-                        Debug.Log("A player is being Attacked!");
+                    Debug.Log("A player is being Attacked!");
 #endif
                     if (Util.RestrictionCheckNone(__instance, "damagemultipliertoplayers"))
                     {
                         float multiplier = Util.RestrictionCheckFloatReturnNone(__instance, "damagemultipliertoplayers");
 #if DEBUG
-                            Debug.Log($"Mutliplier: {multiplier}");
+                        Debug.Log($"Mutliplier: {multiplier}");
 #endif
                         hit.m_damage.m_damage *= multiplier;
                         hit.m_damage.m_blunt *= multiplier;
