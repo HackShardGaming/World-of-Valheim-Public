@@ -14,7 +14,7 @@ namespace WorldofValheimServerSideCharacters
 			{
 				Debug.Log("Attempting to load character...");
 				ZNetView.m_forceDisableInit = true;
-				GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(__instance.m_playerPrefab);
+				GameObject gameObject = Object.Instantiate<GameObject>(__instance.m_playerPrefab);
 				ZNetView.m_forceDisableInit = false;
 				Player component = gameObject.GetComponent<Player>();
 				__instance.GetPlayerProfile().LoadPlayerData(component);
@@ -27,9 +27,9 @@ namespace WorldofValheimServerSideCharacters
 					hair_colour = component.m_hairColor,
 					model = component.GetPlayerModel()
 				};
-				UnityEngine.Object.DestroyImmediate(gameObject);
-				__instance.GetPlayerProfile().Deserialize(Util.Decompress(ServerState.ClientLoadingData));
-				__instance.GetPlayerProfile().SetName(LoadCharacter.m_original_customization.name);
+				Object.DestroyImmediate(gameObject);
+				__instance.GetPlayerProfile().Deserialize(Util.Decompress(ServerState.ClientLoadingData)); 
+				//__instance.GetPlayerProfile().SetName(LoadCharacter.m_original_customization.name);
 				Minimap.instance.LoadMapData();
 				ServerState.ClientLoadingData = null;
 				Debug.Log($"Load Successful! Welcome {__instance.GetPlayerProfile().GetName()}!");

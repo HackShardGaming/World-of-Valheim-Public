@@ -44,38 +44,41 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
-      <HintPath>..\..\..\Program Files (x86)\Steam\steamapps\common\Valheim\BepInEx\core\0Harmony.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\ValheimDEV\BepInEx\core\0Harmony.dll</HintPath>
     </Reference>
     <Reference Include="assembly_googleanalytics_publicized">
-      <HintPath>..\..\publicized_assemblies\assembly_googleanalytics_publicized.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Valheim\valheim_Data\Managed\publicized_assemblies\assembly_googleanalytics_publicized.dll</HintPath>
     </Reference>
     <Reference Include="assembly_guiutils_publicized, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\publicized_assemblies\assembly_guiutils_publicized.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Valheim\valheim_Data\Managed\publicized_assemblies\assembly_guiutils_publicized.dll</HintPath>
     </Reference>
     <Reference Include="assembly_lux_publicized">
-      <HintPath>..\..\publicized_assemblies\assembly_lux_publicized.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Valheim\valheim_Data\Managed\publicized_assemblies\assembly_lux_publicized.dll</HintPath>
     </Reference>
     <Reference Include="assembly_postprocessing_publicized">
-      <HintPath>..\..\publicized_assemblies\assembly_postprocessing_publicized.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Valheim\valheim_Data\Managed\publicized_assemblies\assembly_postprocessing_publicized.dll</HintPath>
     </Reference>
     <Reference Include="assembly_simplemeshcombine_publicized">
-      <HintPath>..\..\publicized_assemblies\assembly_simplemeshcombine_publicized.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Valheim\valheim_Data\Managed\publicized_assemblies\assembly_simplemeshcombine_publicized.dll</HintPath>
     </Reference>
     <Reference Include="assembly_steamworks_publicized">
-      <HintPath>..\..\publicized_assemblies\assembly_steamworks_publicized.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Valheim\valheim_Data\Managed\publicized_assemblies\assembly_steamworks_publicized.dll</HintPath>
     </Reference>
     <Reference Include="assembly_sunshafts_publicized">
-      <HintPath>..\..\publicized_assemblies\assembly_sunshafts_publicized.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Valheim\valheim_Data\Managed\publicized_assemblies\assembly_sunshafts_publicized.dll</HintPath>
     </Reference>
     <Reference Include="assembly_utils_publicized">
-      <HintPath>..\..\publicized_assemblies\assembly_utils_publicized.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Valheim\valheim_Data\Managed\publicized_assemblies\assembly_utils_publicized.dll</HintPath>
     </Reference>
     <Reference Include="assembly_valheim_publicized">
-      <HintPath>..\..\publicized_assemblies\assembly_valheim_publicized.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Valheim\valheim_Data\Managed\publicized_assemblies\assembly_valheim_publicized.dll</HintPath>
     </Reference>
     <Reference Include="BepInEx">
-      <HintPath>..\..\..\Program Files (x86)\Steam\steamapps\common\Valheim\BepInEx\core\BepInEx.dll</HintPath>
+      <HintPath>..\..\..\..\AppData\Roaming\r2modmanPlus-local\Valheim\profiles\ValhEmpires\BepInEx\core\BepInEx.dll</HintPath>
+    </Reference>
+    <Reference Include="BepInEx.Harmony">
+      <HintPath>..\..\..\..\AppData\Roaming\r2modmanPlus-local\Valheim\profiles\ValhEmpires\BepInEx\core\BepInEx.Harmony.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <HintPath>..\libs\System.dll</HintPath>
@@ -84,23 +87,23 @@
       <HintPath>..\libs\System.Core.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>..\..\..\Program Files (x86)\Steam\steamapps\common\Valheim\BepInEx\core_libs\UnityEngine.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Valheim\unstripped_corlib\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>..\..\..\Program Files (x86)\Steam\steamapps\common\Valheim\BepInEx\core_libs\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Valheim\unstripped_corlib\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.InputLegacyModule">
-      <HintPath>..\..\..\Program Files (x86)\Steam\steamapps\common\Valheim\BepInEx\core_libs\UnityEngine.InputLegacyModule.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Valheim\unstripped_corlib\UnityEngine.InputLegacyModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.InputModule">
-      <HintPath>..\..\..\Program Files (x86)\Steam\steamapps\common\Valheim\BepInEx\core_libs\UnityEngine.InputModule.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Valheim\unstripped_corlib\UnityEngine.InputModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>..\..\..\Program Files (x86)\Steam\steamapps\common\Valheim\BepInEx\core_libs\UnityEngine.UI.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\ValheimDEV\unstripped_corlib\UnityEngine.UI.dll</HintPath>
     </Reference>
     <Reference Include="ValheimPermissions, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\ValheimPermissions\bin\Release\ValheimPermissions.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\ValheimDEV\BepInEx\plugins\ValheimPermissions.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

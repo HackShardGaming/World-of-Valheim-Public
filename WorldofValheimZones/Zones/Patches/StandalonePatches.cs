@@ -38,26 +38,14 @@ namespace WorldofValheimZones
                 ZRoutedRpc.instance.Register("ZoneHandler", new Action<long, ZPackage>(ZoneHandler.RPC2)); // Adding ZoneHandler
             }
         }
-        //Remove that bird!
-        [HarmonyPatch(typeof(Game), "UpdateRespawn")]
-        public static class NoArrival
+        ////Remove that bird!
+        [HarmonyPatch(typeof(Chat), nameof(Chat.OnNewChatMessage))]
+        public static class ChatOnNewChatMessage_Patch
         {
-
-            [HarmonyTranspiler]
-            public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+            private static bool Prefix(string user, string text)
             {
-                List<CodeInstruction> list = instructions.ToList<CodeInstruction>();
-                for (int i = 0; i < list.Count; i++)
-                {
-                    if (list[i].Calls(NoArrival.func_sendText))
-                    {
-                        list.RemoveRange(i - 3, 4);
-                        break;
-                    }
-                }
-                return list.AsEnumerable<CodeInstruction>();
+                return !text.ToLower().Contains("i have arrived");
             }
-            private static MethodInfo func_sendText = AccessTools.Method(typeof(Chat), "SendText", null, null);
         }
         // Patches assembly_valheim::Version::GetVersionString
         // Links in our version detail to override games original one to maintain compatibility
